@@ -1,0 +1,5 @@
+# Ignoring directories
+npm_modules/
+
+# Ignoring files
+auth.json
