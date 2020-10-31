@@ -70,7 +70,7 @@ class SimpleDice extends Dice {
 class ExpressionDice {
     constructor(expr) {
         this.parts = this.parseRollExpression(expr);
-        
+
         //check if every part of the expression is correct
         const bonusReg = /^[+|-][0-9]+$/;
         this.diceReg = /^[+|-]?[1-9]+d(4|6|8|10|12|20)$/;
@@ -105,28 +105,29 @@ class ExpressionDice {
 
     //calculate the expression
     roll() {
-        let total = 0, visual = [];
+        let total = 0,
+            visual = [];
         this.parts.forEach(arg => {
             if (arg.match(this.diceReg)) {
                 const d = this.parseDice(arg);
-                const { total: diceTotal, visual: diceVisual } = d.roll();
+                const {
+                    total: diceTotal,
+                    visual: diceVisual
+                } = d.roll();
 
                 if (arg[0] == '+' || Number(arg[0])) {
                     total += diceTotal;
                     visual.push(` + ${diceVisual}`);
-                }
-                else {
+                } else {
                     total -= diceTotal;
                     visual.push(` - ${diceVisual}`);
                 }
-            }
-            else {
+            } else {
                 total += Number(arg);
 
                 if (Number(arg) < 0) {
                     visual.push(` - ${Math.abs(arg)}`);
-                }
-                else {
+                } else {
                     visual.push(` + ${Math.abs(arg)}`);
                 }
             }
@@ -139,8 +140,11 @@ class ExpressionDice {
         return {
             first: this.roll().split('='),
             second: this.roll().split('=')
-        }        
+        }
     };
 }
 
-module.exports = { ExpressionDice, SimpleDice }
+module.exports = {
+    ExpressionDice,
+    SimpleDice
+}

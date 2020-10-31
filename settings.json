@@ -1,9 +1,13 @@
 {
-    "commandPrefix": "/",
-    "commandDirs": [ 
-        "./commands/dnd",
+    "dndCommandDirs": [ 
+        "./commands/dnd"
+    ],
+    
+    "errorCommandExecuteMessage": "There was an error trying to execute that command!",
+    "utilityCommandDirs": [
         "./commands/utility"
     ],
-    "dndChannelID": "701159518297653278",
-    "utilityCommandPrefix": "!"
+    "prefixes": [
+        "/", "!"
+    ]
 }
