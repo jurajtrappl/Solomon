@@ -1,7 +1,9 @@
 {
     "commandPrefix": "/",
     "commandDirs": [ 
-        "./commands/dnd", 
-        "./commands/utility" 
-    ]
+        "./commands/dnd",
+        "./commands/utility"
+    ],
+    "dndChannelID": "701159518297653278",
+    "utilityCommandPrefix": "!"
 }
