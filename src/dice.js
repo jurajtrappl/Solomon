@@ -133,7 +133,10 @@ class ExpressionDice {
             }
         });
 
-        return `${visual.join(' ').substring(2)} = ${total}`;
+        return { 
+            visual: `${visual.join(' ').substring(2)}`,
+            totalRoll: total
+        }
     }
 
     rollWithAdvOrDisadv = () => {

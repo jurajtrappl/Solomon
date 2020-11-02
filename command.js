@@ -48,9 +48,10 @@ class CommandValidator {
  * @class CommandDirector.
  */
 class CommandDirector {
-    constructor(client, database) {
+    constructor(client, dbClient) {
         this.client = client;
-        this.database = database;
+
+        this.dndDb = dbClient.db('dnd');
 
         this.dndCommands = CommandLoader.load(settings.dndCommandDirs);
         this.utilityCommands = CommandLoader.load(settings.utilityCommandDirs);
@@ -76,7 +77,7 @@ class CommandDirector {
         }
         
         try {
-            await command.execute(message, args, this.database.dndDb());
+            await command.execute(message, args, this.dndDb, this.client);
         } catch (error) {
             console.error(error);
             message.reply(settings.errorCommandExecuteMessage);

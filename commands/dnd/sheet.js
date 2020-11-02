@@ -1,20 +1,22 @@
-const { MessageEmbed } = require("discord.js");
+const {
+    MessageEmbed
+} = require("discord.js");
 
 module.exports = {
     name: "sheet",
     args: false,
     description: "Shows players character sheet.",
-    printSavingThrowProficiencies: function(obj) {
+    printSavingThrowProficiencies: function (obj) {
         let proficiencies = "";
-        for(let key in obj) {
-            if(obj[key]) proficiencies += `${key} `;
+        for (let key in obj) {
+            if (obj[key]) proficiencies += `${key} `;
         }
         return proficiencies;
     },
-    printSkillProficiencies: function(obj) {
+    printSkillProficiencies: function (obj) {
         let proficiencies = "";
-        for(let skill in obj) {
-            if(obj[skill]["prof"]) proficiencies += `${skill} `;
+        for (let skill in obj) {
+            if (obj[skill]["prof"]) proficiencies += `${skill} `;
         }
         return proficiencies;
     },
@@ -52,61 +54,54 @@ module.exports = {
             const embed = new MessageEmbed()
                 .setColor("#00ff00")
                 .setTitle("Character sheet")
-                .addFields(
-                    { 
-                        name: "Abilities", 
-                        value: `Strength: ${sheet["abilities"]["Strength"]}
+                .addFields({
+                    name: "Abilities",
+                    value: `Strength: ${sheet["abilities"]["Strength"]}
                                 Dexterity: ${sheet["abilities"]["Dexterity"]}
                                 Constitution: ${sheet["abilities"]["Constitution"]}
                                 Intelligence: ${sheet["abilities"]["Intelligence"]}
                                 Wisdom: ${sheet["abilities"]["Wisdom"]}
-                                Charisma: ${sheet["abilities"]["Charisma"]}` 
-                    },
-                    {
-                        name: "Class",
-                        value: sheet["class"]
-                    },
-                    {
-                        name: "Hit dice",
-                        value: `Type: 1d${sheet["hitDice"]["type"]}
+                                Charisma: ${sheet["abilities"]["Charisma"]}`
+                }, {
+                    name: "Class",
+                    value: sheet["class"]
+                }, {
+                    name: "Current HP",
+                    value: sheet["currentHP"]
+                }, {
+                    name: "Hit dice",
+                    value: `Type: 1d${sheet["hitDice"]["type"]}
                                 Count: ${sheet["hitDice"]["count"]}
                                 Spent: ${sheet["hitDice"]["spent"]}`
-                    },
-                    {
-                        name: "Level",
-                        value: sheet["level"]
-                    },
-                    {
-                        name: "Max HP",
-                        value: sheet["maxHP"]
-                    },
-                    {
-                        name: "Proficiency bonus",
-                        value: sheet["proficiencyBonus"]
-                    },
-                    {
-                        name: "Race",
-                        value: sheet["race"]
-                    },
-                    {
-                        name: "Saving throws proficiencies",
-                        value: `${this.printSavingThrowProficiencies(sheet["savingThrows"])}`
-                    },
-                    {
-                        name: "Skills proficiencies",
-                        value: `${this.printSkillProficiencies(sheet["skills"])}`
-                    },
-                    {
-                        name: "Speed",
-                        value: sheet["speed"]
-                    },
-                    {
-                        name: "XP",
-                        value: sheet["xp"]
-                    }
-                );
+                }, {
+                    name: "Level",
+                    value: sheet["level"]
+                }, {
+                    name: "Max HP",
+                    value: sheet["maxHP"]
+                }, {
+                    name: "Proficiency bonus",
+                    value: sheet["proficiencyBonus"]
+                }, {
+                    name: "Race",
+                    value: sheet["race"]
+                }, {
+                    name: "Saving throws proficiencies",
+                    value: `${this.printSavingThrowProficiencies(sheet["savingThrows"])}`
+                }, {
+                    name: "Skills proficiencies",
+                    value: `${this.printSkillProficiencies(sheet["skills"])}`
+                }, {
+                    name: "Speed",
+                    value: sheet["speed"]
+                }, {
+                    name: "XP",
+                    value: sheet["xp"]
+                });
 
-            return await message.reply({ embed: embed });
+            return await message.reply({
+                embed: embed
+            });
         }
     }
 };

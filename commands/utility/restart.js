@@ -4,16 +4,12 @@ module.exports = {
     name: 'restart',
     args: false,
     description: 'Restart the bot.',
-    // async execute(client) {
-    //     console.log("Auto restart because of error.")
-    //         .then(msg => client.destroy())
-    //         .then(() => client.login(auth.token));
-    // },
-    async execute(client, message) {
+    async execute(message, _args, _db, client) {
         if(message.author.id == auth.dmID) {
-            message.channel.send('Bazmeg.')
-                .then(msg => client.destroy())
-                .then(() => client.login(auth.token));
+            message.channel.send('Restarting...').then(m => {
+                client.destroy()}).then(() => {
+                  client.login(auth.token);
+                });
         }
     }
 }

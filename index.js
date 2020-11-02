@@ -7,15 +7,20 @@ const {
     CommandDirector
 } = require('./command');
 const {
-    Database
-} = require('./database');
+    MongoClient
+} = require('mongodb');
 
 const client = new Client();
-const database = new Database(auth.connectionString);
-const director = new CommandDirector(client, database);
+const dbClient = new MongoClient(auth.connectionString, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+let director = {};
 
 client.once('ready', async () => {
     console.log('Ready!');
+    await dbClient.connect();
+    director = new CommandDirector(client, dbClient);
 });
 
 client.on('unhandledRejection', error => {
