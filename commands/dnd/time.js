@@ -29,32 +29,49 @@ module.exports = {
                     })
                     .toArray();
 
-                let currentDateTime = new Date(resultTime[0]["datetime"]);
+                if (args[1] == "l") {
+                    const newLocation = args.slice(2).join(' ');
+                    let newLocationValue = {
+                        $set: {
+                            location: newLocation
+                        }
+                    };
 
-                if (args[1] == "m") {
-                    currentDateTime.setMinutes(
-                        currentDateTime.getMinutes() + Number(args[2])
-                    );
-                } else if (args[1] == "h") {
-                    currentDateTime.setHours(
-                        currentDateTime.getHours() + Number(args[2])
+                    await db.collection('time').updateOne({
+                        characterName: args[0]
+                    }, newLocationValue, (err) => {
+                        if (err) throw err;
+                    });
+
+                    return;
+                } else {
+                    let currentDateTime = new Date(resultTime[0]["datetime"]);
+
+                    if (args[1] == "m") {
+                        currentDateTime.setMinutes(
+                            currentDateTime.getMinutes() + Number(args[2])
+                        );
+                    } else if (args[1] == "h") {
+                        currentDateTime.setHours(
+                            currentDateTime.getHours() + Number(args[2])
+                        );
+                    }
+
+                    const newDateTimeValue = {
+                        $set: {
+                            datetime: currentDateTime,
+                        },
+                    };
+
+                    await db.collection("time").updateOne({
+                            characterName: args[0],
+                        },
+                        newDateTimeValue,
+                        (err) => {
+                            if (err) throw err;
+                        }
                     );
                 }
-
-                const newDateTimeValue = {
-                    $set: {
-                        datetime: currentDateTime,
-                    },
-                };
-
-                db.collection("time").updateOne({
-                        characterName: args[0],
-                    },
-                    newDateTimeValue,
-                    (err) => {
-                        if (err) throw err;
-                    }
-                );
             }
         } else {
             //Players command
@@ -96,6 +113,9 @@ module.exports = {
                     }, {
                         name: "Location",
                         value: time["location"],
+                    }, {
+                        name: "Last long rest",
+                        value: time['lastLongRest'].toLocaleString()
                     });
 
                 return await message.reply({
