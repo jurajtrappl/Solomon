@@ -54,42 +54,8 @@
     "speed": 0,
     "spells": {
         "spellslots": {
-          "1lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "2lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "3lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "4lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "5lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "6lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "7lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "8lvl": {
-            "total": 0,
-            "expended": 0
-          },
-          "9lvl": {
-            "total": 0,
-            "expended": 0
-          }
+            "total": [],
+            "expended": []
         }
     },
     "xp": 0
