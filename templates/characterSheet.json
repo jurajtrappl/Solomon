@@ -1,0 +1,97 @@
+{
+    "abilities": {
+      "Strength": 0,
+      "Dexterity": 0,
+      "Constitution": 0,
+      "Intelligence": 0,
+      "Wisdom": 0,
+      "Charisma": 0
+    },
+    "cantrips": {
+      "known": 0
+    },
+    "characterName": "",
+    "class": "",
+    "currentHP": "",
+    "doubleProf": [],
+    "hitDice": {
+      "type": 0,
+      "count": 0,
+      "spent": 0
+    },
+    "level": 0,
+    "maxHP": 0,
+    "proficiencyBonus": 0,
+    "race": "",
+    "savingThrows": {
+      "Strength": false,
+      "Dexterity": false,
+      "Constitution": false,
+      "Intelligence": true,
+      "Wisdom": true,
+      "Charisma": false
+    },
+    "skills": {
+      "Acrobatics": { "prof": true },
+      "Animal": { "prof": false },
+      "Arcana": { "prof": true },
+      "Athletics": { "prof": true },
+      "Deception": { "prof": false },
+      "History": { "prof": false },
+      "Insight": { "prof": true },
+      "Intimidation": { "prof": false },
+      "Investigation": { "prof": false },
+      "Medicine": { "prof": false },
+      "Natural": { "prof": true },
+      "Perception": { "prof": true },
+      "Performance": { "prof": false },
+      "Persuasion": { "prof": false },
+      "Religion": { "prof": false },
+      "Sleight": { "prof": false },
+      "Stealth": { "prof": false },
+      "Survival": { "prof": true }
+    },
+    "speed": 0,
+    "spells": {
+        "spellslots": {
+          "1lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "2lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "3lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "4lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "5lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "6lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "7lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "8lvl": {
+            "total": 0,
+            "expended": 0
+          },
+          "9lvl": {
+            "total": 0,
+            "expended": 0
+          }
+        }
+    },
+    "xp": 0
+  }
+  
