@@ -45,22 +45,25 @@ normalRollEmbed = (characterName, expr, title, result) =>
     });
 
 //creates an embed for rolling hit dices
-hitDiceEmbed = (characterName, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) =>
+hitDiceEmbed = (characterName, expression, {
+        visual,
+        totalRoll
+    }, hitDicesCount, hitDicesLeft) =>
     new MessageEmbed()
-        .setColor('#00ff00')
-        .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
-        .addFields({
-            name: 'Rolling',
-            value: `${expression}`,
-            inline: true
-        }, {
-            name: 'Total',
-            value: `${visual}= ${totalRoll}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
-        });
+    .setColor('#00ff00')
+    .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
+    .addFields({
+        name: 'Rolling',
+        value: `${expression}`,
+        inline: true
+    }, {
+        name: 'Total',
+        value: `${visual}= ${totalRoll}`,
+        inline: true
+    }, {
+        name: 'Result',
+        value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
+    });
 
 module.exports = {
     advOrDisadvEmbed,
