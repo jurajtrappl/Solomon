@@ -1,5 +1,5 @@
-const dice = require('../../src/dice.js');
-const embed = require('../../src/embed.js');
+const dice = require('../../../src/dice.js');
+const embed = require('../../../src/embed.js');
 
 module.exports = {
     name: 'rhd',

@@ -1,5 +1,4 @@
-const auth = require("../../auth.json");
-const embed = require('../../src/embed.js');
+const auth = require("../../../auth.json");
 
 module.exports = {
     name: "addxp",

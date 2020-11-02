@@ -1,11 +1,11 @@
 {
     "dndCommandDirs": [ 
-        "./commands/dnd"
+        "./src/commands/dnd"
     ],
     
     "errorCommandExecuteMessage": "There was an error trying to execute that command!",
     "utilityCommandDirs": [
-        "./commands/utility"
+        "./src/commands/utility"
     ],
     "prefixes": [
         "/", "!"

@@ -1,4 +1,4 @@
-const dice = require('../../src/dice.js');
+const dice = require('../../../src/dice.js');
 
 module.exports = {
     name: 'roll',
