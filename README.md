@@ -40,3 +40,6 @@ Displays current date, time and location of the character. Additionally it shows
 
 #### !restart
 The bot is able to restart automatically whenever error occurs. But you can do it also manually using this command.
+
+## Data
+Data are stored in NOSQL Mongo database.
