@@ -1,4 +1,4 @@
-# Dedko
+# Dedko - work in progress
 A mystical and old wise man who helps players during their adventures through beautiful worlds of Dungeons and Dragons.
 
 ## Commands
@@ -6,6 +6,7 @@ Divided in two groups of related commands: **Dungeons and Dragons** and **Utilit
 
 ### Dungeons and dragons
 **Command prefix:** '/'
+
 **Commands directory:** '/src/commands/dnd'
 
 #### /addxp
@@ -34,6 +35,7 @@ Displays current date, time and location of the character. Additionally it shows
 
 ### Utility
 **Command prefix:** '!'
+
 **Commands directory:** '/src/commands/utility'
 
 #### !restart
