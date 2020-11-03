@@ -32,7 +32,7 @@ client.on("error", (e) => {
     console.error(e)
 
     //restart the bot automatically
-    director.execute("!", "restart", [], {});
+    director.execute("!", "restart", [], client);
 });
 
 // client.on("warn", (e) => console.warn(e));

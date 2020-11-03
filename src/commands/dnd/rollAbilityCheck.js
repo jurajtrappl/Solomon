@@ -1,5 +1,6 @@
 const dice = require('../../../src/dice.js');
 const embed = require('../../../src/embed.js');
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: 'rac',
@@ -24,7 +25,7 @@ module.exports = {
     },
     async execute(message, args, db, _client) {
         if (args[0] === 'help') {
-            db.collection("helpEmbeds").find({
+            db.collection(settings.database.collections.helpEmbeds).find({
                 commandName: this.name
             }).toArray(async (err, result) => {
                 if (err) throw err;
@@ -33,19 +34,19 @@ module.exports = {
                 });
             });
         } else {
-            const resultSkills = await db.collection('data').find({
+            const resultSkills = await db.collection(settings.database.collections.data).find({
                 name: "Skills"
             }).toArray();
             const skills = resultSkills[0]['content'];
 
             //get character name
-            let resultName = await db.collection("players").find({
+            let resultName = await db.collection(settings.database.collections.players).find({
                 discordID: message.author.id
             }).toArray();
             let characterName = resultName[0]["characters"][0];
 
             //get character sheet
-            let resultSheet = await db.collection("characters").find({
+            let resultSheet = await db.collection(settings.database.collections.characters).find({
                 characterName: characterName
             }).toArray();
             let sheet = resultSheet[0];

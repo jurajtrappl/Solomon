@@ -1,10 +1,12 @@
+const settings = require('../../../settings.json');
+
 module.exports = {
     name: 'longrest',
     args: false,
     description: 'Performs a long rest.',
     async execute(message, args, db, _client) {
         if (args[0] == 'help') {
-            db.collection("helpEmbeds").find({
+            db.collection(settings.database.collections.helpEmbeds).find({
                 commandName: this.name
             }).toArray(async (err, result) => {
                 if (err) throw err;
@@ -14,25 +16,25 @@ module.exports = {
             });
         } else {
             //get character name
-            const resultName = await db.collection("players").find({
+            const resultName = await db.collection(settings.database.collections.players).find({
                 discordID: message.author.id
             }).toArray();
             const characterName = resultName[0]["characters"][0];
 
             //get character time data, to check if long rest is available
-            const resultTime = await db.collection("time").find({
+            const resultTime = await db.collection(settings.database.collections.time).find({
                 characterName: characterName
             }).toArray();
             const time = resultTime[0];
 
             //get longrest length
-            const resultLongRestLength = await db.collection('data').find({
+            const resultLongRestLength = await db.collection(settings.database.collections.data).find({
                 name: 'LongRestLength'
             }).toArray();
             const longRestLength = resultLongRestLength[0]['content'];
 
             //get character sheet
-            const resultSheet = await db.collection("characters").find({
+            const resultSheet = await db.collection(settings.database.collections.characters).find({
                 characterName: characterName,
             }).toArray();
             const sheet = resultSheet[0];
@@ -108,7 +110,7 @@ module.exports = {
                 }
             };
 
-            db.collection("time").updateOne({
+            db.collection(settings.database.collections.time).updateOne({
                 characterName: characterName
             }, newTimeValues, (err) => {
                 if (err) throw err;
@@ -143,7 +145,7 @@ module.exports = {
                     };
                 }
 
-                db.collection("characters").updateOne({
+                db.collection(settings.database.collections.characters).updateOne({
                     characterName: characterName
                 }, newSheetValues, (err) => {
                     if (err) throw err;

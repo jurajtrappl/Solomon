@@ -2,6 +2,7 @@ const auth = require("../../../auth.json");
 const {
     MessageEmbed
 } = require("discord.js");
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: "time",
@@ -10,7 +11,7 @@ module.exports = {
     async execute(message, args, db, _client) {
         if (message.author.id == auth.dmID) {
             if (args.length == 0 || args[0] == "help") {
-                db.collection("helpEmbeds")
+                db.collection(settings.database.collections.helpEmbeds)
                     .find({
                         commandName: this.name,
                     })
@@ -23,7 +24,7 @@ module.exports = {
             } else {
                 //DM command
                 let resultTime = await db
-                    .collection("time")
+                    .collection(settings.database.collections.time)
                     .find({
                         characterName: args[0],
                     })
@@ -37,7 +38,7 @@ module.exports = {
                         }
                     };
 
-                    await db.collection('time').updateOne({
+                    await db.collection(settings.database.collections.time).updateOne({
                         characterName: args[0]
                     }, newLocationValue, (err) => {
                         if (err) throw err;
@@ -63,7 +64,7 @@ module.exports = {
                         },
                     };
 
-                    await db.collection("time").updateOne({
+                    await db.collection(settings.database.collections.time).updateOne({
                             characterName: args[0],
                         },
                         newDateTimeValue,
@@ -76,7 +77,7 @@ module.exports = {
         } else {
             //Players command
             if (args[0] == "help") {
-                db.collection("helpEmbeds")
+                db.collection(settings.database.collections.helpEmbeds)
                     .find({
                         commandName: this.name,
                     })
@@ -89,7 +90,7 @@ module.exports = {
             } else {
                 //get character name
                 let resultName = await db
-                    .collection("players")
+                    .collection(settings.database.collections.players)
                     .find({
                         discordID: message.author.id,
                     })
@@ -97,7 +98,7 @@ module.exports = {
                 let characterName = resultName[0]["characters"][0];
 
                 let resultTime = await db
-                    .collection("time")
+                    .collection(settings.database.collections.time)
                     .find({
                         characterName: characterName,
                     })

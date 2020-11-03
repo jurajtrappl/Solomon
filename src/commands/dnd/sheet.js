@@ -1,6 +1,7 @@
 const {
     MessageEmbed
 } = require("discord.js");
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: "sheet",
@@ -23,7 +24,7 @@ module.exports = {
     async execute(message, args, db) {
         if (args[0] == "help") {
             db
-                .collection("helpEmbeds")
+                .collection(settings.database.collections.helpEmbeds)
                 .find({
                     commandName: this.name,
                 })
@@ -36,7 +37,7 @@ module.exports = {
         } else {
             //get character name
             let resultName = await db
-                .collection("players")
+                .collection(settings.database.collections.players)
                 .find({
                     discordID: message.author.id,
                 })
@@ -44,7 +45,7 @@ module.exports = {
             let characterName = resultName[0]["characters"][0];
 
             let resultSheet = await db
-                .collection("characters")
+                .collection(settings.database.collections.characters)
                 .find({
                     characterName: characterName,
                 })

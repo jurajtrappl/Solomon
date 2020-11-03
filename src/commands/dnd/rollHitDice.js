@@ -1,5 +1,6 @@
 const dice = require('../../../src/dice.js');
 const embed = require('../../../src/embed.js');
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: 'rhd',
@@ -7,21 +8,26 @@ module.exports = {
     description: 'Rolling hit dices.',
     async execute(message, args, db, _client) {
         if (args[0] === 'help') {
-            return await message.reply({
-                embed: embed.getHelpEmbed(dbClient, this.name)
+            db.collection(settings.database.collections.helpEmbeds).find({
+                commandName: this.name
+            }).toArray(async (err, result) => {
+                if (err) throw err;
+                return await message.reply({
+                    embed: result[0],
+                });
             });
         } else {
             if (isNaN(args[0])) {
                 return await message.reply('Invalid number of hit dices.');
             } else if (args[0] > 0) {
                 //get character name
-                let resultName = await db.collection("players").find({
+                let resultName = await db.collection(settings.database.collections.players).find({
                     discordID: message.author.id
                 }).toArray();
                 const characterName = resultName[0]["characters"][0];
 
                 //get character sheet
-                let resultSheet = await db.collection("characters").find({
+                let resultSheet = await db.collection(settings.database.collections.characters).find({
                     characterName: characterName
                 }).toArray();
                 const sheet = resultSheet[0];
@@ -61,7 +67,7 @@ module.exports = {
                         }
                     }
 
-                    db.collection("characters").updateOne({
+                    db.collection(settings.database.collections.characters).updateOne({
                             characterName: characterName
                         }, newHitDiceSpentValue,
                         (err) => {

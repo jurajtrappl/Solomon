@@ -51,7 +51,7 @@ class CommandDirector {
     constructor(client, dbClient) {
         this.client = client;
 
-        this.dndDb = dbClient.db('dnd');
+        this.dndDb = dbClient.db(settings.database.name);
 
         this.dndCommands = CommandLoader.load(settings.dndCommandDirs);
         this.utilityCommands = CommandLoader.load(settings.utilityCommandDirs);

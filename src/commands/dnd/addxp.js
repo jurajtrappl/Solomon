@@ -1,14 +1,14 @@
 const auth = require("../../../auth.json");
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: "addxp",
     description: "Modify players XP count - DM only.",
     args: true,
-    tableName: "characters",
     async execute(message, args, db, _client) {
         if (message.author.id == auth.dmID) {
             if (args.length == 0 || args[0] == "help") {
-                db.collection("helpEmbeds")
+                db.collection(settings.database.collections.helpEmbeds)
                     .find({
                         commandName: this.name,
                     })
@@ -22,7 +22,7 @@ module.exports = {
                 const addXP = args[1];
 
                 let resultSheet = await db
-                    .collection("characters")
+                    .collection(settings.database.collections.characters)
                     .find({
                         characterName: args[0],
                     })
@@ -30,7 +30,7 @@ module.exports = {
                 let sheet = resultSheet[0];
 
                 let resultCharacterAdvancement = await db
-                    .collection("data")
+                    .collection(settings.database.collections.data)
                     .find({
                         name: "CharacterAdvancement"
                     })
@@ -51,7 +51,7 @@ module.exports = {
                     },
                 };
 
-                await db.collection("characters").updateOne({
+                await db.collection(settings.database.collections.characters).updateOne({
                         characterName: args[0],
                     },
                     newValues,

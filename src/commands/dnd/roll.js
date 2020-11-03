@@ -1,4 +1,5 @@
 const dice = require('../../../src/dice.js');
+const settings = require('../../../settings.json');
 
 module.exports = {
     name: 'roll',
@@ -6,7 +7,7 @@ module.exports = {
     description: 'Rolling dices for D&D.',
     async execute(message, args, db) {
         if (args[0] === 'help') {
-            db.collection("helpEmbeds").find({
+            db.collection(settings.database.collections.helpEmbeds).find({
                 commandName: this.name
             }).toArray(async (err, result) => {
                 if (err) throw err;

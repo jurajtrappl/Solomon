@@ -1,8 +1,17 @@
 {
+    "database": {
+        "name": "dnd",
+        "collections": {
+            "characters": "characters",
+            "data": "data",
+            "helpEmbeds": "helpEmbeds",
+            "players": "players",
+            "time": "time"
+        }
+    },
     "dndCommandDirs": [ 
         "./src/commands/dnd"
     ],
-    
     "errorCommandExecuteMessage": "There was an error trying to execute that command!",
     "utilityCommandDirs": [
         "./src/commands/utility"
