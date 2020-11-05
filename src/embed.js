@@ -3,10 +3,7 @@ const {
 } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-advOrDisadvEmbed = (characterName, flag, expr, title, {
-        first,
-        second
-    }) =>
+advOrDisadvEmbed = (characterName, flag, expr, title, first, second) =>
     new MessageEmbed()
     .setColor('#00ff00')
     .setTitle(title)
@@ -15,19 +12,19 @@ advOrDisadvEmbed = (characterName, flag, expr, title, {
         value: expr
     }, {
         name: 'First attempt',
-        value: first.join(' = '),
+        value: `${first.visual} = ${first.totalRoll}`,
         inline: true
     }, {
         name: 'Second attempt',
-        value: second.join(' = '),
+        value: `${second.visual} = ${second.totalRoll}`,
         inline: true
     }, {
         name: 'Result',
-        value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first[1]) >= Number(second[1])) ? first[1] : second[1]) : ((Number(first[1]) >= Number(second[1])) ? second[1] : first[1])}.`
+        value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.totalRoll) >= Number(second.totalRoll)) ? first.totalRoll : second.totalRoll) : ((Number(first.totalRoll) >= Number(second.totalRoll)) ? second.totalRoll : first.totalRoll)}.`
     });
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-normalRollEmbed = (characterName, expr, title, result) =>
+normalRollEmbed = (characterName, expr, title, { visual, totalRoll }) =>
     new MessageEmbed()
     .setColor('#00ff00')
     .setTitle(title)
@@ -37,11 +34,11 @@ normalRollEmbed = (characterName, expr, title, result) =>
         inline: true
     }, {
         name: 'Total',
-        value: result,
+        value: `${visual}= ${totalRoll}`,
         inline: true
     }, {
         name: 'Result',
-        value: `${characterName} rolls ${result.split('=')[1]}.`
+        value: `${characterName} rolls ${totalRoll}.`
     });
 
 //creates an embed for rolling hit dices

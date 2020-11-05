@@ -141,8 +141,8 @@ class ExpressionDice {
 
     rollWithAdvOrDisadv = () => {
         return {
-            first: this.roll().split('='),
-            second: this.roll().split('=')
+            first: this.roll(),
+            second: this.roll()
         }
     };
 }

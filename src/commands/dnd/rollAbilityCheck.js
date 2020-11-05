@@ -23,6 +23,23 @@ module.exports = {
 
         return bonus;
     },
+    reliableTalent: function({ visual, totalRoll }) {
+        //reliable talent
+        let splitted = visual.split('+');
+        let diceRoll = splitted[0].trim().substring(1, splitted[0].trim().length - 1);
+
+        let newVisual = visual;
+        let newTotal = totalRoll;
+        if (diceRoll < 10) {
+            newVisual = `(10) + ${splitted[1]}`;
+            newTotal += 10 - diceRoll;
+        }
+
+        return {
+            visual: newVisual,
+            totalRoll: newTotal
+        }
+    },
     async execute(message, args, db, _client) {
         if (args[0] === 'help') {
             db.collection(settings.database.collections.helpEmbeds).find({
@@ -63,9 +80,19 @@ module.exports = {
             let expressionDice = new dice.ExpressionDice(expr);
             let rollEmbed = null;
 
+            //pre roll both options
+            let normalRoll = expressionDice.roll();
+            let { first, second } = expressionDice.rollWithAdvOrDisadv();
+
+            if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
+                normalRoll = this.reliableTalent(expressionDice.roll());
+                first = this.reliableTalent(first);
+                second = this.reliableTalent(second);
+            }
+
             //a basic roll without adv/dadv and bonus expression
-            if (args.length == 1) {
-                rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, expressionDice.roll());
+            if (args.length == 1) {                
+                rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, normalRoll);
             }
 
             //either bonus expression or adv/dadv
@@ -73,12 +100,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                    rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, first, second);
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, expressionDice.roll());
+                    rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, normalRoll);
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -92,7 +119,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, first, second);
             }
 
             return await message.reply({
