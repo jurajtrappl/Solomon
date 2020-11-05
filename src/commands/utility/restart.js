@@ -6,7 +6,7 @@ module.exports = {
     description: 'Restart the bot.',
     async execute(message, _args, _db, client) {
         if (message.author.id == auth.dmID) {
-            message.channel.send('Bazmeg restart.').then(m => {
+            message.channel.send('Bazmeg.').then(m => {
                 client.destroy()
             }).then(() => {
                 client.login(auth.token);
