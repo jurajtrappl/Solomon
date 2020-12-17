@@ -1,4 +1,5 @@
 const dice = require('../../../src/dice.js');
+const embed = require('../../../src/embed.js');
 const settings = require('../../../settings.json');
 
 module.exports = {
@@ -16,8 +17,18 @@ module.exports = {
                 });
             });
         } else {
-            const expressionDice = new dice.ExpressionDice(args.map(a => a.trim()).join(''));
-            return await message.reply(expressionDice.roll());
+            //get character name
+            let resultName = await db.collection(settings.database.collections.players).find({
+                discordID: message.author.id
+            }).toArray();
+            let characterName = resultName[0]["characters"][0];
+
+            const expr = args.map(a => a.trim()).join('');
+            const expressionDice = new dice.ExpressionDice(expr);
+
+            return await message.reply({
+                embed: embed.normalRollEmbed(characterName, expr, 'Expression roll', expressionDice.roll())
+            });
         }
     }
 }
