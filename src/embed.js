@@ -1,10 +1,8 @@
-const {
-    MessageEmbed
-} = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-advOrDisadvEmbed = (characterName, flag, expr, title, first, second) =>
-    new MessageEmbed()
+function advOrDisadvEmbed(characterName, flag, expr, title, first, second) {
+    return new MessageEmbed()
         .setColor('#00ff00')
         .setTitle(title)
         .addFields({
@@ -22,9 +20,11 @@ advOrDisadvEmbed = (characterName, flag, expr, title, first, second) =>
             name: 'Result',
             value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.totalRoll) >= Number(second.totalRoll)) ? first.totalRoll : second.totalRoll) : ((Number(first.totalRoll) >= Number(second.totalRoll)) ? second.totalRoll : first.totalRoll)}.`
         });
+}
 
-healEmbed = (characterName, expr, title, { visual, totalRoll }, currentHP, maxHP) =>
-    new MessageEmbed()
+
+function healEmbed(characterName, expr, title, { visual, totalRoll }, currentHP, maxHP) {
+    return new MessageEmbed()
         .setColor('#00ff00')
         .setTitle(title)
         .addFields({
@@ -39,10 +39,11 @@ healEmbed = (characterName, expr, title, { visual, totalRoll }, currentHP, maxHP
             name: 'Result',
             value: `${characterName} heals for ${totalRoll} :heart:. (${currentHP}/${maxHP}).`
         });
+}
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-normalRollEmbed = (characterName, expr, title, { visual, totalRoll }) =>
-    new MessageEmbed()
+function normalRollEmbed(characterName, expr, title, { visual, totalRoll }) {
+    return new MessageEmbed()
         .setColor('#00ff00')
         .setTitle(title)
         .addFields({
@@ -57,13 +58,12 @@ normalRollEmbed = (characterName, expr, title, { visual, totalRoll }) =>
             name: 'Result',
             value: `${characterName} rolls ${totalRoll}.`
         });
+}
+
 
 //creates an embed for rolling hit dices
-hitDiceEmbed = (characterName, expression, {
-    visual,
-    totalRoll
-}, hitDicesCount, hitDicesLeft) =>
-    new MessageEmbed()
+function hitDiceEmbed(characterName, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
+    return new MessageEmbed()
         .setColor('#00ff00')
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
         .addFields({
@@ -78,6 +78,8 @@ hitDiceEmbed = (characterName, expression, {
             name: 'Result',
             value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
         });
+}
+
 
 module.exports = {
     advOrDisadvEmbed,
