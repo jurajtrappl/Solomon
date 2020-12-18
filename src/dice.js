@@ -102,6 +102,8 @@ class ExpressionDice {
         if (!isRollExpression(expr)) {
             throw new Error('Error in the expression.');
         }
+
+        this.parts = parseRollExpression(expr);
     }
 
     parseDice = (value) => {
@@ -114,7 +116,7 @@ class ExpressionDice {
         let total = 0,
             visual = [];
         this.parts.forEach(arg => {
-            if (arg.match(this.diceReg)) {
+            if (arg.match(rollDiceRegex)) {
                 const d = this.parseDice(arg);
                 const {
                     total: diceTotal,
