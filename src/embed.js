@@ -22,7 +22,6 @@ function advOrDisadvEmbed(characterName, flag, expr, title, first, second) {
         });
 }
 
-
 function healEmbed(characterName, expr, title, { visual, totalRoll }, currentHP, maxHP) {
     return new MessageEmbed()
         .setColor('#00ff00')
@@ -38,6 +37,25 @@ function healEmbed(characterName, expr, title, { visual, totalRoll }, currentHP,
         }, {
             name: 'Result',
             value: `${characterName} heals for ${totalRoll} :heart:. (${currentHP}/${maxHP}).`
+        });
+}
+
+//creates an embed for rolling hit dices
+function hitDiceEmbed(characterName, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
+    return new MessageEmbed()
+        .setColor('#00ff00')
+        .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
+        .addFields({
+            name: 'Rolling',
+            value: `${expression}`,
+            inline: true
+        }, {
+            name: 'Total',
+            value: `${visual}= ${totalRoll}`,
+            inline: true
+        }, {
+            name: 'Result',
+            value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
         });
 }
 
@@ -60,30 +78,32 @@ function normalRollEmbed(characterName, expr, title, { visual, totalRoll }) {
         });
 }
 
-
-//creates an embed for rolling hit dices
-function hitDiceEmbed(characterName, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
-    return new MessageEmbed()
-        .setColor('#00ff00')
-        .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
-        .addFields({
-            name: 'Rolling',
-            value: `${expression}`,
-            inline: true
-        }, {
-            name: 'Total',
-            value: `${visual}= ${totalRoll}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
-        });
+function makeFields(names, values) {
+    const fields = [];
+    for (let i = 0; i < names.length; i++) {
+        fields.push(
+            {
+                name: names[i],
+                value: values[i]
+            }
+        )
+    }
+    return fields;
 }
 
+function objectEmbed(obj, title) {
+    return new MessageEmbed()
+        .setColor('#00ff00')
+        .setTitle(title)
+        .addFields(
+            makeFields(Object.keys(obj), Object.values(obj))
+        );
+}
 
 module.exports = {
     advOrDisadvEmbed,
-    normalRollEmbed,
     healEmbed,
-    hitDiceEmbed
+    hitDiceEmbed,
+    normalRollEmbed,
+    objectEmbed
 }

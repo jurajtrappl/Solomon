@@ -9,7 +9,6 @@ const {
 const {
     MongoClient
 } = require('mongodb');
-const settings = require("./settings.json");
 
 const client = new Client();
 const dbClient = new MongoClient(auth.connectionString, {
