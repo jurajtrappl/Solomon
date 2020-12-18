@@ -62,6 +62,36 @@ class SimpleDice extends Dice {
     }
 }
 
+const rollBonusRegex = /^[+|-][0-9]+$/;
+const rollDiceRegex = /^[+|-]?[1-9][0-9]+d(4|6|8|10|12|20)$/;
+
+function isDiceOrBonus(arg) {
+    return arg.match(rollDiceRegex) || arg.match(rollBonusRegex);
+}
+
+function parseRollExpression(expr) {
+    let lastPos = expr.length;
+    const parts = [];
+    for (let i = expr.length - 1; i >= 0; i--) {
+        if (expr.charAt(i) == '+' || expr.charAt(i) == '-') {
+            parts.push(`${expr.slice(i, lastPos)}`);
+            lastPos = i;
+        }
+    }
+
+    //push the last part
+    if (lastPos != 0) {
+        parts.push(`${expr.slice(0, lastPos).trim()}`);
+    }
+
+    return parts.filter(p => p != '-' && p != '+').reverse();
+}
+
+function isRollExpression(value) {
+    const parts = parseRollExpression(value);
+    return parts.every(isDiceOrBonus);
+}
+
 /**
  * ExpressionDice.
  * 
@@ -69,15 +99,11 @@ class SimpleDice extends Dice {
  */
 class ExpressionDice {
     constructor(expr) {
-        this.parts = this.parseRollExpression(expr);
-
-        //check if every part of the expression is correct
-        const bonusReg = /^[+|-][0-9]+$/;
-        this.diceReg = /^[+|-]?[1-9]+d(4|6|8|10|12|20)$/;
-        const isDiceOrBonus = (arg) => (arg.match(this.diceReg) || arg.match(bonusReg));
-        if (!this.parts.every(isDiceOrBonus)) {
+        if (!isRollExpression(expr)) {
             throw new Error('Error in the expression.');
         }
+
+        this.parts = parseRollExpression(expr);
     }
 
     parseDice = (value) => {
@@ -85,30 +111,12 @@ class ExpressionDice {
         return new SimpleDice(Math.abs(splitted[0]) || 1, Math.abs(splitted[1]) || 20);
     }
 
-    parseRollExpression = (expr) => {
-        let lastPos = expr.length;
-        const parts = [];
-        for (let i = expr.length - 1; i >= 0; i--) {
-            if (expr.charAt(i) == '+' || expr.charAt(i) == '-') {
-                parts.push(`${expr.slice(i, lastPos)}`);
-                lastPos = i;
-            }
-        }
-
-        //push the last part
-        if (lastPos != 0) {
-            parts.push(`${expr.slice(0, lastPos).trim()}`);
-        }
-
-        return parts.filter(p => p != '-' && p != '+').reverse();
-    }
-
     //calculate the expression
     roll() {
         let total = 0,
             visual = [];
         this.parts.forEach(arg => {
-            if (arg.match(this.diceReg)) {
+            if (arg.match(rollDiceRegex)) {
                 const d = this.parseDice(arg);
                 const {
                     total: diceTotal,
@@ -133,7 +141,7 @@ class ExpressionDice {
             }
         });
 
-        return { 
+        return {
             visual: `${visual.join(' ').substring(2)}`,
             totalRoll: total
         }
@@ -149,5 +157,6 @@ class ExpressionDice {
 
 module.exports = {
     ExpressionDice,
-    SimpleDice
+    SimpleDice,
+    isRollExpression
 }
