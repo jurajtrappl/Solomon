@@ -9,6 +9,7 @@ const {
 const {
     MongoClient
 } = require('mongodb');
+const settings = require("./settings.json");
 
 const client = new Client();
 const dbClient = new MongoClient(auth.connectionString, {
@@ -35,9 +36,13 @@ client.on("error", (e) => {
     director.execute("!", "restart", [], {});
 });
 
-// client.on("warn", (e) => console.warn(e));
+client.on('playerKnocked', async characterName => {
+    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player knocked: ${characterName}`);
+});
 
-// client.on("debug", (e) => console.info(e));
+client.on('playerDead', async characterName => {
+    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player ded: ${characterName}`);
+});
 
 client.on('message', async message => {
     if (CommandValidator.validate(message)) {

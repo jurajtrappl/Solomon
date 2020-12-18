@@ -1,4 +1,7 @@
 {
+    "channels": {
+        "sessions": 701064999967260814       
+    },
     "database": {
         "name": "dnd",
         "collections": {
