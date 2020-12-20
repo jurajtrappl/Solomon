@@ -1,5 +1,5 @@
 const settings = require('../../../settings.json');
-const combat = require('../../combat.js');
+const combat = require('../../map.js');
 
 module.exports = {
     name: 'createMap',
@@ -26,12 +26,9 @@ module.exports = {
         const newCombatMap = new combat.CombatMap(dimensions, true);
 
         //update db with the new map
-        const newCombatMapObj = newCombatMap.toObj();
         const newValues = {
             $set: {
-                "content.map.dimensions": newCombatMapObj.dimensions,
-                "content.map.message": newCombatMapObj.message,
-                "content.map.tiles": newCombatMapObj.tiles
+                "content.map": newCombatMap.toObj()
             }
         };
 

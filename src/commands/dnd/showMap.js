@@ -13,7 +13,11 @@ module.exports = {
             .toArray();
         let map = resultMap[0]['content']['map'];
 
-        //debug purpose
-        return await message.channel.send("```" + map['message'] + "```");
+        let mapMessage = '', row;
+        for(row = 0; row < map.dimensions.height; row++) {
+            mapMessage += `${map['tiles'][row].join('')}\n`;
+        }
+
+        return await message.channel.send("```" + mapMessage + "```");
     }
 }
