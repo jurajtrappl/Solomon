@@ -1,5 +1,6 @@
 const dice = require('../../../src/dice.js');
 const embed = require('../../../src/embed.js');
+const lang = require('../../lang.js');
 const settings = require('../../../settings.json');
 
 module.exports = {
@@ -40,7 +41,7 @@ module.exports = {
             }).toArray();
             let sheet = resultSheet[0];
 
-            const abilityName = args[0];
+            const abilityName = lang.capitalize(args[0]);
 
             //write the title
             let embedTitle = `${abilityName} saving throw`;
