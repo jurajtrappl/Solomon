@@ -63,7 +63,7 @@ class SimpleDice extends Dice {
 }
 
 const rollBonusRegex = /^[+|-][0-9]+$/;
-const rollDiceRegex = /^[+|-]?[1-9][0-9]+d(4|6|8|10|12|20)$/;
+const rollDiceRegex = /^[+|-]?[0-9]+d(4|6|8|10|12|20)$/;
 
 function isDiceOrBonus(arg) {
     return arg.match(rollDiceRegex) || arg.match(rollBonusRegex);
