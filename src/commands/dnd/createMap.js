@@ -1,5 +1,5 @@
 const settings = require('../../../settings.json');
-const combat = require('../../map.js');
+const { Map } = require('../../map.js');
 
 module.exports = {
     name: 'createMap',
@@ -10,34 +10,28 @@ module.exports = {
         if (args.length != 2) {
             return await message.reply('Nespravny pocet parametrov.');
         }
-        // if (typeof(args[0]) !== 'number' || typeof(args[1]) !== 'number') {
-        //     return await message.reply('niektorý z argumentov nie je číslo, ale som lenivý určiť, ktorý :smile:');
-        // }
-        if (Number(args[0] <= 0) || Number(args[1]) <= 0) {
+        //check if args are nums
+        if (Number(args[0] <= 1) || Number(args[1]) <= 1) {
             return await message.reply('načo by ti dačo také bolo? :smile:');
         }
 
-        //create a new map
+        //add borders
         const dimensions = {
             width: Number(args[0]) + 2,
             height: Number(args[1]) + 2
         };
 
-        const newCombatMap = new combat.CombatMap(dimensions, true);
-
-        //update db with the new map
-        const newValues = {
-            $set: {
-                "content.map": newCombatMap.toObj()
-            }
-        };
-
+        //update map
         await db.collection(settings.database.collections.data).updateOne({
                 name: 'Combat'
+            }, {
+                $set: {
+                    "content.map": JSON.stringify(new Map(dimensions))
+                }
             },
-            newValues),
-            (err) => {
-                if (err) throw err;
-            };
+                (err) => {
+                    if (err) throw err;
+                }
+            );
     }
 }
