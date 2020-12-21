@@ -1,52 +1,62 @@
-const lowerUpperBorder = {
-    value: '═'
+const TileType = {
+    free: 0,
+    character: 1,
+    enemy: 2,
+    companion: 3,
+    npc: 4,
+    border: 5
 };
 
-const cornerBorder = {
-    upperLeft: '╔',
-    upperRight: '╗',
-    bottomLeft: '╚',
-    bottomRight: '╝'
+const TileTypeArgs = {
+    'f': TileType.free,
+    'p': TileType.character,
+    'e': TileType.enemy,
+    'c': TileType.companion,
+    'n': TileType.npc
 };
 
-const sideBorder = {
-    value: '║'
-};
-
-function CombatMapFromDb(dbObj) {
-    const newMap = new CombatMap(dbObj.dimensions, false);
-    newMap.tiles = dbObj.tiles;
-    newMap.objects = dbObj.objects;
-    return newMap;
-}
-
-const MapObjectType = {
-    'p': "CHARACTER",
-    'c': "COMPANION",
-    'e': "ENEMY",
-    'npc': "NPC",
-};
-
-class MapObject {
-    constructor(name, type, row, col) {
-        this.name = name;
+class Tile {
+    constructor(type, value) {
         this.type = type;
-        this.row = row;
-        this.col = col;
-        
-        this.flag = name[0];
+        this.value = value;
     }
 }
 
-class CombatMap {
-    constructor(dimensions, doInitTiles) {
-        this.dimensions = dimensions;
+//free tile singleton
+const FreeTile = (function() {
+    let instance;
 
-        if (doInitTiles) {
-            this.initTiles();
+    function createInstance() {
+        const freeTile = new Tile(TileType.free, ' ');
+        return freeTile;
+    }
+
+    return {
+        getInstance: function() {
+            if (!instance) {
+                instance = createInstance();
+            }
+            return instance;
         }
+    };
+})();
 
-        this.objects = [];
+const borders = {
+    lowerUpper: new Tile(TileType.border, '═'),
+    corners: {
+        upperLeft: new Tile(TileType.border, '╔'),
+        upperRight: new Tile(TileType.border, '╗'),
+        bottomLeft: new Tile(TileType.border, '╚'),
+        bottomRight: new Tile(TileType.border, '╝')
+    },
+    side: new Tile(TileType.border, '║')
+};
+
+class Map {
+    constructor(dimensions) {
+        this.dimensions = dimensions;
+        this.initTiles();
+        this.specialObjects = {};
     }
 
     initTiles() {
@@ -59,7 +69,7 @@ class CombatMap {
 
         for(row = 0; row < this.dimensions.height; row++) {
             for(col = 0; col < this.dimensions.width; col++) {
-                this.tiles[row][col] = ' ';
+                this.tiles[row][col] = FreeTile.getInstance();
             }
         }
 
@@ -71,35 +81,27 @@ class CombatMap {
 
         //the first and the last row
         for(col = 0; col < this.dimensions.width; col++) {
-            this.tiles[0][col] = lowerUpperBorder.value;
-            this.tiles[this.dimensions.height - 1][col] = lowerUpperBorder.value;
+            this.tiles[0][col] = borders.lowerUpper;
+            this.tiles[this.dimensions.height - 1][col] = borders.lowerUpper;
         }
 
         //side rows
         for(row = 0; row < this.dimensions.height; row++) {
-            this.tiles[row][0] = sideBorder.value;
-            this.tiles[row][this.dimensions.width - 1] = sideBorder.value;
+            this.tiles[row][0] = borders.side;
+            this.tiles[row][this.dimensions.width - 1] = borders.side;
         }
 
         //corners
-        this.tiles[0][0] = cornerBorder.upperLeft;
-        this.tiles[0][this.dimensions.width - 1] = cornerBorder.upperRight;
-        this.tiles[this.dimensions.height - 1][0] = cornerBorder.bottomLeft;
-        this.tiles[this.dimensions.height - 1][this.dimensions.width - 1] = cornerBorder.bottomRight;
-    }
-
-    toObj() {
-        const obj = {};
-        obj.dimensions = this.dimensions;
-        obj.objects = this.objects;
-        obj.tiles = this.tiles;
-        return obj;
+        this.tiles[0][0] = borders.corners.upperLeft;
+        this.tiles[0][this.dimensions.width - 1] = borders.corners.upperRight;
+        this.tiles[this.dimensions.height - 1][0] = borders.corners.bottomLeft;
+        this.tiles[this.dimensions.height - 1][this.dimensions.width - 1] = borders.corners.bottomRight;
     }
 }
 
 module.exports = {
-    CombatMap,
-    CombatMapFromDb,
-    MapObject,
-    MapObjectType
+    Map,
+    Tile,
+    TileType,
+    TileTypeArgs
 }
