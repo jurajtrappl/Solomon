@@ -12,14 +12,9 @@
             "time": "time"
         }
     },
-    "dndCommandDirs": [ 
+    "commandDirectory": [ 
         "./src/commands/dnd"
     ],
     "errorCommandExecuteMessage": "There was an error trying to execute that command!",
-    "utilityCommandDirs": [
-        "./src/commands/utility"
-    ],
-    "prefixes": [
-        "/", "!"
-    ]
+    "prefix": "/"
 }
