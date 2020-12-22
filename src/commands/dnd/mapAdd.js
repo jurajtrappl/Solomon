@@ -36,7 +36,7 @@ module.exports = {
         if (row > mapHeight || row <= 0 || col > mapWidth || col <= 0) {
             return await message.reply('Indices out of bounds.');
         }
-        
+
         //check if there is already something or not
         if (!parsedMap.tiles[row][col].type == TileType.free) {
             return await message.reply('There is already an object.');
@@ -49,7 +49,7 @@ module.exports = {
 
         //add a shortcut for the new object with the name as a key
         parsedMap.specialObjects[name] = { x: row, y: col };
-        
+
         //update map
         await db.collection(settings.database.collections.data).updateOne({
             name: 'Combat'
@@ -62,5 +62,25 @@ module.exports = {
                 if (err) throw err;
             }
         );
+
+        //update list of combatants
+        const newCombatant = {
+            name: name,
+            type: TileTypeArgs[tileTypeArg]
+        };
+
+        if (TileTypeArgs[tileTypeArg] != TileType.border && TileTypeArgs[tileTypeArg] != TileType.free) {
+            await db.collection(settings.database.collections.data).updateOne({
+                name: 'Combat'
+            }, {
+                $push: {
+                    "content.combatants": JSON.stringify(newCombatant)
+                }
+            },
+                (err) => {
+                    if (err) throw err;
+                }
+            );
+        }
     }
 }
