@@ -1,8 +1,7 @@
 const dice = require('../dice.js');
 const settings = require('../../settings.json');
-const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
+const { advOrDisadvEmbed, helpEmbed, normalRollEmbed } = require('../embed.js');
 const { capitalize } = require('../lang.js');
-const { color } = require('../colorize.js');
 
 module.exports = {
     name: 'rst',
@@ -26,7 +25,7 @@ module.exports = {
             }).toArray(async (err, result) => {
                 if (err) throw err;
                 return await message.reply({
-                    embed: result[0],
+                    embed: helpEmbed(message.member.displayHexColor, result[0]),
                 });
             });
         } else {
@@ -64,11 +63,9 @@ module.exports = {
             let expressionDice = new dice.ExpressionDice(expr);
             let rollEmbed = null;
 
-            const embedColor = color(message.author.id, db);
-
             //a basic roll without adv/dadv and bonus expression
             if (args.length == 1) {
-                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
+                rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
             }
 
             //either bonus expression or adv/dadv
@@ -76,12 +73,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                    rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
+                    rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -95,7 +92,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
             }
 
             return await message.reply({

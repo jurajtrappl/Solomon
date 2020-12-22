@@ -1,6 +1,5 @@
-const { color } = require('../colorize.js');
 const dice = require('../dice.js');
-const { healEmbed, objectEmbed } = require("../embed.js");
+const { healEmbed, helpEmbed, objectEmbed } = require("../embed.js");
 const settings = require("../../settings.json");
 
 module.exports = {
@@ -23,12 +22,12 @@ module.exports = {
                 .toArray(async (err, result) => {
                     if (err) throw err;
                     return await message.reply({
-                        embed: result[0],
+                        embed: helpEmbed(message.member.displayHexColor, result[0]),
                     });
                 });
         } else if (args[0] == 'potions') {
             return await message.reply({ 
-                embed: objectEmbed(color(message.author.id), this.healingPotions, 'List of healing potions')
+                embed: objectEmbed(message.member.displayHexColor, this.healingPotions, 'List of healing potions')
             });
         } else {
             let expr = '';
@@ -90,7 +89,7 @@ module.exports = {
             );
 
             return await message.reply({ 
-                embed: healEmbed(characterName, color(message.author.id), expr, title, heal, newCurrentHp, sheet["maxHP"]) 
+                embed: healEmbed(characterName, message.member.displayHexColor, expr, title, heal, newCurrentHp, sheet["maxHP"]) 
             });
         }
     },

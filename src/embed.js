@@ -1,17 +1,9 @@
 const { MessageEmbed } = require('discord.js');
 
-function toHex(str) {
-    var result = '';
-    for (var i=0; i<str.length; i++) {
-      result += str.charCodeAt(i).toString(16);
-    }
-    return result;
-  }
-
 //creates an embed for rolling ability checks or saving throws using adv/dadv
 function advOrDisadvEmbed(characterName, color, flag, expr, title, first, second) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -32,7 +24,7 @@ function advOrDisadvEmbed(characterName, color, flag, expr, title, first, second
 
 function healEmbed(characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -48,10 +40,15 @@ function healEmbed(characterName, color, expr, title, { visual, totalRoll }, cur
         });
 }
 
+function helpEmbed(color, embedFromDb) {
+    return new MessageEmbed(embedFromDb)
+        .setColor(color);
+}
+
 //creates an embed for rolling hit dices
 function hitDiceEmbed(characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
         .addFields({
             name: 'Rolling',
@@ -70,7 +67,7 @@ function hitDiceEmbed(characterName, color, expression, { visual, totalRoll }, h
 //creates an embed for rolling ability checks or saving throws without adv/dadv
 function normalRollEmbed(characterName, color, expr, title, { visual, totalRoll }) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -101,7 +98,7 @@ function makeFields(names, values) {
 
 function objectEmbed(color, obj, title) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle(title)
         .addFields(
             makeFields(Object.keys(obj), Object.values(obj))
@@ -126,7 +123,7 @@ function printSkillProficiencies(obj) {
 
 function sheetEmbed(color, sheet) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle("Character sheet")
         .addFields({
             name: "Abilities",
@@ -179,7 +176,7 @@ function sheetEmbed(color, sheet) {
 
 function timeEmbed(color, time) {
     return new MessageEmbed()
-        .setColor(toHex(color))
+        .setColor(color)
         .setTitle("Date, time and location")
         .addFields({
             name: "Date & time:",
@@ -196,6 +193,7 @@ function timeEmbed(color, time) {
 module.exports = {
     advOrDisadvEmbed,
     healEmbed,
+    helpEmbed,
     hitDiceEmbed,
     normalRollEmbed,
     objectEmbed,

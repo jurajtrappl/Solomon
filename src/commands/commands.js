@@ -1,4 +1,5 @@
 const settings = require('../../settings.json');
+const { helpEmbed } = require('../embed');
 
 module.exports = {
     name: 'commands',
@@ -10,7 +11,7 @@ module.exports = {
         }).toArray(async (err, result) => {
             if (err) throw err;
             return await message.reply({
-                embed: result[0],
+                embed: helpEmbed(message.member.displayHexColor, result[0])
             });
         });
     }

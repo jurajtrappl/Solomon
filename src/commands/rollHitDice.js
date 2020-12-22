@@ -1,7 +1,6 @@
 const dice = require('../dice.js');
 const settings = require('../../settings.json');
-const { hitDiceEmbed } = require('../embed.js');
-const { color } = require('../colorize.js');
+const { helpEmbed, hitDiceEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'rhd',
@@ -14,7 +13,7 @@ module.exports = {
             }).toArray(async (err, result) => {
                 if (err) throw err;
                 return await message.reply({
-                    embed: result[0],
+                    embed: helpEmbed(message.member.displayHexColor, result[0]),
                 });
             });
         } else {
@@ -76,7 +75,7 @@ module.exports = {
                         });
 
                     return await message.reply({
-                        embed: hitDiceEmbed(characterName, color(message.author.id, db), expr, rollResult, hitDicesToRoll, hitDicesLeft)
+                        embed: hitDiceEmbed(characterName, message.member.displayHexColor, expr, rollResult, hitDicesToRoll, hitDicesLeft)
                     });
                 } catch (err) {
                     return await message.reply(err);

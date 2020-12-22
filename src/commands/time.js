@@ -1,7 +1,6 @@
 const auth = require("../../auth.json");
 const settings = require('../../settings.json');
-const { color } = require('../colorize.js');
-const { timeEmbed } = require('../embed.js');
+const { helpEmbed, timeEmbed } = require('../embed.js');
 
 module.exports = {
     name: "time",
@@ -17,7 +16,7 @@ module.exports = {
                     .toArray(async (err, result) => {
                         if (err) throw err;
                         return await message.reply({
-                            embed: result[0],
+                            embed: helpEmbed(message.member.displayHexColor, result[0]),
                         });
                     });
             } else {
@@ -83,7 +82,7 @@ module.exports = {
                     .toArray(async (err, result) => {
                         if (err) throw err;
                         return await message.reply({
-                            embed: result[0],
+                            embed: helpEmbed(message.member.displayHexColor, result[0]),
                         });
                     });
             } else {
@@ -105,7 +104,7 @@ module.exports = {
                 let time = resultTime[0];
 
                 return await message.reply({
-                    embed: timeEmbed(color(message.author.id, db), time),
+                    embed: timeEmbed(message.member.displayHexColor, time),
                 });
             }
         }

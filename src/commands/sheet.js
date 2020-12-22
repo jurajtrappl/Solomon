@@ -1,6 +1,5 @@
 const settings = require('../../settings.json');
-const { color } = require('../colorize.js');
-const { sheetEmbed } = require('../embed.js');
+const { helpEmbed, sheetEmbed } = require('../embed.js');
 
 module.exports = {
     name: "sheet",
@@ -16,7 +15,7 @@ module.exports = {
                 .toArray(async (err, result) => {
                     if (err) throw err;
                     return await message.reply({
-                        embed: result[0],
+                        embed: helpEmbed(message.member.displayHexColor, result[0]),
                     });
                 });
         } else {
@@ -38,7 +37,7 @@ module.exports = {
             let sheet = resultSheet[0];
 
             return await message.reply({
-                embed: sheetEmbed(color(message.author.id, db), sheet)
+                embed: sheetEmbed(message.member.displayHexColor, sheet)
             });
         }
     }

@@ -1,6 +1,7 @@
 const auth = require("../../auth.json");
-const { moveObj } = require('../movement.js');
 const settings = require('../../settings.json');
+const { helpEmbed } = require('../embed.js');
+const { moveObj } = require('../movement.js');
 
 module.exports = {
     name: 'move',

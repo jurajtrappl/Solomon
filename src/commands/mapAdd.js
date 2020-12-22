@@ -1,4 +1,5 @@
 const settings = require('../../settings.json');
+const { helpEmbed } = require('../embed.js');
 const { Tile, TileTypeArgs, TileType } = require('../map.js');
 
 module.exports = {

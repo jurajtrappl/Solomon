@@ -1,5 +1,6 @@
 const auth = require("../../auth.json");
 const settings = require('../../settings.json');
+const { helpEmbed } = require('../embed.js');
 
 module.exports = {
     name: "addxp",
@@ -15,7 +16,7 @@ module.exports = {
                     .toArray(async (err, result) => {
                         if (err) throw err;
                         return await message.reply({
-                            embed: result[0],
+                            embed: helpEmbed(message.member.displayHexColor, result[0]),
                         });
                     });
             } else {

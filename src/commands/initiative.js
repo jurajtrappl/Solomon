@@ -1,7 +1,6 @@
 const settings = require('../../settings.json');
-const { color } = require('../colorize.js');
 const { ExpressionDice } = require('../dice');
-const { objectEmbed } = require('../embed');
+const { helpEmbed, objectEmbed } = require('../embed');
 const { TileType } = require('../map');
 
 //@trekhleb
@@ -115,7 +114,7 @@ module.exports = {
         //print the result to the players
         return await message.channel.send({
             embed: objectEmbed(
-                color(message.author.id, db), 
+                message.member.displayHexColor, 
                 initiativeOrder, 
                 'Initiative order'
                 )
