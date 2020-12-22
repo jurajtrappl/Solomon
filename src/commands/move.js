@@ -1,6 +1,6 @@
 const settings = require('../../settings.json');
 const { dmID } = require("../../auth.json");
-const { helpEmbed } = require('../embed.js');
+const { askedForHelp, printHelpEmbed } = require('../help');
 const { moveObj } = require('../movement.js');
 
 module.exports = {
@@ -13,6 +13,11 @@ module.exports = {
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
     async execute(message, args, db, _client) {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
         const resultMap = await db
             .collection(settings.database.collections.data)
             .find({

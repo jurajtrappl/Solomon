@@ -1,4 +1,5 @@
 const settings = require('../../settings.json');
+const { askedForHelp, printHelpEmbed } = require('../help');
 
 module.exports = {
     name: 'showMap',
@@ -18,6 +19,11 @@ module.exports = {
         return mapAsMessage;
     },
     async execute(message, _args, db, _client) {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
         //get map
         let resultMap = await db
             .collection(settings.database.collections.data)

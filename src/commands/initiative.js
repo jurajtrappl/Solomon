@@ -1,6 +1,7 @@
 const settings = require('../../settings.json');
 const { ExpressionDice } = require('../dice');
-const { helpEmbed, objectEmbed } = require('../embed');
+const { askedForHelp, printHelpEmbed } = require('../help');
+const { objectEmbed } = require('../embed');
 const { TileType } = require('../map');
 const { LinkedList } = require("../LinkedList");
 
@@ -32,6 +33,11 @@ module.exports = {
         return initiativeOrder;
     },
     async execute(message, _args, db, _client) {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
         //get combatants
         const resultCombatants = await db
             .collection(settings.database.collections.data)

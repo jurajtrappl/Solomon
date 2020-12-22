@@ -1,5 +1,5 @@
 const settings = require('../../settings.json');
-const { helpEmbed } = require('../embed.js');
+const { askedForHelp, printHelpEmbed } = require('../help');
 const { Tile, TileTypeArgs, TileType } = require('../map.js');
 
 module.exports = {
@@ -7,6 +7,11 @@ module.exports = {
     args: false,
     description: 'Adds an object to the map.',
     async execute(message, args, db, _client) {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
         const tileTypeArg = args[0];
         if (!Object.keys(TileTypeArgs).includes(tileTypeArg)) {
             return await message.reply('Tile type does not exist.');

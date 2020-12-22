@@ -1,5 +1,6 @@
 const settings = require('../../settings.json');
-const { advOrDisadvEmbed, helpEmbed, normalRollEmbed } = require('../embed.js');
+const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
+const { askedForHelp, printHelpEmbed } = require('../help');
 const { capitalize } = require('../lang.js');
 const { ExpressionDice } = require('../dice.js');
 
@@ -42,96 +43,90 @@ module.exports = {
         }
     },
     async execute(message, args, db, _client) {
-        if (args[0] === 'help') {
-            db.collection(settings.database.collections.helpEmbeds).find({
-                commandName: this.name
-            }).toArray(async (err, result) => {
-                if (err) throw err;
-                return await message.reply({
-                    embed: helpEmbed(message.member.displayHexColor, result[0]),
-                });
-            });
-        } else {
-            //get skills
-            const resultSkills = await db.collection(settings.database.collections.data).find({
-                name: "Skills"
-            }).toArray();
-            const skills = resultSkills[0]['content'];
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
 
-            //check skill name
-            const skillName = capitalize(args[0]);
-            if (!Object.keys(skills).includes(skillName)) {
-                return await message.reply(`${args[0]} does not exist.`);
-            }
+        //get skills
+        const resultSkills = await db.collection(settings.database.collections.data).find({
+            name: "Skills"
+        }).toArray();
+        const skills = resultSkills[0]['content'];
 
-            //get character name
-            let resultName = await db.collection(settings.database.collections.players).find({
-                discordID: message.author.id
-            }).toArray();
-            let characterName = resultName[0]["characters"][0];
+        //check skill name
+        const skillName = capitalize(args[0]);
+        if (!Object.keys(skills).includes(skillName)) {
+            return await message.reply(`${args[0]} does not exist.`);
+        }
 
-            //get character sheet
-            let resultSheet = await db.collection(settings.database.collections.characters).find({
-                characterName: characterName
-            }).toArray();
-            let sheet = resultSheet[0];
+        //get character name
+        let resultName = await db.collection(settings.database.collections.players).find({
+            discordID: message.author.id
+        }).toArray();
+        let characterName = resultName[0]["characters"][0];
 
-            //write the title
-            let embedTitle = `${skills[skillName]['name']} ability check`;;
+        //get character sheet
+        let resultSheet = await db.collection(settings.database.collections.characters).find({
+            characterName: characterName
+        }).toArray();
+        let sheet = resultSheet[0];
 
-            //calculate the bonus
-            let bonus = this.calculateSkillBonus(sheet, skillName, skills);
+        //write the title
+        let embedTitle = `${skills[skillName]['name']} ability check`;;
 
-            //create a roll expression
-            let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
-            let expressionDice = new ExpressionDice(expr);
-            let rollEmbed = null;
+        //calculate the bonus
+        let bonus = this.calculateSkillBonus(sheet, skillName, skills);
 
-            //pre roll both options
-            let normalRoll = expressionDice.roll();
-            let { first, second } = expressionDice.rollWithAdvOrDisadv();
+        //create a roll expression
+        let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
+        let expressionDice = new ExpressionDice(expr);
+        let rollEmbed = null;
 
-            if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
-                normalRoll = this.reliableTalent(expressionDice.roll());
-                first = this.reliableTalent(first);
-                second = this.reliableTalent(second);
-            }
+        //pre roll both options
+        let normalRoll = expressionDice.roll();
+        let { first, second } = expressionDice.rollWithAdvOrDisadv();
 
-            //a basic roll without adv/dadv and bonus expression
-            if (args.length == 1) {                
-                rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
-            }
+        if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
+            normalRoll = this.reliableTalent(expressionDice.roll());
+            first = this.reliableTalent(first);
+            second = this.reliableTalent(second);
+        }
 
-            //either bonus expression or adv/dadv
-            if (args.length == 2) {
-                const arguments = args.slice(1).join('');
-                if (args[1] == 'adv' || args[1] == 'dadv') {
-                    embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
-                } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
-                    const bonusExpr = arguments.substring(1, arguments.length - 1);
-                    expr += bonusExpr;
-                    expressionDice = new ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
-                } else {
-                    return await message.reply('There is an error with adv/dadv.');
-                }
-            }
+        //a basic roll without adv/dadv and bonus expression
+        if (args.length == 1) {                
+            rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
+        }
 
-            //a basic roll with adv/dadv and bonus expression
-            if (args.length == 3) {
+        //either bonus expression or adv/dadv
+        if (args.length == 2) {
+            const arguments = args.slice(1).join('');
+            if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-
-                const arguments = args.slice(2).join('');
+                rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
+            } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
+                rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
+            } else {
+                return await message.reply('There is an error with adv/dadv.');
             }
-
-            return await message.reply({
-                embed: rollEmbed
-            });
         }
+
+        //a basic roll with adv/dadv and bonus expression
+        if (args.length == 3) {
+            embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
+
+            const arguments = args.slice(2).join('');
+            const bonusExpr = arguments.substring(1, arguments.length - 1);
+            expr += bonusExpr;
+            expressionDice = new ExpressionDice(expr);
+            rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
+        }
+
+        return await message.reply({
+            embed: rollEmbed
+        });
     }
 }

@@ -1,4 +1,5 @@
 const settings = require('../../settings.json');
+const { askedForHelp, printHelpEmbed } = require('../help');
 const { Map } = require('../map.js');
 
 module.exports = {
@@ -6,6 +7,11 @@ module.exports = {
     args: false,
     description: 'Creates a map for combat with the specified dimensions.',
     async execute(message, args, db, _client) {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
         //check arguments
         if (args.length != 2) {
             return await message.reply('Nespravny pocet parametrov.');

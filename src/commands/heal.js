@@ -1,4 +1,5 @@
 const settings = require("../../settings.json");
+const { askedForHelp, printHelpEmbed } = require('../help');
 const { ExpressionDice } = require("../dice.js");
 const { healEmbed, helpEmbed, objectEmbed } = require("../embed.js");
 
@@ -14,18 +15,12 @@ module.exports = {
         Supreme: "10d4+20",
     },
     async execute(message, args, db, _client) {
-        if (args[0] === "help" || args.length == 0) {
-            db.collection(settings.database.collections.helpEmbeds)
-                .find({
-                    commandName: this.name,
-                })
-                .toArray(async (err, result) => {
-                    if (err) throw err;
-                    return await message.reply({
-                        embed: helpEmbed(message.member.displayHexColor, result[0]),
-                    });
-                });
-        } else if (args[0] == "potions") {
+        if (askedForHelp(args)) {
+            printHelpEmbed(this.name, message, db);
+            return;
+        }
+
+        if (args[0] == "potions") {
             return await message.reply({
                 embed: objectEmbed(
                     message.member.displayHexColor,
