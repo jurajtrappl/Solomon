@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-function advOrDisadvEmbed(characterName, color, flag, expr, title, first, second) {
+function makeAdvOrDisadvEmbed(characterName, color, flag, expr, title, first, second) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -22,7 +22,7 @@ function advOrDisadvEmbed(characterName, color, flag, expr, title, first, second
         });
 }
 
-function healEmbed(characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) {
+function makeHealEmbed(characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -40,13 +40,13 @@ function healEmbed(characterName, color, expr, title, { visual, totalRoll }, cur
         });
 }
 
-function helpEmbed(color, embedFromDb) {
+function makeHelpEmbed(color, embedFromDb) {
     return new MessageEmbed(embedFromDb)
         .setColor(color);
 }
 
 //creates an embed for rolling hit dices
-function hitDiceEmbed(characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
+function makeHitDiceEmbed(characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
@@ -65,7 +65,7 @@ function hitDiceEmbed(characterName, color, expression, { visual, totalRoll }, h
 }
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-function normalRollEmbed(characterName, color, expr, title, { visual, totalRoll }) {
+function makeNormalRollEmbed(characterName, color, expr, title, { visual, totalRoll }) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -96,7 +96,7 @@ function makeFields(names, values) {
     return fields;
 }
 
-function objectEmbed(color, obj, title) {
+function makeObjectEmbed(color, obj, title) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -121,7 +121,7 @@ function printSkillProficiencies(obj) {
     return proficiencies;
 }
 
-function sheetEmbed(color, sheet) {
+function makeSheetEmbed(color, sheet) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle('Character sheet')
@@ -174,7 +174,7 @@ function sheetEmbed(color, sheet) {
         });
 }
 
-function timeEmbed(color, time) {
+function makeTimeEmbed(color, time) {
     return new MessageEmbed()
         .setColor(color)
         .setTitle('Date, time and location')
@@ -191,12 +191,12 @@ function timeEmbed(color, time) {
 }
 
 module.exports = {
-    advOrDisadvEmbed,
-    healEmbed,
-    helpEmbed,
-    hitDiceEmbed,
-    normalRollEmbed,
-    objectEmbed,
-    sheetEmbed,
-    timeEmbed
+    makeAdvOrDisadvEmbed,
+    makeHealEmbed,
+    makeHelpEmbed,
+    makeHitDiceEmbed,
+    makeNormalRollEmbed,
+    makeObjectEmbed,
+    makeSheetEmbed,
+    makeTimeEmbed
 }
