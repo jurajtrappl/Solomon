@@ -1,8 +1,8 @@
-const settings = require('../../../settings.json');
-const { color } = require('../../colorize.js');
-const { ExpressionDice } = require('../../dice');
-const { objectEmbed } = require('../../embed');
-const { TileType } = require('../../map');
+const settings = require('../../settings.json');
+const { color } = require('../colorize.js');
+const { ExpressionDice } = require('../dice');
+const { objectEmbed } = require('../embed');
+const { TileType } = require('../map');
 
 //@trekhleb
 class LinkedListNode {

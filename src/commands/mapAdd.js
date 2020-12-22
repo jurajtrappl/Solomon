@@ -1,5 +1,5 @@
-const settings = require('../../../settings.json');
-const { Tile, TileTypeArgs, TileType } = require('../../map.js');
+const settings = require('../../settings.json');
+const { Tile, TileTypeArgs, TileType } = require('../map.js');
 
 module.exports = {
     name: 'mapAdd',

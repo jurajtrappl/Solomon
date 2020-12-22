@@ -1,50 +1,27 @@
-const dice = require('../../../src/dice.js');
-const { capitalize } = require('../../lang.js');
-const settings = require('../../../settings.json');
-const { advOrDisadvEmbed, normalRollEmbed } = require('../../../src/embed.js');
-const { color } = require('../../colorize.js');
+const dice = require('../dice.js');
+const settings = require('../../settings.json');
+const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
+const { capitalize } = require('../lang.js');
+const { color } = require('../colorize.js');
 
 module.exports = {
-    name: 'rac',
+    name: 'rst',
     args: true,
-    description: 'Roll an ability check.',
+    description: 'Roll a saving throw.',
     modifier: function (score) { return Math.floor((score - 10) / 2) },
-    calculateSkillBonus: function (sheet, skillName, skills) {
-        const skillAbility = skills[skillName]['ability'];
-        let bonus = this.modifier(sheet['abilities'][skillAbility]);
+    calculateAbilityBonus: function (sheet, abilityName) {
+        let bonus = this.modifier(sheet['abilities'][abilityName]);
 
-        //check for proficiency
-        if (sheet['skills'][skillName]['prof']) {
-            bonus += sheet['proficiencyBonus'];
-        }
-
-        //check for double proficiency
-        if (sheet['doubleProf'].indexOf(skillName) != -1) {
+        //check the proficiency
+        if (sheet['savingThrows'][abilityName]) {
             bonus += sheet['proficiencyBonus'];
         }
 
         return bonus;
     },
-    reliableTalent: function({ visual, totalRoll }) {
-        //reliable talent
-        let splitted = visual.split('+');
-        let diceRoll = splitted[0].trim().substring(1, splitted[0].trim().length - 1);
-
-        let newVisual = visual;
-        let newTotal = totalRoll;
-        if (diceRoll < 10) {
-            newVisual = `(10) + ${splitted[1]}`;
-            newTotal += 10 - diceRoll;
-        }
-
-        return {
-            visual: newVisual,
-            totalRoll: newTotal
-        }
-    },
     async execute(message, args, db, _client) {
         if (args[0] === 'help') {
-            db.collection(settings.database.collections.helpEmbeds).find({
+            dndDb.collection(settings.database.collections.helpEmbeds).find({
                 commandName: this.name
             }).toArray(async (err, result) => {
                 if (err) throw err;
@@ -54,14 +31,13 @@ module.exports = {
             });
         } else {
             //get skills
-            const resultSkills = await db.collection(settings.database.collections.data).find({
-                name: "Skills"
+            const resultAbilities = await db.collection(settings.database.collections.data).find({
+                name: "Abilities"
             }).toArray();
-            const skills = resultSkills[0]['content'];
+            const abilities = resultAbilities[0]['content'];
 
-            //check skill name
-            const skillName = capitalize(args[0]);
-            if (!Object.keys(skills).includes(skillName)) {
+            const abilityName = capitalize(args[0]);
+            if (!Object.keys(abilities).includes(abilityName)) {
                 return await message.reply(`${args[0]} does not exist.`);
             }
 
@@ -78,31 +54,21 @@ module.exports = {
             let sheet = resultSheet[0];
 
             //write the title
-            let embedTitle = `${skills[skillName]['name']} ability check`;;
+            let embedTitle = `${abilityName} saving throw`;
 
             //calculate the bonus
-            let bonus = this.calculateSkillBonus(sheet, skillName, skills);
+            let bonus = this.calculateAbilityBonus(sheet, abilityName);
 
             //create a roll expression
             let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
             let expressionDice = new dice.ExpressionDice(expr);
             let rollEmbed = null;
 
-            //pre roll both options
-            let normalRoll = expressionDice.roll();
-            let { first, second } = expressionDice.rollWithAdvOrDisadv();
-
-            if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
-                normalRoll = this.reliableTalent(expressionDice.roll());
-                first = this.reliableTalent(first);
-                second = this.reliableTalent(second);
-            }
-
             const embedColor = color(message.author.id, db);
 
             //a basic roll without adv/dadv and bonus expression
-            if (args.length == 1) {                
-                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
+            if (args.length == 1) {
+                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
             }
 
             //either bonus expression or adv/dadv
@@ -110,12 +76,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
+                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
+                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -129,7 +95,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
+                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
             }
 
             return await message.reply({

@@ -1,6 +1,6 @@
-const settings = require('../../../settings.json');
-const { color } = require('../../colorize.js');
-const { sheetEmbed } = require('../../embed.js');
+const settings = require('../../settings.json');
+const { color } = require('../colorize.js');
+const { sheetEmbed } = require('../embed.js');
 
 module.exports = {
     name: "sheet",

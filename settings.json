@@ -13,7 +13,7 @@
         }
     },
     "commandDirectory": [ 
-        "./src/commands/dnd"
+        "./src/commands"
     ],
     "errorCommandExecuteMessage": "There was an error trying to execute that command!",
     "prefix": "/"
