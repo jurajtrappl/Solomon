@@ -27,7 +27,7 @@ module.exports = {
 
         //get skills
         const resultAbilities = await db.collection(settings.database.collections.data).find({
-            name: "Abilities"
+            name: 'Abilities'
         }).toArray();
         const abilities = resultAbilities[0]['content'];
 
@@ -40,7 +40,7 @@ module.exports = {
         let resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        let characterName = resultName[0]["characters"][0];
+        let characterName = resultName[0]['characters'][0];
 
         //get character sheet
         let resultSheet = await db.collection(settings.database.collections.characters).find({

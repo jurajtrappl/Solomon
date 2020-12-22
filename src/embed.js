@@ -106,7 +106,7 @@ function objectEmbed(color, obj, title) {
 }
 
 function printSavingThrowProficiencies(obj) {
-    let proficiencies = "";
+    let proficiencies = '';
     for (let key in obj) {
         if (obj[key]) proficiencies += `${key} `;
     }
@@ -114,9 +114,9 @@ function printSavingThrowProficiencies(obj) {
 }
 
 function printSkillProficiencies(obj) {
-    let proficiencies = "";
+    let proficiencies = '';
     for (let skill in obj) {
-        if (obj[skill]["prof"]) proficiencies += `${skill} `;
+        if (obj[skill]['prof']) proficiencies += `${skill} `;
     }
     return proficiencies;
 }
@@ -124,68 +124,68 @@ function printSkillProficiencies(obj) {
 function sheetEmbed(color, sheet) {
     return new MessageEmbed()
         .setColor(color)
-        .setTitle("Character sheet")
+        .setTitle('Character sheet')
         .addFields({
-            name: "Abilities",
-            value: `Strength: ${sheet["abilities"]["Strength"]}
-                                Dexterity: ${sheet["abilities"]["Dexterity"]}
-                                Constitution: ${sheet["abilities"]["Constitution"]}
-                                Intelligence: ${sheet["abilities"]["Intelligence"]}
-                                Wisdom: ${sheet["abilities"]["Wisdom"]}
-                                Charisma: ${sheet["abilities"]["Charisma"]}`
+            name: 'Abilities',
+            value: `Strength: ${sheet['abilities']['Strength']}
+                                Dexterity: ${sheet['abilities']['Dexterity']}
+                                Constitution: ${sheet['abilities']['Constitution']}
+                                Intelligence: ${sheet['abilities']['Intelligence']}
+                                Wisdom: ${sheet['abilities']['Wisdom']}
+                                Charisma: ${sheet['abilities']['Charisma']}`
         }, {
-            name: "Class",
-            value: sheet["class"]
+            name: 'Class',
+            value: sheet['class']
         }, {
-            name: "Current HP",
-            value: sheet["currentHP"]
+            name: 'Current HP',
+            value: sheet['currentHP']
         }, {
-            name: "Hit dice",
-            value: `Type: 1d${sheet["hitDice"]["type"]}
-                                Count: ${sheet["hitDice"]["count"]}
-                                Spent: ${sheet["hitDice"]["spent"]}`
+            name: 'Hit dice',
+            value: `Type: 1d${sheet['hitDice']['type']}
+                                Count: ${sheet['hitDice']['count']}
+                                Spent: ${sheet['hitDice']['spent']}`
         }, {
-            name: "Initiative",
-            value: sheet["initiative"]
+            name: 'Initiative',
+            value: sheet['initiative']
         }, {
-            name: "Level",
-            value: sheet["level"]
+            name: 'Level',
+            value: sheet['level']
         }, {
-            name: "Max HP",
-            value: sheet["maxHP"]
+            name: 'Max HP',
+            value: sheet['maxHP']
         }, {
-            name: "Proficiency bonus",
-            value: sheet["proficiencyBonus"]
+            name: 'Proficiency bonus',
+            value: sheet['proficiencyBonus']
         }, {
-            name: "Race",
-            value: sheet["race"]
+            name: 'Race',
+            value: sheet['race']
         }, {
-            name: "Saving throws proficiencies",
-            value: `${printSavingThrowProficiencies(sheet["savingThrows"])}`
+            name: 'Saving throws proficiencies',
+            value: `${printSavingThrowProficiencies(sheet['savingThrows'])}`
         }, {
-            name: "Skills proficiencies",
-            value: `${printSkillProficiencies(sheet["skills"])}`
+            name: 'Skills proficiencies',
+            value: `${printSkillProficiencies(sheet['skills'])}`
         }, {
-            name: "Speed",
-            value: sheet["speed"]
+            name: 'Speed',
+            value: sheet['speed']
         }, {
-            name: "XP",
-            value: sheet["xp"]
+            name: 'XP',
+            value: sheet['xp']
         });
 }
 
 function timeEmbed(color, time) {
     return new MessageEmbed()
         .setColor(color)
-        .setTitle("Date, time and location")
+        .setTitle('Date, time and location')
         .addFields({
-            name: "Date & time:",
-            value: time["datetime"].toLocaleString(),
+            name: 'Date & time:',
+            value: time['datetime'].toLocaleString(),
         }, {
-            name: "Location",
-            value: time["location"],
+            name: 'Location',
+            value: time['location'],
         }, {
-            name: "Last long rest",
+            name: 'Last long rest',
             value: time['lastLongRest'].toLocaleString()
         });
 }

@@ -1,10 +1,10 @@
 const settings = require('../../settings.json');
-const { dmID } = require("../../auth.json");
+const { dmID } = require('../../auth.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
 
 module.exports = {
-    name: "addxp",
-    description: "Modify players XP count - DM only.",
+    name: 'addxp',
+    description: 'Modify players XP count - DM only.',
     args: true,
     async execute(message, args, db, _client) {
         if (askedForHelp(args)) {
@@ -26,22 +26,22 @@ module.exports = {
             let resultCharacterAdvancement = await db
                 .collection(settings.database.collections.data)
                 .find({
-                    name: "CharacterAdvancement"
+                    name: 'CharacterAdvancement'
                 })
                 .toArray();
             let characterAdv = resultCharacterAdvancement[0];
 
             const isNextLevelExp = (exp) =>
-                exp > sheet["xp"] + Number(args[1]);
+                exp > sheet['xp'] + Number(args[1]);
 
-            const newLvl = Object.values(characterAdv["content"]["xp"]).findIndex(
+            const newLvl = Object.values(characterAdv['content']['xp']).findIndex(
                 isNextLevelExp
             );
 
             const newValues = {
                 $set: {
                     level: newLvl,
-                    xp: sheet["xp"] + Number(addXP),
+                    xp: sheet['xp'] + Number(addXP),
                 },
             };
 
@@ -54,7 +54,7 @@ module.exports = {
                 }
             );
         } else {
-            return await message.reply("ty beťar jeden :smile:.");
+            return await message.reply('ty beťar jeden :smile:.');
         }
     },
 };

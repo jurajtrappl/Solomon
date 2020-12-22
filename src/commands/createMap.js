@@ -32,7 +32,7 @@ module.exports = {
                 name: 'Combat'
             }, {
                 $set: {
-                    "content.map": JSON.stringify(new Map(dimensions))
+                    'content.map': JSON.stringify(new Map(dimensions))
                 }
             },
                 (err) => {

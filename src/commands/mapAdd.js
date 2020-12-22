@@ -61,7 +61,7 @@ module.exports = {
             name: 'Combat'
         }, {
             $set: {
-                "content.map": JSON.stringify(parsedMap)
+                'content.map': JSON.stringify(parsedMap)
             }
         },
             (err) => {
@@ -80,7 +80,7 @@ module.exports = {
                 name: 'Combat'
             }, {
                 $push: {
-                    "content.combatants": JSON.stringify(newCombatant)
+                    'content.combatants': JSON.stringify(newCombatant)
                 }
             },
                 (err) => {

@@ -1,5 +1,5 @@
 const settings = require('../../settings.json');
-const { dmID } = require("../../auth.json");
+const { dmID } = require('../../auth.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { moveObj } = require('../movement.js');
 
@@ -37,7 +37,7 @@ module.exports = {
                     discordID: message.author.id,
                 })
                 .toArray();
-            name = resultName[0]["characters"][0];
+            name = resultName[0]['characters'][0];
 
             //get directions
             directions = args[0];

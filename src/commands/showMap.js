@@ -35,6 +35,6 @@ module.exports = {
 
         let parsedMap = JSON.parse(map);
 
-        return await message.channel.send("```" + this.mapToMessage(parsedMap) + "```");
+        return await message.channel.send('```' + this.mapToMessage(parsedMap) + '```');
     }
 }

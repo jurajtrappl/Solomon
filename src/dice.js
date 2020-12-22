@@ -10,12 +10,12 @@ class Dice {
         this.bonus = bonus;
 
         if (this.constructor == Dice) {
-            throw new Error("Abstract classes can't be instantiated.");
+            throw new Error('Abstract classes can\'t be instantiated.');
         }
     }
 
     roll() {
-        throw new Error("Method 'roll()' must be implemented.");
+        throw new Error('Method \'roll()\' must be implemented.');
     }
 
     createVisual(rolls) {

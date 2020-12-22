@@ -3,9 +3,9 @@ const { askedForHelp, printHelpEmbed } = require('../help');
 const { sheetEmbed } = require('../embed.js');
 
 module.exports = {
-    name: "sheet",
+    name: 'sheet',
     args: false,
-    description: "Shows players character sheet.",
+    description: 'Shows players character sheet.',
     async execute(message, args, db) {
         if (askedForHelp(args)) {
             printHelpEmbed(this.name, message, db);
@@ -19,7 +19,7 @@ module.exports = {
                 discordID: message.author.id,
             })
             .toArray();
-        let characterName = resultName[0]["characters"][0];
+        let characterName = resultName[0]['characters'][0];
 
         let resultSheet = await db
             .collection(settings.database.collections.characters)

@@ -50,7 +50,7 @@ module.exports = {
 
         //get skills
         const resultSkills = await db.collection(settings.database.collections.data).find({
-            name: "Skills"
+            name: 'Skills'
         }).toArray();
         const skills = resultSkills[0]['content'];
 
@@ -64,7 +64,7 @@ module.exports = {
         let resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        let characterName = resultName[0]["characters"][0];
+        let characterName = resultName[0]['characters'][0];
 
         //get character sheet
         let resultSheet = await db.collection(settings.database.collections.characters).find({
@@ -87,7 +87,7 @@ module.exports = {
         let normalRoll = expressionDice.roll();
         let { first, second } = expressionDice.rollWithAdvOrDisadv();
 
-        if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
+        if (sheet['class'] === 'Rogue' && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
             normalRoll = this.reliableTalent(expressionDice.roll());
             first = this.reliableTalent(first);
             second = this.reliableTalent(second);

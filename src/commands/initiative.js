@@ -1,9 +1,9 @@
 const settings = require('../../settings.json');
-const { ExpressionDice } = require('../dice');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { ExpressionDice } = require('../dice');
 const { objectEmbed } = require('../embed');
 const { TileType } = require('../map');
-const { LinkedList } = require("../LinkedList");
+const { LinkedList } = require('../LinkedList');
 
 module.exports = {
     name: 'initiative',

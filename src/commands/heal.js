@@ -1,18 +1,18 @@
-const settings = require("../../settings.json");
+const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
-const { ExpressionDice } = require("../dice.js");
-const { healEmbed, helpEmbed, objectEmbed } = require("../embed.js");
+const { ExpressionDice } = require('../dice.js');
+const { healEmbed, objectEmbed } = require('../embed.js');
 
 module.exports = {
-    name: "heal",
-    aliases: ["Heal"],
+    name: 'heal',
+    aliases: ['Heal'],
     args: true,
-    description: "Heals a character.",
+    description: 'Heals a character.',
     healingPotions: {
-        Healing: "2d4+2",
-        Greater: "4d4+4",
-        Superior: "8d4+8",
-        Supreme: "10d4+20",
+        Healing: '2d4+2',
+        Greater: '4d4+4',
+        Superior: '8d4+8',
+        Supreme: '10d4+20',
     },
     async execute(message, args, db, _client) {
         if (askedForHelp(args)) {
@@ -20,26 +20,26 @@ module.exports = {
             return;
         }
 
-        if (args[0] == "potions") {
+        if (args[0] == 'potions') {
             return await message.reply({
                 embed: objectEmbed(
                     message.member.displayHexColor,
                     this.healingPotions,
-                    "List of healing potions"
+                    'List of healing potions'
                 ),
             });
         } else {
-            let expr = "";
-            let title = "";
+            let expr = '';
+            let title = '';
 
             if (Object.keys(this.healingPotions).includes(args[0])) {
                 expr = this.healingPotions[args[0]];
                 title = `Using potion: ${args[0]}`;
             } else {
-                const argsExpr = args.map((a) => a.trim()).join("");
+                const argsExpr = args.map((a) => a.trim()).join('');
                 if (dice.isRollExpression(argsExpr)) {
                     expr = argsExpr;
-                    title = "Healing using an expression";
+                    title = 'Healing using an expression';
                 } else {
                     return await message.reply(settings.errorCommandExecuteMessage);
                 }
@@ -55,7 +55,7 @@ module.exports = {
                     discordID: message.author.id,
                 })
                 .toArray();
-            let characterName = resultName[0]["characters"][0];
+            let characterName = resultName[0]['characters'][0];
 
             //get character sheet
             let resultSheet = await db
@@ -66,9 +66,9 @@ module.exports = {
                 .toArray();
             let sheet = resultSheet[0];
 
-            let newCurrentHp = sheet["currentHP"] + Number(heal.totalRoll);
-            if (newCurrentHp > sheet["maxHP"]) {
-                newCurrentHp = sheet["maxHP"];
+            let newCurrentHp = sheet['currentHP'] + Number(heal.totalRoll);
+            if (newCurrentHp > sheet['maxHP']) {
+                newCurrentHp = sheet['maxHP'];
             }
 
             const newValues = {
@@ -95,7 +95,7 @@ module.exports = {
                     title,
                     heal,
                     newCurrentHp,
-                    sheet["maxHP"]
+                    sheet['maxHP']
                 ),
             });
         }
