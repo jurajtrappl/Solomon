@@ -1,5 +1,6 @@
 const dice = require('../../../src/dice.js');
 const embed = require('../../../src/embed.js');
+const lang = require('../../lang.js');
 const settings = require('../../../settings.json');
 
 module.exports = {
@@ -51,10 +52,17 @@ module.exports = {
                 });
             });
         } else {
+            //get skills
             const resultSkills = await db.collection(settings.database.collections.data).find({
                 name: "Skills"
             }).toArray();
             const skills = resultSkills[0]['content'];
+
+            //check skill name
+            const skillName = lang.capitalize(args[0]);
+            if (!Object.keys(skills).includes(skillName)) {
+                return await message.reply(`${args[0]} does not exist.`);
+            }
 
             //get character name
             let resultName = await db.collection(settings.database.collections.players).find({
@@ -67,13 +75,12 @@ module.exports = {
                 characterName: characterName
             }).toArray();
             let sheet = resultSheet[0];
-            const skillName = args[0];
 
             //write the title
             let embedTitle = `${skills[skillName]['name']} ability check`;;
 
             //calculate the bonus
-            let bonus = this.calculateSkillBonus(sheet, args[0], skills);
+            let bonus = this.calculateSkillBonus(sheet, skillName, skills);
 
             //create a roll expression
             let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
