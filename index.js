@@ -29,7 +29,7 @@ client.on('unhandledRejection', error => {
 
 client.on("error", (e) => {
     //report an error that has happened
-    console.error(e.message)
+    console.error(e.message);
 });
 
 client.on('playerKnocked', async characterName => {
