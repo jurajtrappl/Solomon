@@ -45,6 +45,13 @@ class MongoServices {
             .find(query)
             .toArray();
     }
+
+    updateOne(collectionName, query, newValue) {
+        return instance
+            .db(settings.database.name)
+            .collection(collectionName)
+            .updateOne(query, newValue);
+    }
 }
 
 module.exports = { MongoServices };
