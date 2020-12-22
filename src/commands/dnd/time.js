@@ -1,8 +1,7 @@
 const auth = require("../../../auth.json");
-const {
-    MessageEmbed
-} = require("discord.js");
 const settings = require('../../../settings.json');
+const { color } = require('../../colorize.js');
+const { timeEmbed } = require('../../embed.js');
 
 module.exports = {
     name: "time",
@@ -105,22 +104,8 @@ module.exports = {
                     .toArray();
                 let time = resultTime[0];
 
-                const embed = new MessageEmbed()
-                    .setColor("#ff00ff")
-                    .setTitle("Date, time and location")
-                    .addFields({
-                        name: "Date & time:",
-                        value: time["datetime"].toLocaleString(),
-                    }, {
-                        name: "Location",
-                        value: time["location"],
-                    }, {
-                        name: "Last long rest",
-                        value: time['lastLongRest'].toLocaleString()
-                    });
-
                 return await message.reply({
-                    embed: embed,
+                    embed: timeEmbed(color(message.author.id, db), time),
                 });
             }
         }

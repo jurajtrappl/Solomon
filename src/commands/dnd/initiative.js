@@ -1,4 +1,5 @@
 const settings = require('../../../settings.json');
+const { color } = require('../../colorize.js');
 const { ExpressionDice } = require('../../dice');
 const { objectEmbed } = require('../../embed');
 const { TileType } = require('../../map');
@@ -38,18 +39,17 @@ module.exports = {
     name: 'initiative',
     args: false,
     description: 'Rolls initiative for all combatants.',
+    MAX_INITIATIVE: 30,
     initRolls: function () {
-        const MAX_INITIATIVE = 25;
-        let rolls = new Array(MAX_INITIATIVE);
-        for (let i = 0; i < MAX_INITIATIVE; i++) {
+        let rolls = new Array(this.MAX_INITIATIVE);
+        for (let i = 0; i < this.MAX_INITIATIVE; i++) {
             rolls[i] = new LinkedList();
         }
         return rolls;
     },
     findInitiativeOrder(rolls) {
         const initiativeOrder = {};
-        const MAX_INITIATIVE = 25;
-        for (let totalRoll = MAX_INITIATIVE - 1; totalRoll >= 0; totalRoll--) {
+        for (let totalRoll = this.MAX_INITIATIVE - 1; totalRoll >= 0; totalRoll--) {
             //check if the linked list for the totalRoll value is empty
             let currentNode = rolls[totalRoll].head;
             if (currentNode) {
@@ -77,7 +77,7 @@ module.exports = {
         let initiativeBonus = 0;
         let rollResult = {};
         let rolls = this.initRolls();
-        for(let combatantJSONString of combatants) {
+        for (let combatantJSONString of combatants) {
             const combatant = JSON.parse(combatantJSONString);
 
             if (combatant.type == TileType.character) {
@@ -96,7 +96,7 @@ module.exports = {
             expressionDice = new ExpressionDice(expr);
             rollResult = expressionDice.roll();
 
-            rolls[Number(rollResult.totalRoll)-1].append(combatant.name);
+            rolls[Number(rollResult.totalRoll) - 1].append(combatant.name);
         }
 
         const initiativeOrder = this.findInitiativeOrder(rolls);
@@ -113,8 +113,12 @@ module.exports = {
         });
 
         //print the result to the players
-        return await message.channel.send({ 
-            embed: objectEmbed(initiativeOrder, 'Initiative order') 
+        return await message.channel.send({
+            embed: objectEmbed(
+                color(message.author.id, db), 
+                initiativeOrder, 
+                'Initiative order'
+                )
         });
     }
 }

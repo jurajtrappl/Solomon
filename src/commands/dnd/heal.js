@@ -1,5 +1,6 @@
+const { color } = require('../../colorize.js');
 const dice = require('../../dice.js');
-const embed = require("../../../src/embed.js");
+const { healEmbed, objectEmbed } = require("../../../src/embed.js");
 const settings = require("../../../settings.json");
 
 module.exports = {
@@ -27,7 +28,7 @@ module.exports = {
                 });
         } else if (args[0] == 'potions') {
             return await message.reply({ 
-                embed: embed.objectEmbed(this.healingPotions, 'List of healing potions')
+                embed: objectEmbed(color(message.author.id), this.healingPotions, 'List of healing potions')
             });
         } else {
             let expr = '';
@@ -89,7 +90,7 @@ module.exports = {
             );
 
             return await message.reply({ 
-                embed: embed.healEmbed(characterName, expr, title, heal, newCurrentHp, sheet["maxHP"]) 
+                embed: healEmbed(characterName, color(message.author.id), expr, title, heal, newCurrentHp, sheet["maxHP"]) 
             });
         }
     },

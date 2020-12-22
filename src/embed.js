@@ -1,9 +1,17 @@
 const { MessageEmbed } = require('discord.js');
 
+function toHex(str) {
+    var result = '';
+    for (var i=0; i<str.length; i++) {
+      result += str.charCodeAt(i).toString(16);
+    }
+    return result;
+  }
+
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-function advOrDisadvEmbed(characterName, flag, expr, title, first, second) {
+function advOrDisadvEmbed(characterName, color, flag, expr, title, first, second) {
     return new MessageEmbed()
-        .setColor('#00ff00')
+        .setColor(toHex(color))
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -22,9 +30,9 @@ function advOrDisadvEmbed(characterName, flag, expr, title, first, second) {
         });
 }
 
-function healEmbed(characterName, expr, title, { visual, totalRoll }, currentHP, maxHP) {
+function healEmbed(characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) {
     return new MessageEmbed()
-        .setColor('#00ff00')
+        .setColor(toHex(color))
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -41,9 +49,9 @@ function healEmbed(characterName, expr, title, { visual, totalRoll }, currentHP,
 }
 
 //creates an embed for rolling hit dices
-function hitDiceEmbed(characterName, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
+function hitDiceEmbed(characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
     return new MessageEmbed()
-        .setColor('#00ff00')
+        .setColor(toHex(color))
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
         .addFields({
             name: 'Rolling',
@@ -60,9 +68,9 @@ function hitDiceEmbed(characterName, expression, { visual, totalRoll }, hitDices
 }
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-function normalRollEmbed(characterName, expr, title, { visual, totalRoll }) {
+function normalRollEmbed(characterName, color, expr, title, { visual, totalRoll }) {
     return new MessageEmbed()
-        .setColor('#00ff00')
+        .setColor(toHex(color))
         .setTitle(title)
         .addFields({
             name: 'Rolling',
@@ -91,13 +99,98 @@ function makeFields(names, values) {
     return fields;
 }
 
-function objectEmbed(obj, title) {
+function objectEmbed(color, obj, title) {
     return new MessageEmbed()
-        .setColor('#00ff00')
+        .setColor(toHex(color))
         .setTitle(title)
         .addFields(
             makeFields(Object.keys(obj), Object.values(obj))
         );
+}
+
+function printSavingThrowProficiencies(obj) {
+    let proficiencies = "";
+    for (let key in obj) {
+        if (obj[key]) proficiencies += `${key} `;
+    }
+    return proficiencies;
+}
+
+function printSkillProficiencies(obj) {
+    let proficiencies = "";
+    for (let skill in obj) {
+        if (obj[skill]["prof"]) proficiencies += `${skill} `;
+    }
+    return proficiencies;
+}
+
+function sheetEmbed(color, sheet) {
+    return new MessageEmbed()
+        .setColor(toHex(color))
+        .setTitle("Character sheet")
+        .addFields({
+            name: "Abilities",
+            value: `Strength: ${sheet["abilities"]["Strength"]}
+                                Dexterity: ${sheet["abilities"]["Dexterity"]}
+                                Constitution: ${sheet["abilities"]["Constitution"]}
+                                Intelligence: ${sheet["abilities"]["Intelligence"]}
+                                Wisdom: ${sheet["abilities"]["Wisdom"]}
+                                Charisma: ${sheet["abilities"]["Charisma"]}`
+        }, {
+            name: "Class",
+            value: sheet["class"]
+        }, {
+            name: "Current HP",
+            value: sheet["currentHP"]
+        }, {
+            name: "Hit dice",
+            value: `Type: 1d${sheet["hitDice"]["type"]}
+                                Count: ${sheet["hitDice"]["count"]}
+                                Spent: ${sheet["hitDice"]["spent"]}`
+        }, {
+            name: "Initiative",
+            value: sheet["initiative"]
+        }, {
+            name: "Level",
+            value: sheet["level"]
+        }, {
+            name: "Max HP",
+            value: sheet["maxHP"]
+        }, {
+            name: "Proficiency bonus",
+            value: sheet["proficiencyBonus"]
+        }, {
+            name: "Race",
+            value: sheet["race"]
+        }, {
+            name: "Saving throws proficiencies",
+            value: `${printSavingThrowProficiencies(sheet["savingThrows"])}`
+        }, {
+            name: "Skills proficiencies",
+            value: `${printSkillProficiencies(sheet["skills"])}`
+        }, {
+            name: "Speed",
+            value: sheet["speed"]
+        }, {
+            name: "XP",
+            value: sheet["xp"]
+        });
+}
+
+function timeEmbed(color, time) {
+    return new MessageEmbed()
+        .setColor(toHex(color))
+        .setTitle("Date, time and location")
+        .addFields({
+            name: "Date & time:",
+            value: time["datetime"].toLocaleString(),
+        }, {
+            name: "Location",
+            value: time["location"],
+        }, {
+            name: "Last long rest",
+            value: time['lastLongRest'].toLocaleString()
+        });
 }
 
 module.exports = {
@@ -105,5 +198,7 @@ module.exports = {
     healEmbed,
     hitDiceEmbed,
     normalRollEmbed,
-    objectEmbed
+    objectEmbed,
+    sheetEmbed,
+    timeEmbed
 }

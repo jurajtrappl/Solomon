@@ -1,6 +1,7 @@
 const dice = require('../../../src/dice.js');
-const embed = require('../../../src/embed.js');
 const settings = require('../../../settings.json');
+const { advOrDisadvEmbed, normalRollEmbed } = require('../../../src/embed.js');
+const { color } = require('../../colorize.js');
 
 module.exports = {
     name: 'rst',
@@ -53,9 +54,11 @@ module.exports = {
             let expressionDice = new dice.ExpressionDice(expr);
             let rollEmbed = null;
 
+            const color = color(message.author.id, db);
+
             //a basic roll without adv/dadv and bonus expression
             if (args.length == 1) {
-                rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, expressionDice.roll());
+                rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, expressionDice.roll());
             }
 
             //either bonus expression or adv/dadv
@@ -63,12 +66,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                    rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = embed.normalRollEmbed(characterName, expr, embedTitle, expressionDice.roll());
+                    rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, expressionDice.roll());
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -82,7 +85,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = embed.advOrDisadvEmbed(characterName, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
             }
 
             return await message.reply({
