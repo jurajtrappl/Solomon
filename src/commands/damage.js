@@ -1,5 +1,5 @@
-const embed = require("../../../src/embed.js");
-const settings = require("../../../settings.json");
+const embed = require("../embed.js");
+const settings = require("../../settings.json");
 
 module.exports = {
     name: "damage",

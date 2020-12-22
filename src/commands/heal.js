@@ -1,7 +1,7 @@
-const { color } = require('../../colorize.js');
-const dice = require('../../dice.js');
-const { healEmbed, objectEmbed } = require("../../../src/embed.js");
-const settings = require("../../../settings.json");
+const { color } = require('../colorize.js');
+const dice = require('../dice.js');
+const { healEmbed, objectEmbed } = require("../embed.js");
+const settings = require("../../settings.json");
 
 module.exports = {
     name: "heal",

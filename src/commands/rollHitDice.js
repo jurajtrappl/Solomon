@@ -1,7 +1,7 @@
-const dice = require('../../../src/dice.js');
-const settings = require('../../../settings.json');
-const { hitDiceEmbed } = require('../../../src/embed.js');
-const { color } = require('../../colorize.js');
+const dice = require('../dice.js');
+const settings = require('../../settings.json');
+const { hitDiceEmbed } = require('../embed.js');
+const { color } = require('../colorize.js');
 
 module.exports = {
     name: 'rhd',

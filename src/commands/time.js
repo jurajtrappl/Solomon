@@ -1,7 +1,7 @@
-const auth = require("../../../auth.json");
-const settings = require('../../../settings.json');
-const { color } = require('../../colorize.js');
-const { timeEmbed } = require('../../embed.js');
+const auth = require("../../auth.json");
+const settings = require('../../settings.json');
+const { color } = require('../colorize.js');
+const { timeEmbed } = require('../embed.js');
 
 module.exports = {
     name: "time",

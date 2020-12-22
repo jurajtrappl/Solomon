@@ -1,5 +1,5 @@
-const auth = require("../../../auth.json");
-const settings = require('../../../settings.json');
+const auth = require("../../auth.json");
+const settings = require('../../settings.json');
 
 module.exports = {
     name: "addxp",

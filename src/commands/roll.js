@@ -1,7 +1,7 @@
-const dice = require('../../../src/dice.js');
-const { normalRollEmbed } = require('../../../src/embed.js');
-const settings = require('../../../settings.json');
-const { color } = require('../../colorize.js');
+const dice = require('../dice.js');
+const { normalRollEmbed } = require('../embed.js');
+const settings = require('../../settings.json');
+const { color } = require('../colorize.js');
 
 module.exports = {
     name: 'roll',

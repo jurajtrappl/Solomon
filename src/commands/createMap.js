@@ -1,5 +1,5 @@
-const settings = require('../../../settings.json');
-const { Map } = require('../../map.js');
+const settings = require('../../settings.json');
+const { Map } = require('../map.js');
 
 module.exports = {
     name: 'createMap',
