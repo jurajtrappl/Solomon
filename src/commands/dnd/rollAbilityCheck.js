@@ -1,4 +1,5 @@
 const dice = require('../../../src/dice.js');
+const { capitalize } = require('../../lang.js');
 const settings = require('../../../settings.json');
 const { advOrDisadvEmbed, normalRollEmbed } = require('../../../src/embed.js');
 const { color } = require('../../colorize.js');
@@ -52,10 +53,17 @@ module.exports = {
                 });
             });
         } else {
+            //get skills
             const resultSkills = await db.collection(settings.database.collections.data).find({
                 name: "Skills"
             }).toArray();
             const skills = resultSkills[0]['content'];
+
+            //check skill name
+            const skillName = capitalize(args[0]);
+            if (!Object.keys(skills).includes(skillName)) {
+                return await message.reply(`${args[0]} does not exist.`);
+            }
 
             //get character name
             let resultName = await db.collection(settings.database.collections.players).find({
@@ -68,13 +76,12 @@ module.exports = {
                 characterName: characterName
             }).toArray();
             let sheet = resultSheet[0];
-            const skillName = args[0];
 
             //write the title
             let embedTitle = `${skills[skillName]['name']} ability check`;;
 
             //calculate the bonus
-            let bonus = this.calculateSkillBonus(sheet, args[0], skills);
+            let bonus = this.calculateSkillBonus(sheet, skillName, skills);
 
             //create a roll expression
             let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
@@ -91,11 +98,11 @@ module.exports = {
                 second = this.reliableTalent(second);
             }
 
-            const color = color(message.author.id, db);
+            const embedColor = color(message.author.id, db);
 
             //a basic roll without adv/dadv and bonus expression
             if (args.length == 1) {                
-                rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, normalRoll);
+                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
             }
 
             //either bonus expression or adv/dadv
@@ -103,12 +110,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, first, second);
+                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, normalRoll);
+                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -122,7 +129,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, first, second);
+                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
             }
 
             return await message.reply({

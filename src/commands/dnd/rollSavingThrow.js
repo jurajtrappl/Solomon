@@ -1,6 +1,7 @@
 const dice = require('../../../src/dice.js');
 const settings = require('../../../settings.json');
 const { advOrDisadvEmbed, normalRollEmbed } = require('../../../src/embed.js');
+const { capitalize } = require('../../lang.js');
 const { color } = require('../../colorize.js');
 
 module.exports = {
@@ -29,6 +30,17 @@ module.exports = {
                 });
             });
         } else {
+            //get skills
+            const resultAbilities = await db.collection(settings.database.collections.data).find({
+                name: "Abilities"
+            }).toArray();
+            const abilities = resultAbilities[0]['content'];
+
+            const abilityName = capitalize(args[0]);
+            if (!Object.keys(abilities).includes(abilityName)) {
+                return await message.reply(`${args[0]} does not exist.`);
+            }
+
             //get character name
             let resultName = await db.collection(settings.database.collections.players).find({
                 discordID: message.author.id
@@ -41,8 +53,6 @@ module.exports = {
             }).toArray();
             let sheet = resultSheet[0];
 
-            const abilityName = args[0];
-
             //write the title
             let embedTitle = `${abilityName} saving throw`;
 
@@ -54,11 +64,11 @@ module.exports = {
             let expressionDice = new dice.ExpressionDice(expr);
             let rollEmbed = null;
 
-            const color = color(message.author.id, db);
+            const embedColor = color(message.author.id, db);
 
             //a basic roll without adv/dadv and bonus expression
             if (args.length == 1) {
-                rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, expressionDice.roll());
+                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
             }
 
             //either bonus expression or adv/dadv
@@ -66,12 +76,12 @@ module.exports = {
                 const arguments = args.slice(1).join('');
                 if (args[1] == 'adv' || args[1] == 'dadv') {
                     embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
                     expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, color, expr, embedTitle, expressionDice.roll());
+                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, expressionDice.roll());
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
                 }
@@ -85,7 +95,7 @@ module.exports = {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, color, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
             }
 
             return await message.reply({
