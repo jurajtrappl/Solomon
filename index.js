@@ -36,11 +36,11 @@ client.on("error", (e) => {
 });
 
 client.on('playerKnocked', async characterName => {
-    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player knocked: ${characterName}`);
+    //not implemented
 });
 
 client.on('playerDead', async characterName => {
-    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player ded: ${characterName}`);
+    //not implemented
 });
 
 client.on('message', async message => {
@@ -49,7 +49,7 @@ client.on('message', async message => {
         const args = message.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift();
 
-        await director.execute(prefix, commandName, args, message);
+        await director.execute(commandName, args, message);
     }
 });
 
