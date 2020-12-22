@@ -1,6 +1,6 @@
-const dice = require('../dice.js');
-const { helpEmbed, normalRollEmbed } = require('../embed.js');
 const settings = require('../../settings.json');
+const { ExpressionDice } = require('../dice.js');
+const { helpEmbed, normalRollEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'roll',
@@ -24,7 +24,7 @@ module.exports = {
             let characterName = resultName[0]["characters"][0];
 
             const expr = args.map(a => a.trim()).join('');
-            const expressionDice = new dice.ExpressionDice(expr);
+            const expressionDice = new ExpressionDice(expr);
 
             return await message.reply({
                 embed: normalRollEmbed(characterName, message.member.displayHexColor, expr, 'Expression roll', expressionDice.roll())

@@ -2,37 +2,7 @@ const settings = require('../../settings.json');
 const { ExpressionDice } = require('../dice');
 const { helpEmbed, objectEmbed } = require('../embed');
 const { TileType } = require('../map');
-
-//@trekhleb
-class LinkedListNode {
-    constructor(value, next = null) {
-        this.value = value;
-        this.next = next;
-    }
-}
-
-class LinkedList {
-    constructor() {
-        this.head = null;
-        this.tail = null;
-    }
-
-    append(value) {
-        const newNode = new LinkedListNode(value);
-
-        if (!this.head) {
-            this.head = newNode;
-            this.tail = newNode;
-
-            return this;
-        }
-
-        this.tail.next = newNode;
-        this.tail = newNode;
-
-        return this;
-    }
-}
+const { LinkedList } = require("../LinkedList");
 
 module.exports = {
     name: 'initiative',

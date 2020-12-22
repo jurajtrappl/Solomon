@@ -1,5 +1,5 @@
-const auth = require("../../auth.json");
 const settings = require('../../settings.json');
+const { dmID } = require("../../auth.json");
 const { helpEmbed, timeEmbed } = require('../embed.js');
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
     args: true,
     description: "Set current date, time and location.",
     async execute(message, args, db, _client) {
-        if (message.author.id == auth.dmID) {
+        if (message.author.id == dmID) {
             if (args.length == 0 || args[0] == "help") {
                 db.collection(settings.database.collections.helpEmbeds)
                     .find({

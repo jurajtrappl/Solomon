@@ -1,5 +1,5 @@
-const auth = require("../../auth.json");
 const settings = require('../../settings.json');
+const { dmID } = require("../../auth.json");
 const { helpEmbed } = require('../embed.js');
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
     description: "Modify players XP count - DM only.",
     args: true,
     async execute(message, args, db, _client) {
-        if (message.author.id == auth.dmID) {
+        if (message.author.id == dmID) {
             if (args.length == 0 || args[0] == "help") {
                 db.collection(settings.database.collections.helpEmbeds)
                     .find({

@@ -1,5 +1,5 @@
-const dice = require('../dice.js');
 const settings = require('../../settings.json');
+const { ExpressionDice } = require('../dice.js');
 const { helpEmbed, hitDiceEmbed } = require('../embed.js');
 
 module.exports = {
@@ -47,7 +47,7 @@ module.exports = {
                 const hitDicesLeft = hitDiceCount - hitDiceSpent - args[0];
 
                 try {
-                    const expressionDice = new dice.ExpressionDice(expr);
+                    const expressionDice = new ExpressionDice(expr);
                     const rollResult = expressionDice.roll();
 
                     //update the spent hit dices and current hp

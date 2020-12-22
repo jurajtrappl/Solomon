@@ -1,7 +1,7 @@
-const dice = require('../dice.js');
 const settings = require('../../settings.json');
 const { advOrDisadvEmbed, helpEmbed, normalRollEmbed } = require('../embed.js');
 const { capitalize } = require('../lang.js');
+const { ExpressionDice } = require('../dice.js');
 
 module.exports = {
     name: 'rac',
@@ -84,7 +84,7 @@ module.exports = {
 
             //create a roll expression
             let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
-            let expressionDice = new dice.ExpressionDice(expr);
+            let expressionDice = new ExpressionDice(expr);
             let rollEmbed = null;
 
             //pre roll both options
@@ -111,7 +111,7 @@ module.exports = {
                 } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                     const bonusExpr = arguments.substring(1, arguments.length - 1);
                     expr += bonusExpr;
-                    expressionDice = new dice.ExpressionDice(expr);
+                    expressionDice = new ExpressionDice(expr);
                     rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
                 } else {
                     return await message.reply('There is an error with adv/dadv.');
@@ -125,7 +125,7 @@ module.exports = {
                 const arguments = args.slice(2).join('');
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
-                expressionDice = new dice.ExpressionDice(expr);
+                expressionDice = new ExpressionDice(expr);
                 rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
             }
 

@@ -1,17 +1,17 @@
-const dice = require('../dice.js');
-const { healEmbed, helpEmbed, objectEmbed } = require("../embed.js");
 const settings = require("../../settings.json");
+const { ExpressionDice } = require("../dice.js");
+const { healEmbed, helpEmbed, objectEmbed } = require("../embed.js");
 
 module.exports = {
     name: "heal",
-    aliases: [ "Heal" ],
+    aliases: ["Heal"],
     args: true,
     description: "Heals a character.",
     healingPotions: {
-        "Healing": "2d4+2",
-        "Greater": "4d4+4",
-        "Superior": "8d4+8",
-        "Supreme": "10d4+20"
+        Healing: "2d4+2",
+        Greater: "4d4+4",
+        Superior: "8d4+8",
+        Supreme: "10d4+20",
     },
     async execute(message, args, db, _client) {
         if (args[0] === "help" || args.length == 0) {
@@ -25,28 +25,32 @@ module.exports = {
                         embed: helpEmbed(message.member.displayHexColor, result[0]),
                     });
                 });
-        } else if (args[0] == 'potions') {
-            return await message.reply({ 
-                embed: objectEmbed(message.member.displayHexColor, this.healingPotions, 'List of healing potions')
+        } else if (args[0] == "potions") {
+            return await message.reply({
+                embed: objectEmbed(
+                    message.member.displayHexColor,
+                    this.healingPotions,
+                    "List of healing potions"
+                ),
             });
         } else {
-            let expr = '';
-            let title = '';
+            let expr = "";
+            let title = "";
 
             if (Object.keys(this.healingPotions).includes(args[0])) {
                 expr = this.healingPotions[args[0]];
                 title = `Using potion: ${args[0]}`;
             } else {
-                const argsExpr = args.map(a => a.trim()).join('');
+                const argsExpr = args.map((a) => a.trim()).join("");
                 if (dice.isRollExpression(argsExpr)) {
                     expr = argsExpr;
-                    title = 'Healing using an expression';
+                    title = "Healing using an expression";
                 } else {
                     return await message.reply(settings.errorCommandExecuteMessage);
                 }
             }
 
-            const expressionDice = new dice.ExpressionDice(expr);
+            const expressionDice = new ExpressionDice(expr);
             const heal = expressionDice.roll();
 
             //get character name
@@ -88,8 +92,16 @@ module.exports = {
                 }
             );
 
-            return await message.reply({ 
-                embed: healEmbed(characterName, message.member.displayHexColor, expr, title, heal, newCurrentHp, sheet["maxHP"]) 
+            return await message.reply({
+                embed: healEmbed(
+                    characterName,
+                    message.member.displayHexColor,
+                    expr,
+                    title,
+                    heal,
+                    newCurrentHp,
+                    sheet["maxHP"]
+                ),
             });
         }
     },

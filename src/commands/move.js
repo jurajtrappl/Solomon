@@ -1,5 +1,5 @@
-const auth = require("../../auth.json");
 const settings = require('../../settings.json');
+const { dmID } = require("../../auth.json");
 const { helpEmbed } = require('../embed.js');
 const { moveObj } = require('../movement.js');
 
@@ -24,7 +24,7 @@ module.exports = {
 
         let name = '';
         let directions = '';
-        if (message.author.id != auth.dmID) {
+        if (message.author.id != dmID) {
             //get character name
             const resultName = await db
                 .collection(settings.database.collections.players)
