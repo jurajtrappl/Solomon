@@ -38,7 +38,7 @@ module.exports = {
 
                 return;
             } else {
-                let currentDateTime = new Date(resultTime[0]['datetime']);
+                let currentDateTime = new Date(resultTime[0].datetime);
 
                 if (args[1] == 'm') {
                     currentDateTime.setMinutes(
@@ -74,7 +74,7 @@ module.exports = {
                     discordID: message.author.id,
                 })
                 .toArray();
-            let characterName = resultName[0]['characters'][0];
+            let characterName = resultName[0].characters[0];
 
             let resultTime = await db
                 .collection(settings.database.collections.time)

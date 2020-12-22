@@ -32,16 +32,16 @@ module.exports = {
             let characterAdv = resultCharacterAdvancement[0];
 
             const isNextLevelExp = (exp) =>
-                exp > sheet['xp'] + Number(args[1]);
+                exp > sheet.xp + Number(args[1]);
 
-            const newLvl = Object.values(characterAdv['content']['xp']).findIndex(
+            const newLvl = Object.values(characterAdv.content.xp).findIndex(
                 isNextLevelExp
             );
 
             const newValues = {
                 $set: {
                     level: newLvl,
-                    xp: sheet['xp'] + Number(addXP),
+                    xp: sheet.xp + Number(addXP),
                 },
             };
 

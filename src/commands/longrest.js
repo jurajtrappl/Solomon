@@ -15,7 +15,7 @@ module.exports = {
         const resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        const characterName = resultName[0]['characters'][0];
+        const characterName = resultName[0].characters[0];
 
         //get character time data, to check if long rest is available
         const resultTime = await db.collection(settings.database.collections.time).find({
@@ -27,7 +27,7 @@ module.exports = {
         const resultLongRestLength = await db.collection(settings.database.collections.data).find({
             name: 'LongRestLength'
         }).toArray();
-        const longRestLength = resultLongRestLength[0]['content'];
+        const longRestLength = resultLongRestLength[0].content;
 
         //get character sheet
         const resultSheet = await db.collection(settings.database.collections.characters).find({
@@ -35,15 +35,15 @@ module.exports = {
         }).toArray();
         const sheet = resultSheet[0];
 
-        const lastLongRest = new Date(time['lastLongRest']);
-        const currentTime = new Date(time['datetime']);
+        const lastLongRest = new Date(time.lastLongRest);
+        const currentTime = new Date(time.dateTime);
 
         let isContinue = true;
 
-        const isAtleastOneDayAfterLastLongRest = Math.abs(currentTime - lastLongRest) / 36e5 >= (24 - longRestLength[sheet['race']]);
+        const isAtleastOneDayAfterLastLongRest = Math.abs(currentTime - lastLongRest) / 36e5 >= (24 - longRestLength[sheet.race]);
         if (!isAtleastOneDayAfterLastLongRest) {
             let benefitableTime = new Date(lastLongRest);
-            benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength[sheet['race']]));
+            benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength[sheet.race]));
             await message.reply(`You can not benefit from long rest until ${benefitableTime.toLocaleString()}. Do you still wish to do a long rest?`);
 
             message.react('👍').then(() => message.react('👎'));
@@ -69,7 +69,7 @@ module.exports = {
             return await message.reply('Okay, ain\'t nobody got time for that.');
         }
 
-        let isEnoughHP = sheet['currentHP'] >= 1;
+        let isEnoughHP = sheet.currentHP >= 1;
         if (!isEnoughHP) {
             await message.reply('You can not benefit from long rest, because you have less than 1 HP. Do you still wish to do a long rest?');
 
@@ -97,7 +97,7 @@ module.exports = {
         }
 
         let newCurrentTime = new Date(currentTime);
-        newCurrentTime.setHours(newCurrentTime.getHours() + longRestLength[sheet['race']]);
+        newCurrentTime.setHours(newCurrentTime.getHours() + longRestLength[sheet.race]);
 
         let newTimeValues = {
             $set: {
@@ -117,15 +117,15 @@ module.exports = {
         if (isBenefitable) {
             let newSheetValues = {};
             //check if any hit dices were spent
-            if (sheet['hitDice']['spent'] == 0) {
+            if (sheet.hitDice.spent == 0) {
                 newSheetValues = {
                     $set: {
-                        currentHP: (isEnoughHP) ? sheet['maxHP'] : currentHP,
+                        currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
                         'spells.spellslots.expended.$[]': 0
                     }
                 };
             } else {
-                let hitDiceMissing = sheet['level'] - sheet['hitDice']['count'];
+                let hitDiceMissing = sheet.level - sheet.hitDice.count;
                 let hitDiceRegain = Math.floor(hitDiceMissing / 2);
                 if (hitDiceRegain == 0) {
                     hitDiceRegain++;
@@ -133,9 +133,9 @@ module.exports = {
 
                 newSheetValues = {
                     $set: {
-                        currentHP: (isEnoughHP) ? sheet['maxHP'] : currentHP,
-                        'hitDice.spent': sheet['hitDice']['spent'] - Number(hitDiceRegain),
-                        'hitDice.count': sheet['hitDice']['count'] + Number(hitDiceRegain),
+                        currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
+                        'hitDice.spent': sheet.hitDice.spent - Number(hitDiceRegain),
+                        'hitDice.count': sheet.hitDice.count + Number(hitDiceRegain),
                         'spells.spellslots.expended.$[]': 0
                     }
                 };

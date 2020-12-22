@@ -11,7 +11,7 @@ module.exports = {
 
         for(row = 0; row < parsedMap.dimensions.height; row++) {
             for(col = 0; col < parsedMap.dimensions.width; col++) {
-                mapAsMessage += parsedMap['tiles'][row][col].value;
+                mapAsMessage += parsedMap.tiles[row][col].value;
             }
             mapAsMessage += '\n';
         }
@@ -31,7 +31,7 @@ module.exports = {
                 name: 'Combat',
             })
             .toArray();
-        let map = resultMap[0]['content']['map'];
+        let map = resultMap[0].content.map;
 
         let parsedMap = JSON.parse(map);
 

@@ -20,7 +20,7 @@ module.exports = {
             let resultName = await db.collection(settings.database.collections.players).find({
                 discordID: message.author.id
             }).toArray();
-            const characterName = resultName[0]['characters'][0];
+            const characterName = resultName[0].characters[0];
 
             //get character sheet
             let resultSheet = await db.collection(settings.database.collections.characters).find({
@@ -28,16 +28,16 @@ module.exports = {
             }).toArray();
             const sheet = resultSheet[0];
 
-            const hitDiceCount = sheet['hitDice']['count'];
-            const hitDiceSpent = Number(sheet['hitDice']['spent']);
+            const hitDiceCount = sheet.hitDice.count;
+            const hitDiceSpent = Number(sheet.hitDice.spent);
 
             if (Number(args[0]) + hitDiceSpent > hitDiceCount) {
                 return await message.reply(`You can't use that many hit dices. (${hitDiceCount} hit dice${(hitDiceCount != 1) ? 's' : ''} left)`);
             }
 
             //create the roll expression
-            const constitutionModifier = Math.floor((sheet['abilities']['Constitution'] - 10) / 2);
-            const hitDiceType = sheet['hitDice']['type'];
+            const constitutionModifier = Math.floor((sheet.abilities.Constitution - 10) / 2);
+            const hitDiceType = sheet.hitDice.type;
             const hitDicesToRoll = args[0];
             const expr = `${hitDicesToRoll}d${hitDiceType}+${hitDicesToRoll * constitutionModifier}`;
             const hitDicesLeft = hitDiceCount - hitDiceSpent - args[0];
@@ -47,15 +47,15 @@ module.exports = {
                 const rollResult = expressionDice.roll();
 
                 //update the spent hit dices and current hp
-                let newHP = Number(sheet['currentHP']) + Number(rollResult.totalRoll);
-                if (newHP > Number(sheet['maxHP'])) {
-                    newHP = Number(sheet['maxHP']);
+                let newHP = Number(sheet.currentHP) + Number(rollResult.totalRoll);
+                if (newHP > Number(sheet.maxHP)) {
+                    newHP = Number(sheet.maxHP);
                 }
 
                 const newHitDiceSpentValue = {
                     $set: {
                         hitDice: {
-                            type: sheet['hitDice']['type'],
+                            type: sheet.hitDice.type,
                             spent: hitDiceSpent + Number(args[0]),
                             count: hitDiceCount - Number(args[0])
                         },

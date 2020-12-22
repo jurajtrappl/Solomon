@@ -24,7 +24,7 @@ module.exports = {
                 name: 'Combat',
             })
             .toArray();
-        let map = resultMap[0]['content']['map'];
+        let map = resultMap[0].content.map;
         let parsedMap = JSON.parse(map);
 
         //check for the duplicity of objects

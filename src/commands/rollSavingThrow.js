@@ -10,11 +10,11 @@ module.exports = {
     description: 'Roll a saving throw.',
     modifier: function (score) { return Math.floor((score - 10) / 2) },
     calculateAbilityBonus: function (sheet, abilityName) {
-        let bonus = this.modifier(sheet['abilities'][abilityName]);
+        let bonus = this.modifier(sheet.abilities[abilityName]);
 
         //check the proficiency
-        if (sheet['savingThrows'][abilityName]) {
-            bonus += sheet['proficiencyBonus'];
+        if (sheet.savingThrows[abilityName]) {
+            bonus += sheet.proficiencyBonus;
         }
 
         return bonus;
@@ -29,7 +29,7 @@ module.exports = {
         const resultAbilities = await db.collection(settings.database.collections.data).find({
             name: 'Abilities'
         }).toArray();
-        const abilities = resultAbilities[0]['content'];
+        const abilities = resultAbilities[0].content;
 
         const abilityName = capitalize(args[0]);
         if (!Object.keys(abilities).includes(abilityName)) {
@@ -40,7 +40,7 @@ module.exports = {
         let resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        let characterName = resultName[0]['characters'][0];
+        let characterName = resultName[0].characters[0];
 
         //get character sheet
         let resultSheet = await db.collection(settings.database.collections.characters).find({

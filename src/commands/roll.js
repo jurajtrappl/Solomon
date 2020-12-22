@@ -17,7 +17,7 @@ module.exports = {
         let resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        let characterName = resultName[0]['characters'][0];
+        let characterName = resultName[0].characters[0];
 
         const expr = args.map(a => a.trim()).join('');
         const expressionDice = new ExpressionDice(expr);

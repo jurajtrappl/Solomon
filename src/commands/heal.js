@@ -55,7 +55,7 @@ module.exports = {
                     discordID: message.author.id,
                 })
                 .toArray();
-            let characterName = resultName[0]['characters'][0];
+            let characterName = resultName[0].characters[0];
 
             //get character sheet
             let resultSheet = await db
@@ -66,9 +66,9 @@ module.exports = {
                 .toArray();
             let sheet = resultSheet[0];
 
-            let newCurrentHp = sheet['currentHP'] + Number(heal.totalRoll);
-            if (newCurrentHp > sheet['maxHP']) {
-                newCurrentHp = sheet['maxHP'];
+            let newCurrentHp = sheet.currentHP + Number(heal.totalRoll);
+            if (newCurrentHp > sheet.maxHP) {
+                newCurrentHp = sheet.maxHP;
             }
 
             const newValues = {

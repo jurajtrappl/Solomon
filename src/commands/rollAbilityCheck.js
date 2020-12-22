@@ -10,17 +10,17 @@ module.exports = {
     description: 'Roll an ability check.',
     modifier: function (score) { return Math.floor((score - 10) / 2) },
     calculateSkillBonus: function (sheet, skillName, skills) {
-        const skillAbility = skills[skillName]['ability'];
-        let bonus = this.modifier(sheet['abilities'][skillAbility]);
+        const skillAbility = skills[skillName].ability;
+        let bonus = this.modifier(sheet.abilities[skillAbility]);
 
         //check for proficiency
-        if (sheet['skills'][skillName]['prof']) {
-            bonus += sheet['proficiencyBonus'];
+        if (sheet.skills[skillName].prof) {
+            bonus += sheet.proficiencyBonus;
         }
 
         //check for double proficiency
-        if (sheet['doubleProf'].indexOf(skillName) != -1) {
-            bonus += sheet['proficiencyBonus'];
+        if (sheet.doubleProf.indexOf(skillName) != -1) {
+            bonus += sheet.proficiencyBonus;
         }
 
         return bonus;
@@ -52,7 +52,7 @@ module.exports = {
         const resultSkills = await db.collection(settings.database.collections.data).find({
             name: 'Skills'
         }).toArray();
-        const skills = resultSkills[0]['content'];
+        const skills = resultSkills[0].content;
 
         //check skill name
         const skillName = capitalize(args[0]);
@@ -64,7 +64,7 @@ module.exports = {
         let resultName = await db.collection(settings.database.collections.players).find({
             discordID: message.author.id
         }).toArray();
-        let characterName = resultName[0]['characters'][0];
+        let characterName = resultName[0].characters[0];
 
         //get character sheet
         let resultSheet = await db.collection(settings.database.collections.characters).find({
@@ -73,7 +73,7 @@ module.exports = {
         let sheet = resultSheet[0];
 
         //write the title
-        let embedTitle = `${skills[skillName]['name']} ability check`;;
+        let embedTitle = `${skills[skillName].name} ability check`;;
 
         //calculate the bonus
         let bonus = this.calculateSkillBonus(sheet, skillName, skills);
@@ -87,7 +87,7 @@ module.exports = {
         let normalRoll = expressionDice.roll();
         let { first, second } = expressionDice.rollWithAdvOrDisadv();
 
-        if (sheet['class'] === 'Rogue' && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
+        if (sheet.class === 'Rogue' && sheet.level >= 11 && sheet.skills[skillName].prof) {
             normalRoll = this.reliableTalent(expressionDice.roll());
             first = this.reliableTalent(first);
             second = this.reliableTalent(second);

@@ -19,7 +19,7 @@ module.exports = {
                 discordID: message.author.id,
             })
             .toArray();
-        let characterName = resultName[0]['characters'][0];
+        let characterName = resultName[0].characters[0];
 
         let resultSheet = await db
             .collection(settings.database.collections.characters)

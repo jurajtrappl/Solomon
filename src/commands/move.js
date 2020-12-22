@@ -24,7 +24,7 @@ module.exports = {
                 name: 'Combat',
             })
             .toArray();
-        const map = resultMap[0]['content']['map'];
+        const map = resultMap[0].content.map;
         let parsedMap = JSON.parse(map);
 
         let name = '';
@@ -37,7 +37,7 @@ module.exports = {
                     discordID: message.author.id,
                 })
                 .toArray();
-            name = resultName[0]['characters'][0];
+            name = resultName[0].characters[0];
 
             //get directions
             directions = args[0];
