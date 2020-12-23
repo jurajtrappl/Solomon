@@ -3,7 +3,7 @@ const { database } = require('../../settings.json');
 const { makeSheetEmbed } = require('../output/embed');
 
 module.exports = {
-    name: 'sheet',
+    name: 'profile',
     args: false,
     description: 'Shows players character sheet.',
     async execute(message, args, mongo, _discordClient) {
