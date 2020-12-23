@@ -1,55 +1,92 @@
 {
     "abilities": {
-      "Strength": 0,
-      "Dexterity": 0,
-      "Constitution": 0,
-      "Intelligence": 0,
-      "Wisdom": 0,
-      "Charisma": 0
+        "Strength": 0,
+        "Dexterity": 0,
+        "Constitution": 0,
+        "Intelligence": 0,
+        "Wisdom": 0,
+        "Charisma": 0
     },
     "cantrips": {
-      "known": 0
+        "known": 0
     },
     "characterName": "",
     "class": "",
     "currentHP": "",
     "doubleProf": [],
     "hitDice": {
-      "type": 0,
-      "count": 0,
-      "spent": 0
+        "type": 0,
+        "count": 0,
+        "spent": 0
     },
+    "initiative": 0,
     "level": 0,
     "maxHP": 0,
     "proficiencyBonus": 0,
     "race": "",
     "savingThrows": {
-      "Strength": false,
-      "Dexterity": false,
-      "Constitution": false,
-      "Intelligence": true,
-      "Wisdom": true,
-      "Charisma": false
+        "Strength": false,
+        "Dexterity": false,
+        "Constitution": false,
+        "Intelligence": true,
+        "Wisdom": true,
+        "Charisma": false
     },
     "skills": {
-      "Acrobatics": { "prof": true },
-      "Animal": { "prof": false },
-      "Arcana": { "prof": true },
-      "Athletics": { "prof": true },
-      "Deception": { "prof": false },
-      "History": { "prof": false },
-      "Insight": { "prof": true },
-      "Intimidation": { "prof": false },
-      "Investigation": { "prof": false },
-      "Medicine": { "prof": false },
-      "Natural": { "prof": true },
-      "Perception": { "prof": true },
-      "Performance": { "prof": false },
-      "Persuasion": { "prof": false },
-      "Religion": { "prof": false },
-      "Sleight": { "prof": false },
-      "Stealth": { "prof": false },
-      "Survival": { "prof": true }
+        "Acrobatics": {
+            "prof": true
+        },
+        "Animal": {
+            "prof": false
+        },
+        "Arcana": {
+            "prof": true
+        },
+        "Athletics": {
+            "prof": true
+        },
+        "Deception": {
+            "prof": false
+        },
+        "History": {
+            "prof": false
+        },
+        "Insight": {
+            "prof": true
+        },
+        "Intimidation": {
+            "prof": false
+        },
+        "Investigation": {
+            "prof": false
+        },
+        "Medicine": {
+            "prof": false
+        },
+        "Natural": {
+            "prof": true
+        },
+        "Perception": {
+            "prof": true
+        },
+        "Performance": {
+            "prof": false
+        },
+        "Persuasion": {
+            "prof": false
+        },
+        "Religion": {
+            "prof": false
+        },
+        "Sleight": {
+            "prof": false
+        },
+        "Stealth": {
+            "prof": false
+        },
+        "Survival": {
+            "prof": true
+        }
     },
     "speed": 0,
     "spells": {
@@ -59,5 +96,4 @@
         }
     },
     "xp": 0
-  }
-  
+}
