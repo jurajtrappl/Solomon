@@ -2,7 +2,7 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeHitDiceEmbed } = require('../output/embed');
-const { modifier } = require('../rolls/rollUtility');
+const { Sheet } = require('../character/sheetUtility');
 
 module.exports = {
     name: 'rhd',
@@ -26,8 +26,9 @@ module.exports = {
             //get character sheet
             const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
             if (!sheet) {
-                throw new Error(`${characterName} has not a character sheet`);
+                throw new Error(`${characterName} has not a character sheet.`);
             }
+            const characterSheet = new Sheet(sheet);
 
             const hitDiceCount = sheet.hitDice.count;
             const hitDiceSpent = Number(sheet.hitDice.spent);
@@ -37,7 +38,7 @@ module.exports = {
             }
 
             //create the roll expression
-            const constitutionModifier = modifier(sheet.abilities.Constitution);
+            const constitutionModifier = characterSheet.modifier(characterSheet.abilityScore('Constitution'));
             const hitDiceType = sheet.hitDice.type;
             const hitDicesToRoll = Number(args[0]);
             const expr = `${hitDicesToRoll}d${hitDiceType}+${hitDicesToRoll * constitutionModifier}`;

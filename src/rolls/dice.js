@@ -100,6 +100,7 @@ function isRollExpression(value) {
 class ExpressionDice {
     constructor(expr) {
         if (!isRollExpression(expr)) {
+            console.log(expr);
             throw new Error('Error in the expression.');
         }
 

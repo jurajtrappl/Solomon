@@ -3,7 +3,8 @@ const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
-const { calculateSkillBonus, reliableTalent } = require('../rolls/rollUtility');
+const { reliableTalent } = require('../rolls/rollUtility');
+const { Sheet } = require('../character/sheetUtility');
 
 module.exports = {
     name: 'rac',
@@ -38,12 +39,13 @@ module.exports = {
         if (!sheet) {
             throw new Error(`${characterName} has not a character sheet`);
         }
+        const characterSheet = new Sheet(sheet);
 
         //write the title
         let embedTitle = `${skills.content[skillName].name} ability check`;;
 
         //calculate the bonus
-        let bonus = calculateSkillBonus(sheet, skillName, skills.content);
+        let bonus = characterSheet.calculateSkillBonus(skills.content, skillName);
 
         //create a roll expression
         let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
