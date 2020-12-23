@@ -1,140 +1,111 @@
-const dice = require('../dice.js');
-const { capitalize } = require('../lang.js');
-const settings = require('../../settings.json');
-const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
-const { color } = require('../colorize.js');
+const { addBonusExpression, prepareCheck, reliableTalent } = require('../rolls/rollUtils');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { capitalize } = require('../output/lang');
+const { database } = require('../../settings.json');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
+const { Sheet } = require('../character/sheet');
 
 module.exports = {
     name: 'rac',
     args: true,
     description: 'Roll an ability check.',
-    modifier: function (score) { return Math.floor((score - 10) / 2) },
-    calculateSkillBonus: function (sheet, skillName, skills) {
-        const skillAbility = skills[skillName]['ability'];
-        let bonus = this.modifier(sheet['abilities'][skillAbility]);
-
-        //check for proficiency
-        if (sheet['skills'][skillName]['prof']) {
-            bonus += sheet['proficiencyBonus'];
+    async execute(message, args, mongo, _discordClient) {
+        if (askedForHelp(args)) {
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
-        //check for double proficiency
-        if (sheet['doubleProf'].indexOf(skillName) != -1) {
-            bonus += sheet['proficiencyBonus'];
+        //get skills
+        const skills = await mongo.tryFind(database.collections.data, { name: 'Skills' });
+        if (!skills) {
+            throw new Error(`There are not data about skills.`);
         }
 
-        return bonus;
-    },
-    reliableTalent: function({ visual, totalRoll }) {
-        //reliable talent
-        let splitted = visual.split('+');
-        let diceRoll = splitted[0].trim().substring(1, splitted[0].trim().length - 1);
-
-        let newVisual = visual;
-        let newTotal = totalRoll;
-        if (diceRoll < 10) {
-            newVisual = `(10) + ${splitted[1]}`;
-            newTotal += 10 - diceRoll;
+        //check skill name
+        const skillName = capitalize(args[0]);
+        if (!Object.keys(skills.content).includes(skillName)) {
+            return await message.reply(`${args[0]} does not exist.`);
         }
 
-        return {
-            visual: newVisual,
-            totalRoll: newTotal
+        //get character name
+        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!playerData) {
+            throw new Error(`You do not have a character.`);
         }
-    },
-    async execute(message, args, db, _client) {
-        if (args[0] === 'help') {
-            db.collection(settings.database.collections.helpEmbeds).find({
-                commandName: this.name
-            }).toArray(async (err, result) => {
-                if (err) throw err;
-                return await message.reply({
-                    embed: result[0],
-                });
-            });
-        } else {
-            //get skills
-            const resultSkills = await db.collection(settings.database.collections.data).find({
-                name: "Skills"
-            }).toArray();
-            const skills = resultSkills[0]['content'];
+        const [characterName] = playerData.characters;
 
-            //check skill name
-            const skillName = capitalize(args[0]);
-            if (!Object.keys(skills).includes(skillName)) {
-                return await message.reply(`${args[0]} does not exist.`);
+        //get character sheet
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new Error(`${characterName} has not a character sheet`);
+        }
+        const characterSheet = new Sheet(sheet);
+
+        //write the title
+        let embedTitle = `${skills.content[skillName].name} ability check`;;
+
+        const bonus = characterSheet.calculateSkillBonus(skills.content, skillName);
+        let check = prepareCheck(bonus);
+
+        let rollEmbed = null;
+
+        //a basic roll without adv/dadv and bonus expression
+        if (args.length == 1) {
+            let firstRoll = check.dice.roll();
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
             }
 
-            //get character name
-            let resultName = await db.collection(settings.database.collections.players).find({
-                discordID: message.author.id
-            }).toArray();
-            let characterName = resultName[0]["characters"][0];
+            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, firstRoll);
+        }
 
-            //get character sheet
-            let resultSheet = await db.collection(settings.database.collections.characters).find({
-                characterName: characterName
-            }).toArray();
-            let sheet = resultSheet[0];
+        //either bonus expression or adv/dadv
+        if (args.length == 2) {
+            const bonusArg = args.slice(1).join('');
 
-            //write the title
-            let embedTitle = `${skills[skillName]['name']} ability check`;;
+            let firstRoll = check.dice.roll();
+            let secondRoll = check.dice.roll();
 
-            //calculate the bonus
-            let bonus = this.calculateSkillBonus(sheet, skillName, skills);
-
-            //create a roll expression
-            let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
-            let expressionDice = new dice.ExpressionDice(expr);
-            let rollEmbed = null;
-
-            //pre roll both options
-            let normalRoll = expressionDice.roll();
-            let { first, second } = expressionDice.rollWithAdvOrDisadv();
-
-            if (sheet['class'] === "Rogue" && sheet['level'] >= 11 && sheet['skills'][skillName]['prof']) {
-                normalRoll = this.reliableTalent(expressionDice.roll());
-                first = this.reliableTalent(first);
-                second = this.reliableTalent(second);
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
+                secondRoll = reliableTalent(secondRoll);
             }
 
-            const embedColor = color(message.author.id, db);
-
-            //a basic roll without adv/dadv and bonus expression
-            if (args.length == 1) {                
-                rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
-            }
-
-            //either bonus expression or adv/dadv
-            if (args.length == 2) {
-                const arguments = args.slice(1).join('');
-                if (args[1] == 'adv' || args[1] == 'dadv') {
-                    embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                    rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
-                } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
-                    const bonusExpr = arguments.substring(1, arguments.length - 1);
-                    expr += bonusExpr;
-                    expressionDice = new dice.ExpressionDice(expr);
-                    rollEmbed = normalRollEmbed(characterName, embedColor, expr, embedTitle, normalRoll);
-                } else {
-                    return await message.reply('There is an error with adv/dadv.');
-                }
-            }
-
-            //a basic roll with adv/dadv and bonus expression
-            if (args.length == 3) {
+            if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, firstRoll, secondRoll);
+            } else if (bonusArg.startsWith('(') && bonusArg.endsWith(')')) {
+                check = addBonusExpression(check.expression, bonusArg);
 
-                const arguments = args.slice(2).join('');
-                const bonusExpr = arguments.substring(1, arguments.length - 1);
-                expr += bonusExpr;
-                expressionDice = new dice.ExpressionDice(expr);
-                rollEmbed = advOrDisadvEmbed(characterName, embedColor, args[1], expr, embedTitle, first, second);
+                if (characterSheet.canApplyReliableTalent(skillName)) {
+                    firstRoll = reliableTalent(firstRoll);
+                }
+                
+                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, firstRoll);
+            } else {
+                return await message.reply('There is an error with adv/dadv.');
+            }
+        }
+
+        //a basic roll with adv/dadv and bonus expression
+        if (args.length == 3) {
+            embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
+
+            const bonusArg = args.slice(2).join('');
+            check = addBonusExpression(check.expression, bonusArg);
+
+            let firstRoll = check.dice.roll();
+            let secondRoll = check.dice.roll();
+
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
+                secondRoll = reliableTalent(secondRoll);
             }
 
-            return await message.reply({
-                embed: rollEmbed
-            });
+            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, firstRoll, secondRoll);
         }
+
+        return await message.reply({
+            embed: rollEmbed
+        });
     }
 }

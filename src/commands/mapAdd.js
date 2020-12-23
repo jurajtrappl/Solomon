@@ -1,25 +1,27 @@
-const settings = require('../../settings.json');
-const { Tile, TileTypeArgs, TileType } = require('../map.js');
+const { database } = require('../../settings.json');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { Tile, TileTypeArgs, TileType } = require('../combat/map');
 
 module.exports = {
     name: 'mapAdd',
     args: false,
     description: 'Adds an object to the map.',
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
+        if (askedForHelp(args)) {
+            return await printHelpEmbed(this.name, message, mongo);
+        }
+
         const tileTypeArg = args[0];
         if (!Object.keys(TileTypeArgs).includes(tileTypeArg)) {
             return await message.reply('Tile type does not exist.');
         }
 
         //get map
-        let resultMap = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        let map = resultMap[0]['content']['map'];
-        let parsedMap = JSON.parse(map);
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
+        }
+        let parsedMap = JSON.parse(combat.content.map);
 
         //check for the duplicity of objects
         const name = args[1];
@@ -51,17 +53,13 @@ module.exports = {
         parsedMap.specialObjects[name] = { x: row, y: col };
 
         //update map
-        await db.collection(settings.database.collections.data).updateOne({
-            name: 'Combat'
-        }, {
+        const newMapValue = {
             $set: {
-                "content.map": JSON.stringify(parsedMap)
+                'map': JSON.stringify(parsedMap)
             }
-        },
-            (err) => {
-                if (err) throw err;
-            }
-        );
+        };
+
+        await mongo.updateOne(database.collections.data, { name: 'Combat.content' }, newMapValue);
 
         //update list of combatants
         const newCombatant = {
@@ -70,17 +68,7 @@ module.exports = {
         };
 
         if (TileTypeArgs[tileTypeArg] != TileType.border && TileTypeArgs[tileTypeArg] != TileType.free) {
-            await db.collection(settings.database.collections.data).updateOne({
-                name: 'Combat'
-            }, {
-                $push: {
-                    "content.combatants": JSON.stringify(newCombatant)
-                }
-            },
-                (err) => {
-                    if (err) throw err;
-                }
-            );
+            await mongo.updateOne(database.collections.data, { name: 'Combat' }, newCombatant);
         }
     }
 }

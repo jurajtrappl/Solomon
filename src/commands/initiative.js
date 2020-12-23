@@ -1,39 +1,9 @@
-const settings = require('../../settings.json');
-const { color } = require('../colorize.js');
-const { ExpressionDice } = require('../dice');
-const { objectEmbed } = require('../embed');
-const { TileType } = require('../map');
-
-//@trekhleb
-class LinkedListNode {
-    constructor(value, next = null) {
-        this.value = value;
-        this.next = next;
-    }
-}
-
-class LinkedList {
-    constructor() {
-        this.head = null;
-        this.tail = null;
-    }
-
-    append(value) {
-        const newNode = new LinkedListNode(value);
-
-        if (!this.head) {
-            this.head = newNode;
-            this.tail = newNode;
-
-            return this;
-        }
-
-        this.tail.next = newNode;
-        this.tail = newNode;
-
-        return this;
-    }
-}
+const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { database } = require('../../settings.json');
+const { ExpressionDice } = require('../rolls/dice');
+const { LinkedList } = require('../dataStructures/LinkedList');
+const { makeObjectEmbed } = require('../output/embed');
+const { TileType } = require('../combat/map');
 
 module.exports = {
     name: 'initiative',
@@ -62,32 +32,30 @@ module.exports = {
 
         return initiativeOrder;
     },
-    async execute(message, _args, db, _client) {
-        //get combatants
-        const resultCombatants = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        let combatants = resultCombatants[0].content.combatants;
+    async execute(message, args, mongo, _discordClient) {
+        if (askedForHelp(args)) {
+            return await printHelpEmbed(this.name, message, mongo);
+        }
+
+        //get combat
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
+        }
 
         let expr = '';
         let expressionDice = {};
         let initiativeBonus = 0;
         let rollResult = {};
         let rolls = this.initRolls();
-        for (let combatantJSONString of combatants) {
+        for (let combatantJSONString of combat.content.combatants) {
             const combatant = JSON.parse(combatantJSONString);
 
             if (combatant.type == TileType.character) {
-                const resultSheet = await db
-                    .collection(settings.database.collections.characters)
-                    .find({
-                        characterName: combatant.name,
-                    })
-                    .toArray();
-                const sheet = resultSheet[0];
+                const sheet = await mongo.tryFind(database.collections.characters, { characterName: combatant.name });
+                if (!sheet) {
+                    throw new Error(`${combatant.name} has not a character sheet.`);
+                }
 
                 initiativeBonus = sheet.initiative;
             }
@@ -102,23 +70,21 @@ module.exports = {
         const initiativeOrder = this.findInitiativeOrder(rolls);
 
         //update initiative order
-        await db.collection(settings.database.collections.data).updateOne({
-            name: 'Combat'
-        }, {
+        const newInitiativeOrder = {
             $set: {
                 'content.initiativeOrder': JSON.stringify(initiativeOrder)
             }
-        }, (err) => {
-            if (err) throw err;
-        });
+        };
+
+        await mongo.updateOne(database.collections.data, { name: 'Combat' }, newInitiativeOrder);
 
         //print the result to the players
         return await message.channel.send({
-            embed: objectEmbed(
-                color(message.author.id, db), 
-                initiativeOrder, 
+            embed: makeObjectEmbed(
+                message.member.displayHexColor,
+                initiativeOrder,
                 'Initiative order'
-                )
+            )
         });
     }
 }

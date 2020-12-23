@@ -1,4 +1,4 @@
-const { TileType } = require("./map.js");
+const { TileType } = require('./map');
 
 const directions = {
     'l': {

@@ -1,67 +1,46 @@
-const auth = require("../../auth.json");
-const settings = require('../../settings.json');
+const { database } = require('../../settings.json');
+const { dmID } = require('../../auth.json');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 
 module.exports = {
-    name: "addxp",
-    description: "Modify players XP count - DM only.",
+    name: 'addxp',
+    description: 'Modify players XP count - DM only.',
     args: true,
-    async execute(message, args, db, _client) {
-        if (message.author.id == auth.dmID) {
-            if (args.length == 0 || args[0] == "help") {
-                db.collection(settings.database.collections.helpEmbeds)
-                    .find({
-                        commandName: this.name,
-                    })
-                    .toArray(async (err, result) => {
-                        if (err) throw err;
-                        return await message.reply({
-                            embed: result[0],
-                        });
-                    });
-            } else {
-                const addXP = args[1];
+    async execute(message, args, mongo, _discordClient) {
+        if (askedForHelp(args)) {
+            return await printHelpEmbed(this.name, message, mongo);
+        }
 
-                let resultSheet = await db
-                    .collection(settings.database.collections.characters)
-                    .find({
-                        characterName: args[0],
-                    })
-                    .toArray();
-                let sheet = resultSheet[0];
-
-                let resultCharacterAdvancement = await db
-                    .collection(settings.database.collections.data)
-                    .find({
-                        name: "CharacterAdvancement"
-                    })
-                    .toArray();
-                let characterAdv = resultCharacterAdvancement[0];
-
-                const isNextLevelExp = (exp) =>
-                    exp > sheet["xp"] + Number(args[1]);
-
-                const newLvl = Object.values(characterAdv["content"]["xp"]).findIndex(
-                    isNextLevelExp
-                );
-
-                const newValues = {
-                    $set: {
-                        level: newLvl,
-                        xp: sheet["xp"] + Number(addXP),
-                    },
-                };
-
-                await db.collection(settings.database.collections.characters).updateOne({
-                        characterName: args[0],
-                    },
-                    newValues,
-                    (err) => {
-                        if (err) throw err;
-                    }
-                );
+        if (message.author.id == dmID) {
+            const characterName = args[0];
+            const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+            if (!sheet) {
+                throw new Error(`${characterName} has not a character sheet`);
             }
+
+            const characterAdvancement = await mongo.tryFind(database.collections.data, { name: 'CharacterAdvancement' });
+            if (!characterAdvancement) {
+                throw new Error(`There is not a 'Character Advancement'.`);
+            }
+
+            const addXP = args[1];
+            const isNextLevelExp = (exp) =>
+                exp > sheet.xp + Number(addXP);
+
+            const newLvl = Object.values(characterAdvancement.content.xp).findIndex(
+                isNextLevelExp
+            );
+
+            const newValues = {
+                $set: {
+                    level: newLvl,
+                    xp: sheet.xp + Number(addXP),
+                },
+            };
+
+            await mongo.updateOne(database.collections.characters, { characterName: characterName }, newValues);
         } else {
-            return await message.reply("ty beťar jeden :smile:.");
+            return await message.reply('This command is not allowed for players.');
         }
     },
 };

@@ -1,6 +1,6 @@
-const fs = require('fs');
+const { command } = require('./settings.json');
+const { readdirSync } = require('fs');
 const { Collection } = require('discord.js');
-const settings = require('./settings.json');
 
 /**
  * Static class that loads comments from specified directories
@@ -18,7 +18,7 @@ class CommandLoader {
     static load(directories) {
         const commandCollection = new Collection();
         for (let dir of directories) {
-            let commandFiles = fs.readdirSync(dir).filter(file => file.endsWith('.js'));
+            let commandFiles = readdirSync(dir).filter(file => file.endsWith('.js'));
             commandFiles.forEach(file => {
                 const command = require(`${dir}/${file}`);
                 commandCollection.set(command.name, command);
@@ -35,7 +35,7 @@ class CommandLoader {
  */
 class CommandValidator {
     static validate(message) {
-        return (!message.author.bot) && message.content.startsWith(settings.prefix);
+        return (!message.author.bot) && message.content.startsWith(command.prefix);
     }
 }
 
@@ -45,12 +45,10 @@ class CommandValidator {
  * @class CommandDirector.
  */
 class CommandDirector {
-    constructor(client, dbClient) {
-        this.client = client;
-
-        this.dndDb = dbClient.db(settings.database.name);
-
-        this.commands = CommandLoader.load(settings.commandDirectory);
+    constructor(discordClient, mongo) {
+        this.discordClient = discordClient;
+        this.mongo = mongo;
+        this.commands = CommandLoader.load(command.directories);
     }
 
     findCommand(commandName) {
@@ -68,10 +66,10 @@ class CommandDirector {
         }
         
         try {
-            await command.execute(message, args, this.dndDb, this.client);
+            await command.execute(message, args, this.mongo, this.discordClient);
         } catch (error) {
-            console.error(error.message);
-            await message.reply(settings.errorCommandExecuteMessage);
+            console.log(error);
+            await message.reply(error.message);
         }
     }
 }

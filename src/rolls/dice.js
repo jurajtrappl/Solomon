@@ -10,12 +10,12 @@ class Dice {
         this.bonus = bonus;
 
         if (this.constructor == Dice) {
-            throw new Error("Abstract classes can't be instantiated.");
+            throw new Error('Abstract classes can\'t be instantiated.');
         }
     }
 
     roll() {
-        throw new Error("Method 'roll()' must be implemented.");
+        throw new Error('Method \'roll()\' must be implemented.');
     }
 
     createVisual(rolls) {
@@ -100,6 +100,7 @@ function isRollExpression(value) {
 class ExpressionDice {
     constructor(expr) {
         if (!isRollExpression(expr)) {
+            console.log(expr);
             throw new Error('Error in the expression.');
         }
 
@@ -146,13 +147,6 @@ class ExpressionDice {
             totalRoll: total
         }
     }
-
-    rollWithAdvOrDisadv = () => {
-        return {
-            first: this.roll(),
-            second: this.roll()
-        }
-    };
 }
 
 module.exports = {

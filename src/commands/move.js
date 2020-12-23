@@ -1,6 +1,7 @@
-const auth = require("../../auth.json");
-const { moveObj } = require('../movement.js');
-const settings = require('../../settings.json');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { database } = require('../../settings.json');
+const { dmID } = require('../../auth.json');
+const { moveObj } = require('../combat/movement');
 
 module.exports = {
     name: 'move',
@@ -11,27 +12,27 @@ module.exports = {
         tiles[currentPosition.x][currentPosition.y] = tiles[newPosition.x][newPosition.y];
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
-    async execute(message, args, db, _client) {
-        const resultMap = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        const map = resultMap[0]['content']['map'];
-        let parsedMap = JSON.parse(map);
+    async execute(message, args, mongo, _discordClient) {
+        if (askedForHelp(args)) {
+            return await printHelpEmbed(this.name, message, mongo);
+        }
+
+        //get map
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
+        }
+        let parsedMap = JSON.parse(combat.content.map);
 
         let name = '';
         let directions = '';
-        if (message.author.id != auth.dmID) {
+        if (message.author.id != dmID) {
             //get character name
-            const resultName = await db
-                .collection(settings.database.collections.players)
-                .find({
-                    discordID: message.author.id,
-                })
-                .toArray();
-            name = resultName[0]["characters"][0];
+            const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!playerData) {
+                throw new Error(`You do not have a character.`);
+            }
+            [name] = playerData.characters;
 
             //get directions
             directions = args[0];
@@ -62,16 +63,12 @@ module.exports = {
         }
 
         //update map
-        await db.collection(settings.database.collections.data).updateOne({
-            name: 'Combat'
-        }, {
+        const newMapValue = {
             $set: {
                 'content.map': JSON.stringify(parsedMap)
             }
-        },
-            (err) => {
-                if (err) throw err;
-            }
-        );
+        };
+
+        await mongo.updateOne(database.collections.data, { name: 'Combat' }, newMapValue);
     }
 }
