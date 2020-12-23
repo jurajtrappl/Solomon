@@ -1,7 +1,4 @@
 {
-    "channels": {
-        "sessions": 701064999967260814       
-    },
     "database": {
         "name": "dnd",
         "collections": {
@@ -12,14 +9,10 @@
             "time": "time"
         }
     },
-    "dndCommandDirs": [ 
-        "./src/commands/dnd"
-    ],
-    "errorCommandExecuteMessage": "There was an error trying to execute that command!",
-    "utilityCommandDirs": [
-        "./src/commands/utility"
-    ],
-    "prefixes": [
-        "/", "!"
-    ]
+    "command": {
+        "directories": [
+            "./src/commands"
+        ],
+        "prefix": "/"
+    }
 }

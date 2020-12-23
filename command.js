@@ -1,8 +1,6 @@
-const fs = require('fs');
-const {
-    Collection
-} = require('discord.js');
-const settings = require('./settings.json');
+const { command } = require('./settings.json');
+const { readdirSync } = require('fs');
+const { Collection } = require('discord.js');
 
 /**
  * Static class that loads comments from specified directories
@@ -20,7 +18,7 @@ class CommandLoader {
     static load(directories) {
         const commandCollection = new Collection();
         for (let dir of directories) {
-            let commandFiles = fs.readdirSync(dir).filter(file => file.endsWith('.js'));
+            let commandFiles = readdirSync(dir).filter(file => file.endsWith('.js'));
             commandFiles.forEach(file => {
                 const command = require(`${dir}/${file}`);
                 commandCollection.set(command.name, command);
@@ -37,8 +35,7 @@ class CommandLoader {
  */
 class CommandValidator {
     static validate(message) {
-        return (!message.author.bot) &&
-            settings.prefixes.some(p => message.content.startsWith(p));
+        return (!message.author.bot) && message.content.startsWith(command.prefix);
     }
 }
 
@@ -48,27 +45,19 @@ class CommandValidator {
  * @class CommandDirector.
  */
 class CommandDirector {
-    constructor(client, dbClient) {
-        this.client = client;
-
-        this.dndDb = dbClient.db(settings.database.name);
-
-        this.dndCommands = CommandLoader.load(settings.dndCommandDirs);
-        this.utilityCommands = CommandLoader.load(settings.utilityCommandDirs);
-
-        this.commandLists = {
-            "/": this.dndCommands,
-            "!": this.utilityCommands
-        }
+    constructor(discordClient, mongo) {
+        this.discordClient = discordClient;
+        this.mongo = mongo;
+        this.commands = CommandLoader.load(command.directories);
     }
 
-    findCommand(prefix, commandName) {
-        return this.commandLists[prefix].get(commandName) || 
-            this.commandLists[prefix].find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+    findCommand(commandName) {
+        return this.commands.get(commandName) || 
+            this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
     }
 
-    async execute(prefix, commandName, args, message) {
-        const command = this.findCommand(prefix, commandName);
+    async execute(name, args, message) {
+        const command = this.findCommand(name);
         
         if (!command) return;
 
@@ -77,10 +66,10 @@ class CommandDirector {
         }
         
         try {
-            await command.execute(message, args, this.dndDb, this.client);
+            await command.execute(message, args, this.mongo, this.discordClient);
         } catch (error) {
-            console.error(error);
-            message.reply(settings.errorCommandExecuteMessage);
+            console.log(error);
+            await message.reply(error.message);
         }
     }
 }

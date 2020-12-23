@@ -1,56 +1,40 @@
-const auth = require('./auth.json');
-const {
-    Client
-} = require('discord.js');
-const {
-    CommandValidator,
-    CommandDirector
-} = require('./command');
-const {
-    MongoClient
-} = require('mongodb');
+const { Client } = require('discord.js');
+const { CommandDirector, CommandValidator } = require('./command');
+const { MongoServices } = require('./src/mongo/services');
+const { token } = require('./auth.json');
 
-const client = new Client();
-const dbClient = new MongoClient(auth.connectionString, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
-let director = {};
+const discordClient = new Client();
+let commandDirector = {};
+const mongo = new MongoServices();
 
-client.once('ready', async () => {
+discordClient.once('ready', async () => {
     console.log('Ready!');
-    await dbClient.connect();
-    director = new CommandDirector(client, dbClient);
+
+    await mongo.connect();
+
+    commandDirector = new CommandDirector(discordClient, mongo);
 });
 
-client.on('unhandledRejection', error => {
-    console.error('Unhandled promise rejection: ', error);
+discordClient.on('unhandledRejection', ({ message }) => {
+    console.error(`Unhandled promise rejection: ${message}`);
 })
 
-client.on("error", (e) => {
-    //report an error that has happened
-    console.error(e)
-
-    //restart the bot automatically
-    director.execute("!", "restart", [], {});
+discordClient.on("error", ({ message }) => {
+    console.error(`Error: ${message}`);
 });
 
-client.on('playerKnocked', async characterName => {
-    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player knocked: ${characterName}`);
-});
+discordClient.on('playerKnocked', () => { /* not implemented */ });
 
-client.on('playerDead', async characterName => {
-    await client.channels.cache.find(channel => channel.name === 'sessions').send(`Player ded: ${characterName}`);
-});
+discordClient.on('playerDead', () => { /* not implemented */ });
 
-client.on('message', async message => {
+discordClient.on('message', async message => {
     if (CommandValidator.validate(message)) {
-        const prefix = message.content.substring(0, 1);
-        const args = message.content.slice(prefix.length).split(/ +/);
-        const commandName = args.shift();
+        const commandPrefix = message.content.substring(0, 1);
+        const commandArgs = message.content.slice(commandPrefix.length).split(/ +/);
+        const commandName = commandArgs.shift();
 
-        await director.execute(prefix, commandName, args, message);
+        await commandDirector.execute(commandName, commandArgs, message);
     }
 });
 
-client.login(auth.token);
+discordClient.login(token);
