@@ -1,4 +1,5 @@
 const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { calculateAbilityBonus } = require('../rolls/rollUtility');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
@@ -8,17 +9,6 @@ module.exports = {
     name: 'rst',
     args: true,
     description: 'Roll a saving throw.',
-    modifier: function (score) { return Math.floor((score - 10) / 2) },
-    calculateAbilityBonus: function (sheet, abilityName) {
-        let bonus = this.modifier(sheet.abilities[abilityName]);
-
-        //check the proficiency
-        if (sheet.savingThrows[abilityName]) {
-            bonus += sheet.proficiencyBonus;
-        }
-
-        return bonus;
-    },
     async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
             return await printHelpEmbed(this.name, message, mongo);
@@ -52,7 +42,7 @@ module.exports = {
         let embedTitle = `${abilityName} saving throw`;
 
         //calculate the bonus
-        let bonus = this.calculateAbilityBonus(sheet, abilityName);
+        let bonus = calculateAbilityBonus(sheet, abilityName);
 
         //create a roll expression
         let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;

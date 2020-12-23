@@ -3,45 +3,12 @@ const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
+const { calculateSkillBonus, reliableTalent } = require('../rolls/rollUtility');
 
 module.exports = {
     name: 'rac',
     args: true,
     description: 'Roll an ability check.',
-    modifier: function (score) { return Math.floor((score - 10) / 2) },
-    calculateSkillBonus: function (sheet, skillName, skills) {
-        const skillAbility = skills[skillName].ability;
-        let bonus = this.modifier(sheet.abilities[skillAbility]);
-
-        //check for proficiency
-        if (sheet.skills[skillName].prof) {
-            bonus += sheet.proficiencyBonus;
-        }
-
-        //check for double proficiency
-        if (sheet.doubleProf.indexOf(skillName) != -1) {
-            bonus += sheet.proficiencyBonus;
-        }
-
-        return bonus;
-    },
-    reliableTalent: function ({ visual, totalRoll }) {
-        //reliable talent
-        let splitted = visual.split('+');
-        let diceRoll = splitted[0].trim().substring(1, splitted[0].trim().length - 1);
-
-        let newVisual = visual;
-        let newTotal = totalRoll;
-        if (diceRoll < 10) {
-            newVisual = `(10) + ${splitted[1]}`;
-            newTotal += 10 - diceRoll;
-        }
-
-        return {
-            visual: newVisual,
-            totalRoll: newTotal
-        }
-    },
     async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
             return await printHelpEmbed(this.name, message, mongo);
@@ -76,7 +43,7 @@ module.exports = {
         let embedTitle = `${skills.content[skillName].name} ability check`;;
 
         //calculate the bonus
-        let bonus = this.calculateSkillBonus(sheet, skillName, skills.content);
+        let bonus = calculateSkillBonus(sheet, skillName, skills.content);
 
         //create a roll expression
         let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;
@@ -88,9 +55,9 @@ module.exports = {
         let { first, second } = expressionDice.rollWithAdvOrDisadv();
 
         if (sheet.class === 'Rogue' && sheet.level >= 11 && sheet.skills[skillName].prof) {
-            normalRoll = this.reliableTalent(expressionDice.roll());
-            first = this.reliableTalent(first);
-            second = this.reliableTalent(second);
+            normalRoll = reliableTalent(expressionDice.roll());
+            first = reliableTalent(first);
+            second = reliableTalent(second);
         }
 
         //a basic roll without adv/dadv and bonus expression

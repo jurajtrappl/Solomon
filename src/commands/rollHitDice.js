@@ -2,6 +2,7 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeHitDiceEmbed } = require('../output/embed');
+const { modifier } = require('../rolls/rollUtility');
 
 module.exports = {
     name: 'rhd',
@@ -36,9 +37,9 @@ module.exports = {
             }
 
             //create the roll expression
-            const constitutionModifier = Math.floor((sheet.abilities.Constitution - 10) / 2);
+            const constitutionModifier = modifier(sheet.abilities.Constitution);
             const hitDiceType = sheet.hitDice.type;
-            const hitDicesToRoll = args[0];
+            const hitDicesToRoll = Number(args[0]);
             const expr = `${hitDicesToRoll}d${hitDiceType}+${hitDicesToRoll * constitutionModifier}`;
             const hitDicesLeft = hitDiceCount - hitDiceSpent - hitDicesToRoll;
 
@@ -56,8 +57,8 @@ module.exports = {
                     $set: {
                         hitDice: {
                             type: sheet.hitDice.type,
-                            spent: hitDiceSpent + Number(args[0]),
-                            count: hitDiceCount - Number(args[0])
+                            spent: hitDiceSpent + Number(hitDicesToRoll),
+                            count: hitDiceCount - Number(hitDicesToRoll)
                         },
                         currentHP: newHP
                     }
