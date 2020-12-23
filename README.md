@@ -2,10 +2,10 @@
 A mystical and old wise man who helps players during their adventures through beautiful worlds of Dungeons and Dragons.
 
 ## Commands
-Divided in two groups of related commands: **Dungeons and Dragons** and **Utility**.
+Divided in two several semantic groups of related commands: **Combat**, **Rolls**, **Informative**.
+Each command uses the same prefix to invoke: '/'.
 
-### Dungeons and dragons
-**Command prefix:** '/'
+### Combat
 
 **Commands directory:** '/src/commands/dnd'
 
