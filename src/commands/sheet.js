@@ -1,36 +1,30 @@
-const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
-const { sheetEmbed } = require('../embed.js');
+const { database } = require('../../settings.json');
+const { makeSheetEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'sheet',
     args: false,
     description: 'Shows players character sheet.',
-    async execute(message, args, db) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         //get character name
-        let resultName = await db
-            .collection(settings.database.collections.players)
-            .find({
-                discordID: message.author.id,
-            })
-            .toArray();
-        let characterName = resultName[0].characters[0];
+        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!characterName) {
+            throw new Error(`You do not have a character.`);
+        }
 
-        let resultSheet = await db
-            .collection(settings.database.collections.characters)
-            .find({
-                characterName: characterName,
-            })
-            .toArray();
-        let sheet = resultSheet[0];
+        //get character sheet
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new Error(`${characterName} has not a character sheet`);
+        }
 
         return await message.reply({
-            embed: sheetEmbed(message.member.displayHexColor, sheet)
+            embed: makeSheetEmbed(message.member.displayHexColor, sheet)
         });
     }
 };

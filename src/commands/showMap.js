@@ -1,5 +1,5 @@
-const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { database } = require('../../settings.json');
 
 module.exports = {
     name: 'showMap',
@@ -18,21 +18,16 @@ module.exports = {
 
         return mapAsMessage;
     },
-    async execute(message, _args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         //get map
-        let resultMap = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        let map = resultMap[0].content.map;
-
+        const map = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!map) {
+            throw new Error('Map does not exist.');
+        }
         let parsedMap = JSON.parse(map);
 
         return await message.channel.send('```' + this.mapToMessage(parsedMap) + '```');

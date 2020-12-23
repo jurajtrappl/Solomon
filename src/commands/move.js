@@ -1,6 +1,6 @@
-const settings = require('../../settings.json');
-const { dmID } = require('../../auth.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { database } = require('../../settings.json');
+const { dmID } = require('../../auth.json');
 const { moveObj } = require('../movement.js');
 
 module.exports = {
@@ -12,32 +12,26 @@ module.exports = {
         tiles[currentPosition.x][currentPosition.y] = tiles[newPosition.x][newPosition.y];
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
-        const resultMap = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        const map = resultMap[0].content.map;
+        //get map
+        const map = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!map) {
+            throw new Error('Map does not exist.');
+        }
         let parsedMap = JSON.parse(map);
 
         let name = '';
         let directions = '';
         if (message.author.id != dmID) {
             //get character name
-            const resultName = await db
-                .collection(settings.database.collections.players)
-                .find({
-                    discordID: message.author.id,
-                })
-                .toArray();
-            name = resultName[0].characters[0];
+            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!characterName) {
+                throw new Error(`You do not have a character.`);
+            }
 
             //get directions
             directions = args[0];
@@ -68,16 +62,12 @@ module.exports = {
         }
 
         //update map
-        await db.collection(settings.database.collections.data).updateOne({
-            name: 'Combat'
-        }, {
+        const newMapValue = {
             $set: {
-                'content.map': JSON.stringify(parsedMap)
+                'map': JSON.stringify(parsedMap)
             }
-        },
-            (err) => {
-                if (err) throw err;
-            }
-        );
+        };
+
+        await mongo.updateOne(database.collections.data, { name: 'Combat.content' }, newMapValue);
     }
 }

@@ -1,8 +1,8 @@
-const settings = require('../../settings.json');
-const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { capitalize } = require('../lang.js');
+const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../dice.js');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'rac',
@@ -25,7 +25,7 @@ module.exports = {
 
         return bonus;
     },
-    reliableTalent: function({ visual, totalRoll }) {
+    reliableTalent: function ({ visual, totalRoll }) {
         //reliable talent
         let splitted = visual.split('+');
         let diceRoll = splitted[0].trim().substring(1, splitted[0].trim().length - 1);
@@ -42,17 +42,16 @@ module.exports = {
             totalRoll: newTotal
         }
     },
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         //get skills
-        const resultSkills = await db.collection(settings.database.collections.data).find({
-            name: 'Skills'
-        }).toArray();
-        const skills = resultSkills[0].content;
+        const skills = await mongo.tryFind(database.collections.data, { name: 'Skills' });
+        if (!skills) {
+            throw new Error(`There are not data about skills.`);
+        }
 
         //check skill name
         const skillName = capitalize(args[0]);
@@ -61,16 +60,16 @@ module.exports = {
         }
 
         //get character name
-        let resultName = await db.collection(settings.database.collections.players).find({
-            discordID: message.author.id
-        }).toArray();
-        let characterName = resultName[0].characters[0];
+        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!characterName) {
+            throw new Error(`You do not have a character.`);
+        }
 
         //get character sheet
-        let resultSheet = await db.collection(settings.database.collections.characters).find({
-            characterName: characterName
-        }).toArray();
-        let sheet = resultSheet[0];
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new Error(`${characterName} has not a character sheet`);
+        }
 
         //write the title
         let embedTitle = `${skills[skillName].name} ability check`;;
@@ -94,8 +93,8 @@ module.exports = {
         }
 
         //a basic roll without adv/dadv and bonus expression
-        if (args.length == 1) {                
-            rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
+        if (args.length == 1) {
+            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
         }
 
         //either bonus expression or adv/dadv
@@ -103,12 +102,12 @@ module.exports = {
             const arguments = args.slice(1).join('');
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
             } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new ExpressionDice(expr);
-                rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
+                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, normalRoll);
             } else {
                 return await message.reply('There is an error with adv/dadv.');
             }
@@ -122,7 +121,7 @@ module.exports = {
             const bonusExpr = arguments.substring(1, arguments.length - 1);
             expr += bonusExpr;
             expressionDice = new ExpressionDice(expr);
-            rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
+            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, first, second);
         }
 
         return await message.reply({

@@ -1,44 +1,37 @@
-const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
-const { timeEmbed } = require('../embed.js');
+const { makeTimeEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'time',
     args: true,
     description: 'Set current date, time and location.',
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         if (message.author.id == dmID) {
             //DM command
-            let resultTime = await db
-                .collection(settings.database.collections.time)
-                .find({
-                    characterName: args[0],
-                })
-                .toArray();
+            //get character time data, to check if long rest is available
+            const characterName = args[0];
+            const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
+            if (!time) {
+                throw new Error(`${characterName} does not have time data.`);
+            }
 
             if (args[1] == 'l') {
                 const newLocation = args.slice(2).join(' ');
-                let newLocationValue = {
+                const newLocationValue = {
                     $set: {
                         location: newLocation
                     }
                 };
 
-                await db.collection(settings.database.collections.time).updateOne({
-                    characterName: args[0]
-                }, newLocationValue, (err) => {
-                    if (err) throw err;
-                });
-
-                return;
+                return await mongo.updateOne(database.collections.time, { characterName: characterName }, newLocationValue);
             } else {
-                let currentDateTime = new Date(resultTime[0].datetime);
+                let currentDateTime = new Date(time.datetime);
 
                 if (args[1] == 'm') {
                     currentDateTime.setMinutes(
@@ -56,36 +49,23 @@ module.exports = {
                     },
                 };
 
-                await db.collection(settings.database.collections.time).updateOne({
-                    characterName: args[0],
-                },
-                    newDateTimeValue,
-                    (err) => {
-                        if (err) throw err;
-                    }
-                );
+                return await mongo.updateOne(database.collections.time, { characterName: characterName }, newDateTimeValue);
             }
         } else {
             //Players command
             //get character name
-            let resultName = await db
-                .collection(settings.database.collections.players)
-                .find({
-                    discordID: message.author.id,
-                })
-                .toArray();
-            let characterName = resultName[0].characters[0];
+            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!characterName) {
+                throw new Error(`You do not have a character.`);
+            }
 
-            let resultTime = await db
-                .collection(settings.database.collections.time)
-                .find({
-                    characterName: characterName,
-                })
-                .toArray();
-            let time = resultTime[0];
+            const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
+            if (!time) {
+                throw new Error(`${characterName} does not have time data.`);
+            }
 
             return await message.reply({
-                embed: timeEmbed(message.member.displayHexColor, time),
+                embed: makeTimeEmbed(message.member.displayHexColor, time),
             });
         }
     },

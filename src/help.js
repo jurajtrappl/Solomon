@@ -1,19 +1,18 @@
-const settings = require('../settings.json');
-const { helpEmbed } = require('../src/embed');
+const { database } = require('../settings.json');
+const { makeHelpEmbed } = require('../src/embed');
 
 const HELP_ARG = 'help';
 
 const askedForHelp = args => args.length >= 1 && args[0] == HELP_ARG;
 
-const printHelpEmbed = async (commandName, message, db) => {
-    let resultEmbed = await db.collection(settings.database.collections.helpEmbeds)
-        .find({
-            commandName: commandName,
-        })
-        .toArray();
-    let embed = resultEmbed[0];
+const printHelpEmbed = async (commandName, message, mongo) => {
+    const helpEmbed = await mongo.tryFind(database.collections.helpEmbeds, { commandName: commandName });
+    if (!helpEmbed) {
+        throw new Error(`${commandName} has not a help embed.`);
+    }
+
     return await message.reply({
-        embed: helpEmbed(message.member.displayHexColor, embed),
+        embed: makeHelpEmbed(message.member.displayHexColor, helpEmbed),
     });
 }
 

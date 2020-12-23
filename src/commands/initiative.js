@@ -1,9 +1,9 @@
-const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../dice');
-const { objectEmbed } = require('../embed');
-const { TileType } = require('../map');
 const { LinkedList } = require('../LinkedList');
+const { makeObjectEmbed } = require('../embed');
+const { TileType } = require('../map');
 
 module.exports = {
     name: 'initiative',
@@ -32,20 +32,16 @@ module.exports = {
 
         return initiativeOrder;
     },
-    async execute(message, _args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         //get combatants
-        const resultCombatants = await db
-            .collection(settings.database.collections.data)
-            .find({
-                name: 'Combat',
-            })
-            .toArray();
-        let combatants = resultCombatants[0].content.combatants;
+        const combatants = await mongo.tryFind(database.collections.data, { name: 'Combat.content.combatants' });
+        if (!combatants) {
+            throw new Error('Combatants property of combat does not exist.');
+        }
 
         let expr = '';
         let expressionDice = {};
@@ -56,13 +52,10 @@ module.exports = {
             const combatant = JSON.parse(combatantJSONString);
 
             if (combatant.type == TileType.character) {
-                const resultSheet = await db
-                    .collection(settings.database.collections.characters)
-                    .find({
-                        characterName: combatant.name,
-                    })
-                    .toArray();
-                const sheet = resultSheet[0];
+                const sheet = await mongo.tryFind(database.collections.characters, { characterName: combatant.name });
+                if (!sheet) {
+                    throw new Error(`${combatant.name} has not a character sheet.`);
+                }
 
                 initiativeBonus = sheet.initiative;
             }
@@ -77,23 +70,21 @@ module.exports = {
         const initiativeOrder = this.findInitiativeOrder(rolls);
 
         //update initiative order
-        await db.collection(settings.database.collections.data).updateOne({
-            name: 'Combat'
-        }, {
+        const newInitiativeOrder = {
             $set: {
                 'content.initiativeOrder': JSON.stringify(initiativeOrder)
             }
-        }, (err) => {
-            if (err) throw err;
-        });
+        };
+
+        await mongo.updateOne(database.collections.data, { name: 'Combat' }, newInitiativeOrder);
 
         //print the result to the players
         return await message.channel.send({
-            embed: objectEmbed(
-                message.member.displayHexColor, 
-                initiativeOrder, 
+            embed: makeObjectEmbed(
+                message.member.displayHexColor,
+                initiativeOrder,
                 'Initiative order'
-                )
+            )
         });
     }
 }

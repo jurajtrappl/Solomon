@@ -4,7 +4,7 @@ module.exports = {
     name: 'commands',
     args: false,
     description: 'List of all commands.',
-    async execute(message, _args, db) {
-        printHelpEmbed(this.name, message, db);
+    async execute(message, _args, mongo, _discordClient) {
+        return await printHelpEmbed(this.name, message, mongo);
     }
 }

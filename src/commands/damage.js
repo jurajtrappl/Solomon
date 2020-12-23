@@ -1,4 +1,4 @@
-const settings = require('../../settings.json');
+const { database } = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
 
 module.exports = {
@@ -11,49 +11,39 @@ module.exports = {
     isKnocked: function (currentHP, maxHP) {
         return currentHP < 0 && !this.isDead(currentHP, maxHP);
     },
-    async execute(message, args, db, client) {
+    async execute(message, args, mongo, discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         //get character sheet
-        let resultSheet = await db
-            .collection(settings.database.collections.characters)
-            .find({
-                characterName: args[0],
-            })
-            .toArray();
-        let sheet = resultSheet[0];
+        const characterName = args[0];
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new Error(`${characterName} has not a character sheet`);
+        }
 
-        if (Number(args[1]) < 0) {
+        const damage = Number(args[1]);
+        if (damage < 0) {
             return await message.reply('You sneaky thing.');
         }
 
-        const newCurrentHP = sheet.currentHP - Number(args[1]);
+        const newCurrentHP = sheet.currentHP - damage;
         let changedStatus = false;
         if (this.isKnocked(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            client.emit('playerKnocked', args[0]);
+            discordClient.emit('playerKnocked', characterName);
         } else if (this.isDead(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            client.emit('playerDead', args[0]);
+            discordClient.emit('playerDead', characterName);
         }
 
-        const newValues = {
+        const newHP = {
             $set: {
                 currentHP: (changedStatus) ? 0 : newCurrentHP,
             },
         };
 
-        await db.collection(settings.database.collections.characters).updateOne(
-            {
-                characterName: args[0],
-            },
-            newValues,
-            (err) => {
-                if (err) throw err;
-            }
-        );
+        await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
     },
 };

@@ -1,32 +1,31 @@
-const settings = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
+const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../dice.js');
-const { hitDiceEmbed } = require('../embed.js');
+const { makeHitDiceEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'rhd',
     args: true,
     description: 'Rolling hit dices.',
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
         if (isNaN(args[0])) {
             return await message.reply('Invalid number of hit dices.');
         } else if (args[0] > 0) {
             //get character name
-            let resultName = await db.collection(settings.database.collections.players).find({
-                discordID: message.author.id
-            }).toArray();
-            const characterName = resultName[0].characters[0];
+            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!characterName) {
+                throw new Error(`You do not have a character.`);
+            }
 
             //get character sheet
-            let resultSheet = await db.collection(settings.database.collections.characters).find({
-                characterName: characterName
-            }).toArray();
-            const sheet = resultSheet[0];
+            const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+            if (!sheet) {
+                throw new Error(`${characterName} has not a character sheet`);
+            }
 
             const hitDiceCount = sheet.hitDice.count;
             const hitDiceSpent = Number(sheet.hitDice.spent);
@@ -63,15 +62,10 @@ module.exports = {
                     }
                 }
 
-                db.collection(settings.database.collections.characters).updateOne({
-                    characterName: characterName
-                }, newHitDiceSpentValue,
-                    (err) => {
-                        if (err) throw err;
-                    });
+                await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
 
                 return await message.reply({
-                    embed: hitDiceEmbed(characterName, message.member.displayHexColor, expr, rollResult, hitDicesToRoll, hitDicesLeft)
+                    embed: makeHitDiceEmbed(characterName, message.member.displayHexColor, expr, rollResult, hitDicesToRoll, hitDicesLeft)
                 });
             } catch (err) {
                 return await message.reply(err);

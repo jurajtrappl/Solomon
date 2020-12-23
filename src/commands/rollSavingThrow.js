@@ -1,8 +1,8 @@
-const settings = require('../../settings.json');
-const { advOrDisadvEmbed, normalRollEmbed } = require('../embed.js');
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { capitalize } = require('../lang.js');
+const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../dice.js');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../embed.js');
 
 module.exports = {
     name: 'rst',
@@ -19,17 +19,16 @@ module.exports = {
 
         return bonus;
     },
-    async execute(message, args, db, _client) {
+    async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
-            printHelpEmbed(this.name, message, db);
-            return;
+            return await printHelpEmbed(this.name, message, mongo);
         }
 
-        //get skills
-        const resultAbilities = await db.collection(settings.database.collections.data).find({
-            name: 'Abilities'
-        }).toArray();
-        const abilities = resultAbilities[0].content;
+        //get abilities
+        const abilities = await mongo.tryFind(database.collections.data, { name: 'Abilities' });
+        if (!abilities) {
+            throw new Error(`There are not data about abilities.`);
+        }
 
         const abilityName = capitalize(args[0]);
         if (!Object.keys(abilities).includes(abilityName)) {
@@ -37,16 +36,16 @@ module.exports = {
         }
 
         //get character name
-        let resultName = await db.collection(settings.database.collections.players).find({
-            discordID: message.author.id
-        }).toArray();
-        let characterName = resultName[0].characters[0];
+        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!characterName) {
+            throw new Error(`You do not have a character.`);
+        }
 
         //get character sheet
-        let resultSheet = await db.collection(settings.database.collections.characters).find({
-            characterName: characterName
-        }).toArray();
-        let sheet = resultSheet[0];
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new Error(`${characterName} has not a character sheet`);
+        }
 
         //write the title
         let embedTitle = `${abilityName} saving throw`;
@@ -61,7 +60,7 @@ module.exports = {
 
         //a basic roll without adv/dadv and bonus expression
         if (args.length == 1) {
-            rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
+            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
         }
 
         //either bonus expression or adv/dadv
@@ -69,12 +68,12 @@ module.exports = {
             const arguments = args.slice(1).join('');
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
             } else if (arguments.startsWith('(') && arguments.endsWith(')')) {
                 const bonusExpr = arguments.substring(1, arguments.length - 1);
                 expr += bonusExpr;
                 expressionDice = new ExpressionDice(expr);
-                rollEmbed = normalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
+                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, expr, embedTitle, expressionDice.roll());
             } else {
                 return await message.reply('There is an error with adv/dadv.');
             }
@@ -88,7 +87,7 @@ module.exports = {
             const bonusExpr = arguments.substring(1, arguments.length - 1);
             expr += bonusExpr;
             expressionDice = new ExpressionDice(expr);
-            rollEmbed = advOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
+            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], expr, embedTitle, expressionDice.rollWithAdvOrDisadv());
         }
 
         return await message.reply({

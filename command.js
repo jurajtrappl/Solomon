@@ -68,8 +68,8 @@ class CommandDirector {
         try {
             await command.execute(message, args, this.mongo, this.discordClient);
         } catch (error) {
-            console.error(error.message);
-            await message.reply(settings.errorCommandExecuteMessage);
+            console.log(error);
+            await message.reply(error.message);
         }
     }
 }
