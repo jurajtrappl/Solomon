@@ -1,7 +1,7 @@
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
-const { moveObj } = require('../movement');
+const { moveObj } = require('../combat/movement');
 
 module.exports = {
     name: 'move',

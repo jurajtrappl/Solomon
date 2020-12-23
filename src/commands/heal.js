@@ -1,7 +1,7 @@
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
-const { ExpressionDice, isRollExpression } = require('../dice');
-const { makeHealEmbed, makeObjectEmbed } = require('../embed');
+const { ExpressionDice, isRollExpression } = require('../rolls/dice');
+const { makeHealEmbed, makeObjectEmbed } = require('../output/embed');
 
 module.exports = {
     name: 'heal',

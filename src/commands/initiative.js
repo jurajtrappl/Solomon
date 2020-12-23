@@ -1,9 +1,9 @@
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../dice');
-const { LinkedList } = require('../LinkedList');
-const { makeObjectEmbed } = require('../embed');
-const { TileType } = require('../map');
+const { ExpressionDice } = require('../rolls/dice');
+const { LinkedList } = require('../combat/LinkedList');
+const { makeObjectEmbed } = require('../output/embed');
+const { TileType } = require('../combat/map');
 
 module.exports = {
     name: 'initiative',

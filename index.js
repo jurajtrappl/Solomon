@@ -1,6 +1,6 @@
 const { Client } = require('discord.js');
 const { CommandDirector, CommandValidator } = require('./command');
-const { MongoServices } = require('./src/mongoServices');
+const { MongoServices } = require('./src/db/mongoServices');
 const { token } = require('./auth.json');
 
 const discordClient = new Client();

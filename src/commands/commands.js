@@ -1,4 +1,4 @@
-const { printHelpEmbed } = require('../help');
+const { printHelpEmbed } = require('../output/help');
 
 module.exports = {
     name: 'commands',

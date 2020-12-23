@@ -1,6 +1,6 @@
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 
 module.exports = {
     name: 'addxp',

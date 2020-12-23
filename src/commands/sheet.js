@@ -1,6 +1,6 @@
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
-const { makeSheetEmbed } = require('../embed');
+const { makeSheetEmbed } = require('../output/embed');
 
 module.exports = {
     name: 'sheet',

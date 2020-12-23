@@ -1,8 +1,8 @@
-const { askedForHelp, printHelpEmbed } = require('../help');
-const { capitalize } = require('../lang');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../dice');
-const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../embed');
+const { ExpressionDice } = require('../rolls/dice');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
 
 module.exports = {
     name: 'rst',

@@ -1,5 +1,5 @@
 const { database } = require('../../settings.json');
-const { askedForHelp, printHelpEmbed } = require('../help');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 
 module.exports = {
     name: 'damage',
