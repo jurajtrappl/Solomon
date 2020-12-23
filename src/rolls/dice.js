@@ -147,13 +147,6 @@ class ExpressionDice {
             totalRoll: total
         }
     }
-
-    rollWithAdvOrDisadv = () => {
-        return {
-            first: this.roll(),
-            second: this.roll()
-        }
-    };
 }
 
 module.exports = {

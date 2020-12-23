@@ -2,8 +2,8 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
-const { prepareCheck, addBonusExpression } = require('../rolls/rollUtility');
-const { Sheet } = require('../character/sheetUtility');
+const { prepareCheck, addBonusExpression } = require('../rolls/rollUtils');
+const { Sheet } = require('../character/sheet');
 
 module.exports = {
     name: 'rst',
@@ -47,13 +47,9 @@ module.exports = {
         
         let rollEmbed = null;
 
-        //pre roll both options
-        let normalRoll = check.dice.roll();
-        let advDisadvRolls = check.dice.rollWithAdvOrDisadv();
-
         //a basic roll without adv/dadv and bonus expression
         if (args.length == 1) {
-            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, normalRoll);
+            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, check.dice.roll());
         }
 
         //either bonus expression or adv/dadv
@@ -61,11 +57,10 @@ module.exports = {
             const bonusArg = args.slice(1).join('');
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, advDisadvRolls.first, advDisadvRolls.second);
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
             } else if (bonusArg.startsWith('(') && bonusArg.endsWith(')')) {
                 check = addBonusExpression(check.expression, bonusArg);
-                normalRoll = check.dice.roll();
-                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, normalRoll);
+                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, check.dice.roll());
             } else {
                 return await message.reply('There is an error with adv/dadv.');
             }
@@ -77,8 +72,7 @@ module.exports = {
 
             const bonusArg = args.slice(2).join('');
             check = addBonusExpression(check.expression, bonusArg);
-            advDisadvRolls = check.dice.rollWithAdvOrDisadv();
-            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, advDisadvRolls.first, advDisadvRolls.second);
+            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
         }
 
         return await message.reply({

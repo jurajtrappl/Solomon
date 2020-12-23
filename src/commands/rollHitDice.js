@@ -2,7 +2,7 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeHitDiceEmbed } = require('../output/embed');
-const { Sheet } = require('../character/sheetUtility');
+const { Sheet } = require('../character/sheet');
 
 module.exports = {
     name: 'rhd',

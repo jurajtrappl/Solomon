@@ -1,9 +1,9 @@
-const { addBonusExpression, prepareCheck, reliableTalent } = require('../rolls/rollUtility');
+const { addBonusExpression, prepareCheck, reliableTalent } = require('../rolls/rollUtils');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
-const { Sheet } = require('../character/sheetUtility');
+const { Sheet } = require('../character/sheet');
 
 module.exports = {
     name: 'rac',
@@ -46,33 +46,41 @@ module.exports = {
         const bonus = characterSheet.calculateSkillBonus(skills.content, skillName);
         let check = prepareCheck(bonus);
 
-        //pre roll both options
-        let normalRoll = check.dice.roll();
-        let advDisadvRolls = check.dice.rollWithAdvOrDisadv();
-
-        if (characterSheet.canApplyReliableTalent(skillName)) {
-            normalRoll = reliableTalent(check.dice.roll());
-            first = reliableTalent(first);
-            second = reliableTalent(second);
-        }
-
         let rollEmbed = null;
 
         //a basic roll without adv/dadv and bonus expression
         if (args.length == 1) {
-            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, normalRoll);
+            let firstRoll = check.dice.roll();
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
+            }
+
+            rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, firstRoll);
         }
 
         //either bonus expression or adv/dadv
         if (args.length == 2) {
             const bonusArg = args.slice(1).join('');
+
+            let firstRoll = check.dice.roll();
+            let secondRoll = check.dice.roll();
+
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
+                secondRoll = reliableTalent(secondRoll);
+            }
+
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, advDisadvRolls.first, advDisadvRolls.second);
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, firstRoll, secondRoll);
             } else if (bonusArg.startsWith('(') && bonusArg.endsWith(')')) {
                 check = addBonusExpression(check.expression, bonusArg);
-                normalRoll = check.dice.roll();
-                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, normalRoll);
+
+                if (characterSheet.canApplyReliableTalent(skillName)) {
+                    firstRoll = reliableTalent(firstRoll);
+                }
+                
+                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, firstRoll);
             } else {
                 return await message.reply('There is an error with adv/dadv.');
             }
@@ -84,8 +92,16 @@ module.exports = {
 
             const bonusArg = args.slice(2).join('');
             check = addBonusExpression(check.expression, bonusArg);
-            advDisadvRolls = check.dice.rollWithAdvOrDisadv();
-            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, advDisadvRolls.first, advDisadvRolls.second);
+
+            let firstRoll = check.dice.roll();
+            let secondRoll = check.dice.roll();
+
+            if (characterSheet.canApplyReliableTalent(skillName)) {
+                firstRoll = reliableTalent(firstRoll);
+                secondRoll = reliableTalent(secondRoll);
+            }
+
+            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, firstRoll, secondRoll);
         }
 
         return await message.reply({
