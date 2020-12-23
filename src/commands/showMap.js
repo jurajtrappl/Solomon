@@ -24,11 +24,11 @@ module.exports = {
         }
 
         //get map
-        const map = await mongo.tryFind(database.collections.data, { name: 'Combat' });
-        if (!map) {
-            throw new Error('Map does not exist.');
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
         }
-        let parsedMap = JSON.parse(map);
+        let parsedMap = JSON.parse(combat.content.map);
 
         return await message.channel.send('```' + this.mapToMessage(parsedMap) + '```');
     }

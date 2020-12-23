@@ -16,10 +16,11 @@ module.exports = {
             return await message.reply('Invalid number of hit dices.');
         } else if (args[0] > 0) {
             //get character name
-            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-            if (!characterName) {
+            const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!playerData) {
                 throw new Error(`You do not have a character.`);
             }
+            const [characterName] = playerData.characters;
 
             //get character sheet
             const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
@@ -39,7 +40,7 @@ module.exports = {
             const hitDiceType = sheet.hitDice.type;
             const hitDicesToRoll = args[0];
             const expr = `${hitDicesToRoll}d${hitDiceType}+${hitDicesToRoll * constitutionModifier}`;
-            const hitDicesLeft = hitDiceCount - hitDiceSpent - args[0];
+            const hitDicesLeft = hitDiceCount - hitDiceSpent - hitDicesToRoll;
 
             try {
                 const expressionDice = new ExpressionDice(expr);

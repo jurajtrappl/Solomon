@@ -13,10 +13,11 @@ module.exports = {
         }
 
         //get character name
-        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!characterName) {
+        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!playerData) {
             throw new Error(`You do not have a character.`);
         }
+        const [characterName] = playerData.characters;
 
         const expr = args.map(a => a.trim()).join('');
         const expressionDice = new ExpressionDice(expr);

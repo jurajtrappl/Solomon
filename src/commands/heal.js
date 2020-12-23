@@ -1,6 +1,6 @@
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../dice');
+const { ExpressionDice, isRollExpression } = require('../dice');
 const { makeHealEmbed, makeObjectEmbed } = require('../embed');
 
 module.exports = {
@@ -35,12 +35,12 @@ module.exports = {
                 expr = this.healingPotions[args[0]];
                 title = `Using potion: ${args[0]}`;
             } else {
-                const argsExpr = args.map((a) => a.trim()).join('');
-                if (dice.isRollExpression(argsExpr)) {
+                const argsExpr = args.slice(1).map((a) => a.trim()).join('');
+                if (isRollExpression(argsExpr)) {
                     expr = argsExpr;
                     title = 'Healing using an expression';
                 } else {
-                    return await message.reply(settings.errorCommandExecuteMessage);
+                    return await message.reply('Wrong expression.');
                 }
             }
 
@@ -48,10 +48,11 @@ module.exports = {
             const heal = expressionDice.roll();
 
             //get character name
-            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-            if (!characterName) {
-                throw new Error(`Discord user with the ID ${message.author.id} has not a character.`);
+            const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!playerData) {
+                throw new Error(`You do not have a character.`);
             }
+            const [characterName] = playerData.characters;
 
             //get character sheet
             const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });

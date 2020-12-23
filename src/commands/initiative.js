@@ -37,10 +37,10 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
-        //get combatants
-        const combatants = await mongo.tryFind(database.collections.data, { name: 'Combat.content.combatants' });
-        if (!combatants) {
-            throw new Error('Combatants property of combat does not exist.');
+        //get combat
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
         }
 
         let expr = '';
@@ -48,7 +48,7 @@ module.exports = {
         let initiativeBonus = 0;
         let rollResult = {};
         let rolls = this.initRolls();
-        for (let combatantJSONString of combatants) {
+        for (let combatantJSONString of combat.content.combatants) {
             const combatant = JSON.parse(combatantJSONString);
 
             if (combatant.type == TileType.character) {

@@ -18,20 +18,21 @@ module.exports = {
         }
 
         //get map
-        const map = await mongo.tryFind(database.collections.data, { name: 'Combat' });
-        if (!map) {
-            throw new Error('Map does not exist.');
+        const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
+        if (!combat) {
+            throw new Error('Combat information do not exist.');
         }
-        let parsedMap = JSON.parse(map);
+        let parsedMap = JSON.parse(combat.content.map);
 
         let name = '';
         let directions = '';
         if (message.author.id != dmID) {
             //get character name
-            const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-            if (!characterName) {
+            const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+            if (!playerData) {
                 throw new Error(`You do not have a character.`);
             }
+            [name] = playerData.characters;
 
             //get directions
             directions = args[0];
@@ -64,10 +65,10 @@ module.exports = {
         //update map
         const newMapValue = {
             $set: {
-                'map': JSON.stringify(parsedMap)
+                'content.map': JSON.stringify(parsedMap)
             }
         };
 
-        await mongo.updateOne(database.collections.data, { name: 'Combat.content' }, newMapValue);
+        await mongo.updateOne(database.collections.data, { name: 'Combat' }, newMapValue);
     }
 }

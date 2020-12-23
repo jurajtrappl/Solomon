@@ -55,15 +55,16 @@ module.exports = {
 
         //check skill name
         const skillName = capitalize(args[0]);
-        if (!Object.keys(skills).includes(skillName)) {
+        if (!Object.keys(skills.content).includes(skillName)) {
             return await message.reply(`${args[0]} does not exist.`);
         }
 
         //get character name
-        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!characterName) {
+        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!playerData) {
             throw new Error(`You do not have a character.`);
         }
+        const [characterName] = playerData.characters;
 
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
@@ -72,10 +73,10 @@ module.exports = {
         }
 
         //write the title
-        let embedTitle = `${skills[skillName].name} ability check`;;
+        let embedTitle = `${skills.content[skillName].name} ability check`;;
 
         //calculate the bonus
-        let bonus = this.calculateSkillBonus(sheet, skillName, skills);
+        let bonus = this.calculateSkillBonus(sheet, skillName, skills.content);
 
         //create a roll expression
         let expr = `1d20${(bonus > 0) ? '+' : '-'}${Math.abs(bonus)}`;

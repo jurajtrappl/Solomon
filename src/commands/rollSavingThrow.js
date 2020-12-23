@@ -31,15 +31,16 @@ module.exports = {
         }
 
         const abilityName = capitalize(args[0]);
-        if (!Object.keys(abilities).includes(abilityName)) {
+        if (!Object.keys(abilities.content).includes(abilityName)) {
             return await message.reply(`${args[0]} does not exist.`);
         }
 
         //get character name
-        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!characterName) {
+        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!playerData) {
             throw new Error(`You do not have a character.`);
         }
+        const [characterName] = playerData.characters;
 
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });

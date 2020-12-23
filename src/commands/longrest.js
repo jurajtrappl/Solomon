@@ -11,10 +11,11 @@ module.exports = {
         }
 
         //get character name
-        const characterName = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!characterName) {
+        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
+        if (!playerData) {
             throw new Error(`You do not have a character.`);
         }
+        const [characterName] = playerData.characters;
 
         //get character time data, to check if long rest is available
         const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
@@ -39,10 +40,10 @@ module.exports = {
 
         let isContinue = true;
 
-        const isAtleastOneDayAfterLastLongRest = Math.abs(currentTime - lastLongRest) / 36e5 >= (24 - longRestLength[sheet.race]);
+        const isAtleastOneDayAfterLastLongRest = Math.abs(currentTime - lastLongRest) / 36e5 >= (24 - longRestLength.content[sheet.race]);
         if (!isAtleastOneDayAfterLastLongRest) {
             let benefitableTime = new Date(lastLongRest);
-            benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength[sheet.race]));
+            benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength.content[sheet.race]));
             await message.reply(`You can not benefit from long rest until ${benefitableTime.toLocaleString()}. Do you still wish to do a long rest?`);
 
             message.react('👍').then(() => message.react('👎'));
@@ -96,7 +97,7 @@ module.exports = {
         }
 
         let newCurrentTime = new Date(currentTime);
-        newCurrentTime.setHours(newCurrentTime.getHours() + longRestLength[sheet.race]);
+        newCurrentTime.setHours(newCurrentTime.getHours() + longRestLength.content[sheet.race]);
 
         let newTimeValues = {
             $set: {
