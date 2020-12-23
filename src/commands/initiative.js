@@ -1,7 +1,7 @@
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
-const { LinkedList } = require('../combat/LinkedList');
+const { LinkedList } = require('../dataStructures/LinkedList');
 const { makeObjectEmbed } = require('../output/embed');
 const { TileType } = require('../combat/map');
 
