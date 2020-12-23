@@ -1,5 +1,5 @@
-const settings = require('../settings.json');
 const { connectionString } = require('../auth.json');
+const { database } = require('../settings.json');
 const { MongoClient } = require('mongodb');
 
 let instance;
@@ -40,7 +40,7 @@ class MongoServices {
 
     find(collectionName, query) {
         return instance
-            .db(settings.database.name)
+            .db(database.name)
             .collection(collectionName)
             .find(query)
             .toArray();
@@ -48,7 +48,7 @@ class MongoServices {
 
     updateOne(collectionName, query, newValue) {
         return instance
-            .db(settings.database.name)
+            .db(database.name)
             .collection(collectionName)
             .updateOne(query, newValue);
     }

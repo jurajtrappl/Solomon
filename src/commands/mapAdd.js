@@ -1,6 +1,6 @@
 const { database } = require('../../settings.json');
 const { askedForHelp, printHelpEmbed } = require('../help');
-const { Tile, TileTypeArgs, TileType } = require('../map.js');
+const { Tile, TileTypeArgs, TileType } = require('../map');
 
 module.exports = {
     name: 'mapAdd',

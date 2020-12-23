@@ -1,7 +1,7 @@
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
-const { makeTimeEmbed } = require('../embed.js');
+const { makeTimeEmbed } = require('../embed');
 
 module.exports = {
     name: 'time',

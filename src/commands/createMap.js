@@ -1,6 +1,6 @@
 const { askedForHelp, printHelpEmbed } = require('../help');
 const { database } = require('../../settings.json');
-const { Map } = require('../map.js');
+const { Map } = require('../map');
 
 module.exports = {
     name: 'createMap',

@@ -1,8 +1,8 @@
 const { askedForHelp, printHelpEmbed } = require('../help');
-const { capitalize } = require('../lang.js');
+const { capitalize } = require('../lang');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../dice.js');
-const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../embed.js');
+const { ExpressionDice } = require('../dice');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../embed');
 
 module.exports = {
     name: 'rac',
