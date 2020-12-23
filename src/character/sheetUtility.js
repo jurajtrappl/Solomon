@@ -3,38 +3,42 @@ class Sheet {
         this.sheet = sheet;
     }
 
-    abilityScore = (abilityName) => { console.log(this.sheet.abilities[abilityName]) }; 
+    abilityScore = (abilityName) => this.sheet.abilities[abilityName];
+    
     skillScore = (skillName) => this.sheet.skills[skillName];
 
     calculateAbilityBonus = (abilityName) => {
         let bonus = this.modifier(this.sheet.abilities[abilityName]);
-    
-        //check the proficiency
-        if (this.sheet.savingThrows[abilityName]) {
+
+        if (this.isSavingThrowProficient(abilityName)) {
             bonus += this.sheet.proficiencyBonus;
         }
-    
+
         return bonus;
-    }
+    };
 
     calculateSkillBonus = (skills, skillName) => {
         const skillAbility = skills[skillName].ability;
         let bonus = this.modifier(this.abilityScore(skillAbility));
-        
-        //check for proficiency
-        if (this.sheet.skills[skillName].prof) {
+
+        if (this.isSkillProficient(skillName)) {
             bonus += this.sheet.proficiencyBonus;
         }
-    
-        //check for double proficiency
-        if (this.sheet.doubleProf.indexOf(skillName) != -1) {
+
+        if (this.isSkillDoubleProficient(skillName)) {
             bonus += this.sheet.proficiencyBonus;
         }
-    
+
         return bonus;
-    }
+    };
+
+    isSavingThrowProficient = (abilityName) => this.sheet.savingThrows[abilityName];
+
+    isSkillProficient = (skillName) => this.sheet.skills[skillName].prof;
+    
+    isSkillDoubleProficient = (skillName) => this.sheet.doubleProf.includes(skillName);
 
     modifier = (score) => Math.floor((score - 10) / 2);
 }
 
-module.exports = { Sheet }
+module.exports = { Sheet };
