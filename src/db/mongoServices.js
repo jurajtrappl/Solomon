@@ -1,5 +1,5 @@
-const { connectionString } = require('../auth.json');
-const { database } = require('../settings.json');
+const { connectionString } = require('../../auth.json');
+const { database } = require('../../settings.json');
 const { MongoClient } = require('mongodb');
 
 let instance;

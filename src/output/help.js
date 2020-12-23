@@ -1,5 +1,5 @@
-const { database } = require('../settings.json');
-const { makeHelpEmbed } = require('../src/embed');
+const { database } = require('../../settings.json');
+const { makeHelpEmbed } = require('./embed');
 
 const HELP_ARG = 'help';
 
