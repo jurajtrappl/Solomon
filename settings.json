@@ -9,9 +9,10 @@
             "time": "time"
         }
     },
-    "commandDirectory": [ 
-        "./src/commands"
-    ],
-    "errorCommandExecuteMessage": "There was an error trying to execute that command!",
-    "prefix": "/"
+    "command": {
+        "directories": [
+            "./src/commands"
+        ],
+        "prefix": "/"
+    }
 }

@@ -1,4 +1,4 @@
-const settings = require('./settings.json');
+const { command } = require('./settings.json');
 const { readdirSync } = require('fs');
 const { Collection } = require('discord.js');
 
@@ -35,7 +35,7 @@ class CommandLoader {
  */
 class CommandValidator {
     static validate(message) {
-        return (!message.author.bot) && message.content.startsWith(settings.prefix);
+        return (!message.author.bot) && message.content.startsWith(command.prefix);
     }
 }
 
@@ -48,7 +48,7 @@ class CommandDirector {
     constructor(discordClient, mongo) {
         this.discordClient = discordClient;
         this.mongo = mongo;
-        this.commands = CommandLoader.load(settings.commandDirectory);
+        this.commands = CommandLoader.load(command.directories);
     }
 
     findCommand(commandName) {
