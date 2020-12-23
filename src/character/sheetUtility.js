@@ -4,7 +4,7 @@ class Sheet {
     }
 
     abilityScore = (abilityName) => this.sheet.abilities[abilityName];
-    
+
     skillScore = (skillName) => this.sheet.skills[skillName];
 
     calculateAbilityBonus = (abilityName) => {
@@ -32,10 +32,15 @@ class Sheet {
         return bonus;
     };
 
+    canApplyReliableTalent = (skillName) => 
+        this.sheet.class === 'Rogue' &&
+        this.sheet.level >= 11 &&
+        this.isSkillProficient(skillName);
+
     isSavingThrowProficient = (abilityName) => this.sheet.savingThrows[abilityName];
 
     isSkillProficient = (skillName) => this.sheet.skills[skillName].prof;
-    
+
     isSkillDoubleProficient = (skillName) => this.sheet.doubleProf.includes(skillName);
 
     modifier = (score) => Math.floor((score - 10) / 2);

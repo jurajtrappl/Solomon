@@ -56,7 +56,7 @@ module.exports = {
         let normalRoll = expressionDice.roll();
         let { first, second } = expressionDice.rollWithAdvOrDisadv();
 
-        if (sheet.class === 'Rogue' && sheet.level >= 11 && sheet.skills[skillName].prof) {
+        if (characterSheet.canApplyReliableTalent(skillName)) {
             normalRoll = reliableTalent(expressionDice.roll());
             first = reliableTalent(first);
             second = reliableTalent(second);
