@@ -86,12 +86,10 @@ function makeNormalRollEmbed(characterName, color, expr, title, { visual, totalR
 function makeFields(names, values) {
     const fields = [];
     for (let i = 0; i < names.length; i++) {
-        fields.push(
-            {
-                name: names[i],
-                value: values[i]
-            }
-        )
+        fields.push({
+            name: names[i],
+            value: values[i]
+        });
     }
     return fields;
 }
@@ -174,6 +172,29 @@ function makeSheetEmbed(color, sheet) {
         });
 }
 
+function spellSlotsFields(spellslots) {
+    const fields = [];
+
+    for (let spellSlotLevel in spellslots.total) {
+        const total = spellslots.total[spellSlotLevel];
+        const expended = spellslots.expended[spellSlotLevel];
+        
+        fields.push({
+            name: `${Number(spellSlotLevel) + 1}. level`,
+            value: `${total - expended}/${total}`
+        });
+    }
+
+    return fields;
+}
+
+function makeSpellSlotsEmbed(color, spellslots) {
+    return new MessageEmbed()
+        .setColor(color)
+        .setTitle('Spell slots')
+        .addFields(spellSlotsFields(spellslots));
+}
+
 function makeTimeEmbed(color, time) {
     return new MessageEmbed()
         .setColor(color)
@@ -198,5 +219,6 @@ module.exports = {
     makeNormalRollEmbed,
     makeObjectEmbed,
     makeSheetEmbed,
+    makeSpellSlotsEmbed,
     makeTimeEmbed
 }
