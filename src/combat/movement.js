@@ -1,3 +1,4 @@
+const { MapTileOccupiedError } = require('../err/errors');
 const { TileType } = require('./map');
 
 const directions = {
@@ -64,7 +65,7 @@ const moveObj = (currentPosition, tiles, dimensions, directionsArgs) => {
         }
 
         if (tiles[moveVector.x][moveVector.y].type != TileType.free) {
-            throw new Error('Can not move there.');
+            throw new MapTileOccupiedError();
         }
     }
 

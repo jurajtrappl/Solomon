@@ -1,29 +1,36 @@
+const { ArgsValidator, type } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
+const { OutOfRangeError } = require('../err/errors');
 const { Map } = require('../combat/map');
 
 module.exports = {
     name: 'createMap',
-    args: false,
+    args: true,
     description: 'Creates a map for combat with the specified dimensions.',
     async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
-        //check arguments
-        if (args.length != 2) {
-            return await message.reply('Incorrect number of arguments.');
+        ArgsValidator.CheckCount(args, 2);
+
+        ArgsValidator.TypeCheckAll(args, [ type.numeric, type.numeric ]);
+
+        const width = Number(args[0]);
+        if (width <= 1 || width >= 44) {
+            throw new OutOfRangeError('Width', 2, 43);
         }
-        //check if args are nums
-        if (Number(args[0] <= 1) || Number(args[1]) <= 1) {
-            return await message.reply('Size of dimensions are out of bounds.');
+
+        const height = Number(args[1]);
+        if (height <= 1 || height >= 44) {
+            throw new OutOfRangeError('Height', 2, 43);
         }
 
         //add borders
         const dimensions = {
-            width: Number(args[0]) + 2,
-            height: Number(args[1]) + 2
+            width: width + 2,
+            height: height + 2
         };
 
         //update map

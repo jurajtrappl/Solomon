@@ -3,6 +3,7 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
+const { NotFoundError, searchingObjType, NotExistingError } = require('../err/errors');
 const { Sheet } = require('../character/sheet');
 
 module.exports = {
@@ -17,26 +18,26 @@ module.exports = {
         //get skills
         const skills = await mongo.tryFind(database.collections.data, { name: 'Skills' });
         if (!skills) {
-            throw new Error(`There are not data about skills.`);
+            throw new NotFoundError(searchingObjType.dataFile, 'Skills');
         }
 
         //check skill name
         const skillName = capitalize(args[0]);
         if (!Object.keys(skills.content).includes(skillName)) {
-            return await message.reply(`${args[0]} does not exist.`);
+            throw new NotExistingError(args[0]);
         }
 
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
-            throw new Error(`You do not have a character.`);
+            throw new NotFoundError(searchingObjType.player, message.author.id);
         }
         const [characterName] = playerData.characters;
 
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
-            throw new Error(`${characterName} has not a character sheet`);
+            throw new NotFoundError(searchingObjType.sheet, characterName);
         }
         const characterSheet = new Sheet(sheet);
 

@@ -1,7 +1,9 @@
+const { ArgsValidator } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
 const { moveObj } = require('../combat/movement');
+const { NotFoundError, searchingObjType, NotExistingError } = require('../err/errors');
 
 module.exports = {
     name: 'move',
@@ -17,10 +19,12 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
+        ArgsValidator.CheckCount(args, 1);
+
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
-            throw new Error('Combat information do not exist.');
+            throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
         let parsedMap = JSON.parse(combat.content.map);
 
@@ -30,7 +34,7 @@ module.exports = {
             //get character name
             const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
             if (!playerData) {
-                throw new Error(`You do not have a character.`);
+                throw new NotFoundError(searchingObjType.player, message.author.id);
             }
             [name] = playerData.characters;
 
@@ -42,7 +46,7 @@ module.exports = {
         }
 
         if (!Object.keys(parsedMap.specialObjects).includes(name)) {
-            return await message.reply(`${name} is not there.`);
+            throw new NotExistingError(name);
         }
 
         //try to move

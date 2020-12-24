@@ -1,55 +1,61 @@
+const { ArgsValidator, type } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
+const { NotEnoughError, NotFoundError, searchingObjType } = require('../err/errors');
 
 module.exports = {
     name: 'expend',
-    args: false,
+    args: true,
     description: 'Expends one spell slot of the specified level.',
+    expendOne: function(spellslots, spellSlotLevel) {
+        spellslots.expended[spellSlotLevel - 1] += 1;
+    },
     async execute(message, args, mongo, _discordClient) {
         if (askedForHelp(args)) {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
-        const spellSlotLevel = args[0];
-        if (isNaN(spellSlotLevel)) {
-            throw new Error(`${spellSlotLevel} is not a number.`);
-        }
+        ArgsValidator.CheckCount(args, 1);
+        let spellSlotLevel = args[0];
+        ArgsValidator.TypeCheckOne(spellSlotLevel, type.numeric);
 
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
-            throw new Error(`You do not have a character.`);
+            throw new NotFoundError(searchingObjType.player, message.author.id);
         }
         const [characterName] = playerData.characters;
 
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
-            throw new Error(`${characterName} has not a character sheet`);
+            throw new NotFoundError(searchingObjType.character, characterName);
         }
+
+        const spellslots = sheet.spells.spellslots;
 
         //check if the specified spell slot level is in range of the available character spell slots
-        if (sheet.spells.spellslots.total.length < spellSlotLevel || spellSlotLevel <= 0) {
-            throw new Error('You do not have a spell slot of this level.');
+        const maxSpellLevel = spellslots.total.length;
+        if (maxSpellLevel < spellSlotLevel || spellSlotLevel <= 0) {
+            throw new OutOfRangeError('Spell slot level', 1, maxSpellLevel);
         }
-
-        const totalSpellSlots = sheet.spells.spellslots.total[spellSlotLevel - 1];
-        const spellSlotsLeft = totalSpellSlots - sheet.spells.spellslots.expended[spellSlotLevel - 1];
+ 
+        const totalSpellSlotsOfLevel = spellslots.total[spellSlotLevel - 1];
+        const spellSlotsLeft = totalSpellSlotsOfLevel - spellslots.expended[spellSlotLevel - 1];
 
         if (spellSlotsLeft == 0) {
-            throw new Error(`There is not a spell slot of the ${spellSlotLevel}. level anymore.`);
+            throw new NotEnoughError(`${spellSlotLevel}. level spell slots.`, 0, 1);
         }
 
-        //expend one
-        sheet.spells.spellslots.expended[spellSlotLevel - 1] += 1;
+        this.expendOne(spellslots, spellSlotLevel);
 
-        if (sheet.spells.spellslots.expended[spellSlotLevel - 1] == totalSpellSlots) {
+        if (spellslots.expended[spellSlotLevel - 1] == totalSpellSlotsOfLevel) {
             await message.reply(`You have used all your ${spellSlotLevel}. level spell slots.`);
         }
 
         const newSpellSlotValues = {
             $set: {
-                'spells.spellslots.expended': sheet.spells.spellslots.expended
+                'spells.spellslots.expended': spellslots.expended
             }
         }
 
