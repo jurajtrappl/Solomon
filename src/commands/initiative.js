@@ -1,4 +1,3 @@
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { LinkedList } = require('../dataStructures/LinkedList');
@@ -34,10 +33,6 @@ module.exports = {
         return initiativeOrder;
     },
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         //get combat
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {

@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { NotEnoughError, NotFoundError, searchingObjType } = require('../err/errors');
 
@@ -11,10 +10,6 @@ module.exports = {
         spellslots.expended[spellSlotLevel - 1] += 1;
     },
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         ArgsValidator.CheckCount(args, 1);
         let spellSlotLevel = args[0];
         ArgsValidator.TypeCheckOne(spellSlotLevel, type.numeric);

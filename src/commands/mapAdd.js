@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { Tile, TileTypeArgs, TileType } = require('../combat/map');
 const { OutOfRangeError, DuplicateObjectError, MapTileOccupiedError } = require('../err/errors');
@@ -9,10 +8,6 @@ module.exports = {
     args: false,
     description: 'Adds an object to the map.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         ArgsValidator.CheckCount(args, 4);
         let row = args[3];
         ArgsValidator.TypeCheckOne(row, type.numeric);

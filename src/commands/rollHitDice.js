@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeHitDiceEmbed } = require('../output/embed');
@@ -10,10 +9,6 @@ module.exports = {
     args: true,
     description: 'Spends the specified amount of hit dices.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         ArgsValidator.CheckCount(args, 1);
         let hitDiceCountToSpent = args[0];
         ArgsValidator.TypeCheckOne(hitDiceCountToSpent, type.numeric);

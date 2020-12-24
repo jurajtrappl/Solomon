@@ -1,5 +1,4 @@
 const { ArgsValidator } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice, isRollExpression } = require('../rolls/dice');
 const { makeHealEmbed } = require('../output/embed');
@@ -16,10 +15,6 @@ module.exports = {
         Supreme: '10d4+20',
     },
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         ArgsValidator.CheckCount(args, 2);
 
         let expr = '';

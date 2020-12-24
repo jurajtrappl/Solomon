@@ -1,4 +1,3 @@
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { NotFoundError, searchingObjType } = require('../err/errors');
 
@@ -20,10 +19,6 @@ module.exports = {
         return mapAsMessage;
     },
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {

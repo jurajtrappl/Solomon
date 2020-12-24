@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { searchingObjType, NotFoundError, NegativeDamageError } = require('../err/errors');
 
@@ -13,11 +12,7 @@ module.exports = {
     isKnocked: function (currentHP, maxHP) {
         return currentHP < 0 && !this.isDead(currentHP, maxHP);
     },
-    async execute(message, args, mongo, discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
+    async execute(_message, args, mongo, discordClient) {
         ArgsValidator.CheckCount(args, 2);
         let damage = args[1];
         ArgsValidator.TypeCheckOne(damage, type.numeric);
