@@ -1,6 +1,8 @@
+const { ArgsValidator, type } = require('../err/argsValidator');
+const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { searchingObjType, NotFoundError } = require('../err/errors');
 
 module.exports = {
     name: 'addxp',
@@ -12,18 +14,22 @@ module.exports = {
         }
 
         if (message.author.id == dmID) {
+            ArgsValidator.CheckCount(args, 2);
+
+            const addXP = args[1];
+            ArgsValidator.TypeCheckOne(addXP, type.numeric);
+
             const characterName = args[0];
             const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
             if (!sheet) {
-                throw new Error(`${characterName} has not a character sheet`);
+                throw new NotFoundError(searchingObjType.sheet, characterName);
             }
 
             const characterAdvancement = await mongo.tryFind(database.collections.data, { name: 'CharacterAdvancement' });
             if (!characterAdvancement) {
-                throw new Error(`There is not a 'Character Advancement'.`);
-            }
+                throw new NotFoundError(searchingObjType.dataFile, 'CharacterAdvancement');
+            }            
 
-            const addXP = args[1];
             const isNextLevelExp = (exp) =>
                 exp > sheet.xp + Number(addXP);
 

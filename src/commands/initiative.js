@@ -3,6 +3,7 @@ const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { LinkedList } = require('../dataStructures/LinkedList');
 const { makeObjectEmbed } = require('../output/embed');
+const { NotFoundError, searchingObjType } = require('../err/errors');
 const { TileType } = require('../combat/map');
 
 module.exports = {
@@ -40,7 +41,7 @@ module.exports = {
         //get combat
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
-            throw new Error('Combat information do not exist.');
+            throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
 
         let expr = '';
@@ -54,7 +55,7 @@ module.exports = {
             if (combatant.type == TileType.character) {
                 const sheet = await mongo.tryFind(database.collections.characters, { characterName: combatant.name });
                 if (!sheet) {
-                    throw new Error(`${combatant.name} has not a character sheet.`);
+                    throw new NotFoundError(searchingObjType.sheet, combatant.name);
                 }
 
                 initiativeBonus = sheet.initiative;

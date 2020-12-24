@@ -1,10 +1,12 @@
-const { database } = require('../../settings.json');
+const { ArgsValidator, type } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { database } = require('../../settings.json');
+const { searchingObjType, NotFoundError, NegativeDamageError } = require('../err/errors');
 
 module.exports = {
     name: 'damage',
     args: true,
-    description: 'Damaging characters.',
+    description: 'Deals a damage to the specified character.',
     isDead: function (currentHP, maxHP) {
         return currentHP <= -maxHP;
     },
@@ -16,16 +18,20 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
+        ArgsValidator.CheckCount(args, 2);
+        let damage = args[1];
+        ArgsValidator.TypeCheckOne(damage, type.numeric);
+
         //get character sheet
         const characterName = args[0];
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
-            throw new Error(`${characterName} has not a character sheet`);
+            throw new NotFoundError(searchingObjType.sheet, characterName);
         }
 
-        const damage = Number(args[1]);
+        damage = Number(args[1]);
         if (damage < 0) {
-            return await message.reply('You sneaky thing.');
+            throw new NegativeDamageError();
         }
 
         const newCurrentHP = sheet.currentHP - damage;

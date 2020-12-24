@@ -2,6 +2,7 @@ const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
 const { makeTimeEmbed } = require('../output/embed');
+const { NotFoundError, searchingObjType } = require('../err/errors');
 
 module.exports = {
     name: 'time',
@@ -18,7 +19,7 @@ module.exports = {
             const characterName = args[0];
             const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
             if (!time) {
-                throw new Error(`${characterName} does not have time data.`);
+                throw new NotFoundError(searchingObjType.time, characterName);
             }
 
             if (args[1] == 'l') {
@@ -56,13 +57,13 @@ module.exports = {
             //get character name
             const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
             if (!playerData) {
-                throw new Error(`You do not have a character.`);
+                throw new NotFoundError(searchingObjType.player, message.author.id);
             }
             const [characterName] = playerData.characters;
 
             const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
             if (!time) {
-                throw new Error(`${characterName} does not have time data.`);
+                throw new NotFoundError(searchingObjType.time, characterName);
             }
 
             return await message.reply({

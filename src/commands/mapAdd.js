@@ -1,6 +1,8 @@
-const { database } = require('../../settings.json');
+const { ArgsValidator, type } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
+const { database } = require('../../settings.json');
 const { Tile, TileTypeArgs, TileType } = require('../combat/map');
+const { OutOfRangeError, DuplicateObjectError, MapTileOccupiedError } = require('../err/errors');
 
 module.exports = {
     name: 'mapAdd',
@@ -11,37 +13,47 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
+        ArgsValidator.CheckCount(args, 4);
+        let row = args[3];
+        ArgsValidator.TypeCheckOne(row, type.numeric);
+        let col = args[4];
+        ArgsValidator.TypeCheckOne(col, type.numeric);
+
         const tileTypeArg = args[0];
         if (!Object.keys(TileTypeArgs).includes(tileTypeArg)) {
-            return await message.reply('Tile type does not exist.');
+            throw new NotExistingError(tileTypeArg);
         }
 
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
-            throw new Error('Combat information do not exist.');
+            throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
         let parsedMap = JSON.parse(combat.content.map);
 
         //check for the duplicity of objects
         const name = args[1];
         if (Object.keys(parsedMap.specialObjects).includes(name)) {
-            return await message.reply(`${name} is already there.`);
+            throw new DuplicateObjectError(name);
         }
 
-        const row = Number(args[2]);
-        const col = Number(args[3]);
+        row = Number(args[2]);
+        col = Number(args[3]);
         const mapWidth = parsedMap.dimensions.width;
         const mapHeight = parsedMap.dimensions.height;
 
         //check if row and col are present
-        if (row > mapHeight || row <= 0 || col > mapWidth || col <= 0) {
-            return await message.reply('Indices out of bounds.');
+        if (row > mapHeight || row <= 0) {
+            throw new OutOfRangeError('Row index', 1, mapHeight);
+        }
+
+        if (col > mapWidth || col <= 0) {
+            throw new OutOfRangeError('Col index', 1, mapWidth);
         }
 
         //check if there is already something or not
         if (!parsedMap.tiles[row][col].type == TileType.free) {
-            return await message.reply('There is already an object.');
+            throw new MapTileOccupiedError();
         }
 
         //create a new tile

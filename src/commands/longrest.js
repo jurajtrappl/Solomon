@@ -1,5 +1,6 @@
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
+const { NotFoundError, searchingObjType } = require('../err/errors');
 
 module.exports = {
     name: 'longrest',
@@ -13,26 +14,26 @@ module.exports = {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
-            throw new Error(`You do not have a character.`);
+            throw new NotFoundError(searchingObjType.player, message.author.id);
         }
         const [characterName] = playerData.characters;
 
         //get character time data, to check if long rest is available
         const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
         if (!time) {
-            throw new Error(`${characterName} does not have time data.`);
+            throw new NotFoundError(searchingObjType.time, characterName);
         }
 
         //get longrest length
         const longRestLength = await mongo.tryFind(database.collections.data, { name: 'LongRestLength' });
         if (!longRestLength) {
-            throw new Error(`There are not data about length of longrests of races.`);
+            throw new NotFoundError(searchingObjType.dataFile, 'LongRestLength');
         }
 
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
-            throw new Error(`${characterName} has not a character sheet.`);
+            throw new NotFoundError(searchingObjType.sheet, characterName);
         }
 
         const lastLongRest = new Date(time.lastLongRest);

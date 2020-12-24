@@ -1,11 +1,12 @@
+const { ArgsValidator } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice, isRollExpression } = require('../rolls/dice');
-const { makeHealEmbed, makeObjectEmbed } = require('../output/embed');
+const { makeHealEmbed } = require('../output/embed');
+const { NotFoundError, InvalidRollExpressionError } = require('../err/errors');
 
 module.exports = {
     name: 'heal',
-    aliases: ['Heal'],
     args: true,
     description: 'Heals a character.',
     healingPotions: {
@@ -19,71 +20,57 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
-        if (args[0] == 'potions') {
-            return await message.reply({
-                embed: makeObjectEmbed(
-                    message.member.displayHexColor,
-                    this.healingPotions,
-                    'List of healing potions'
-                ),
-            });
+        ArgsValidator.CheckCount(args, 2);
+
+        let expr = '';
+        let title = '';
+
+        if (Object.keys(this.healingPotions).includes(args[1])) {
+            expr = this.healingPotions[args[1]];
+            title = `Using potion: ${args[1]}`;
         } else {
-            let expr = '';
-            let title = '';
-
-            if (Object.keys(this.healingPotions).includes(args[0])) {
-                expr = this.healingPotions[args[0]];
-                title = `Using potion: ${args[0]}`;
+            const argsExpr = args.slice(1).map((a) => a.trim()).join('');
+            if (isRollExpression(argsExpr)) {
+                expr = argsExpr;
+                title = 'Healing using an expression';
             } else {
-                const argsExpr = args.slice(1).map((a) => a.trim()).join('');
-                if (isRollExpression(argsExpr)) {
-                    expr = argsExpr;
-                    title = 'Healing using an expression';
-                } else {
-                    return await message.reply('Wrong expression.');
-                }
+                throw new InvalidRollExpressionError(expr);
             }
-
-            const expressionDice = new ExpressionDice(expr);
-            const heal = expressionDice.roll();
-
-            //get character name
-            const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-            if (!playerData) {
-                throw new Error(`You do not have a character.`);
-            }
-            const [characterName] = playerData.characters;
-
-            //get character sheet
-            const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
-            if (!sheet) {
-                throw new Error(`${characterName} has not a character sheet`);
-            }
-
-            let newCurrentHp = sheet.currentHP + Number(heal.totalRoll);
-            if (newCurrentHp > sheet.maxHP) {
-                newCurrentHp = sheet.maxHP;
-            }
-
-            const newHP = {
-                $set: {
-                    currentHP: newCurrentHp,
-                },
-            };
-
-            await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
-
-            return await message.reply({
-                embed: makeHealEmbed(
-                    characterName,
-                    message.member.displayHexColor,
-                    expr,
-                    title,
-                    heal,
-                    newCurrentHp,
-                    sheet.maxHP
-                ),
-            });
         }
+
+        const expressionDice = new ExpressionDice(expr);
+        const heal = expressionDice.roll();
+
+        //get character sheet
+        const characterName = args[0];
+        const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
+        if (!sheet) {
+            throw new NotFoundError(searchingObjType.character, characterName);
+        }
+
+        let newCurrentHp = sheet.currentHP + Number(heal.totalRoll);
+        if (newCurrentHp > sheet.maxHP) {
+            newCurrentHp = sheet.maxHP;
+        }
+
+        const newHP = {
+            $set: {
+                currentHP: newCurrentHp,
+            },
+        };
+
+        await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
+
+        return await message.reply({
+            embed: makeHealEmbed(
+                characterName,
+                message.member.displayHexColor,
+                expr,
+                title,
+                heal,
+                newCurrentHp,
+                sheet.maxHP
+            ),
+        });
     },
 };

@@ -1,7 +1,9 @@
+const { ArgsValidator, type } = require('../err/argsValidator');
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeNormalRollEmbed } = require('../output/embed');
+const { NotFoundError, searchingObjType } = require('../err/errors');
 
 module.exports = {
     name: 'roll',
@@ -12,18 +14,20 @@ module.exports = {
             return await printHelpEmbed(this.name, message, mongo);
         }
 
+        const rollExpression = args.map(a => a.trim()).join('');
+        ArgsValidator.TypeCheckOne(rollExpression, type.rollExpression);
+
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
-            throw new Error(`You do not have a character.`);
+            throw new NotFoundError(searchingObjType.player, message.author.id);
         }
         const [characterName] = playerData.characters;
 
-        const expr = args.map(a => a.trim()).join('');
-        const expressionDice = new ExpressionDice(expr);
+        const expressionDice = new ExpressionDice(rollExpression);
 
         return await message.reply({
-            embed: makeNormalRollEmbed(characterName, message.member.displayHexColor, expr, 'Expression roll', expressionDice.roll())
+            embed: makeNormalRollEmbed(characterName, message.member.displayHexColor, rollExpression, 'Expression roll', expressionDice.roll())
         });
     }
 }

@@ -1,5 +1,6 @@
 const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
+const { NotFoundError, searchingObjType } = require('../err/errors');
 
 module.exports = {
     name: 'showMap',
@@ -26,7 +27,7 @@ module.exports = {
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
-            throw new Error('Combat information do not exist.');
+            throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
         let parsedMap = JSON.parse(combat.content.map);
 

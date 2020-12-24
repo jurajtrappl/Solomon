@@ -62,7 +62,7 @@ class SimpleDice extends Dice {
     }
 }
 
-const rollBonusRegex = /^[+|-][0-9]+$/;
+const rollBonusRegex = /^[+|-]?[0-9]+$/;
 const rollDiceRegex = /^[+|-]?[0-9]+d(4|6|8|10|12|20)$/;
 
 function isDiceOrBonus(arg) {
@@ -99,11 +99,6 @@ function isRollExpression(value) {
  */
 class ExpressionDice {
     constructor(expr) {
-        if (!isRollExpression(expr)) {
-            console.log(expr);
-            throw new Error('Error in the expression.');
-        }
-
         this.parts = parseRollExpression(expr);
     }
 
@@ -114,8 +109,8 @@ class ExpressionDice {
 
     //calculate the expression
     roll() {
-        let total = 0,
-            visual = [];
+        let total = 0;
+        let visual = [];
         this.parts.forEach(arg => {
             if (arg.match(rollDiceRegex)) {
                 const d = this.parseDice(arg);
