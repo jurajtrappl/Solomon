@@ -1,4 +1,3 @@
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
 const { makeTimeEmbed } = require('../output/embed');
@@ -9,10 +8,6 @@ module.exports = {
     args: true,
     description: 'Set current date, time and location.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         if (message.author.id == dmID) {
             //DM command
             //get character time data, to check if long rest is available

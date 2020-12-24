@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
 const { searchingObjType, NotFoundError } = require('../err/errors');
@@ -9,10 +8,6 @@ module.exports = {
     description: 'Modify players XP count - DM only.',
     args: true,
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         if (message.author.id == dmID) {
             ArgsValidator.CheckCount(args, 2);
 

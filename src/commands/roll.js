@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { ExpressionDice } = require('../rolls/dice');
 const { makeNormalRollEmbed } = require('../output/embed');
@@ -10,10 +9,6 @@ module.exports = {
     args: true,
     description: 'Rolling dices for D&D.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         const rollExpression = args.map(a => a.trim()).join('');
         ArgsValidator.TypeCheckOne(rollExpression, type.rollExpression);
 

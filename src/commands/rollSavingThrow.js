@@ -1,4 +1,3 @@
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
@@ -11,10 +10,6 @@ module.exports = {
     args: true,
     description: 'Roll a saving throw.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         //get abilities
         const abilities = await mongo.tryFind(database.collections.data, { name: 'Abilities' });
         if (!abilities) {

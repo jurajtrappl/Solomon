@@ -1,5 +1,4 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { OutOfRangeError } = require('../err/errors');
 const { Map } = require('../combat/map');
@@ -8,11 +7,7 @@ module.exports = {
     name: 'createMap',
     args: true,
     description: 'Creates a map for combat with the specified dimensions.',
-    async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
+    async execute(_message, args, mongo, _discordClient) {
         ArgsValidator.CheckCount(args, 2);
 
         ArgsValidator.TypeCheckAll(args, [ type.numeric, type.numeric ]);

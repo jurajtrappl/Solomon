@@ -1,5 +1,4 @@
 const { ArgsValidator } = require('../err/argsValidator');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { database } = require('../../settings.json');
 const { dmID } = require('../../auth.json');
 const { moveObj } = require('../combat/movement');
@@ -15,10 +14,6 @@ module.exports = {
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         ArgsValidator.CheckCount(args, 1);
 
         //get map
@@ -50,21 +45,17 @@ module.exports = {
         }
 
         //try to move
-        try {
-            const newPosition = moveObj(parsedMap.specialObjects[name], parsedMap.tiles, parsedMap.dimensions, directions);
+        const newPosition = moveObj(parsedMap.specialObjects[name], parsedMap.tiles, parsedMap.dimensions, directions);
 
-            //swap new position with the current
-            const currentPosition = parsedMap.specialObjects[name];
-            this.swapPositions(parsedMap.tiles, currentPosition, newPosition);
+        //swap new position with the current
+        const currentPosition = parsedMap.specialObjects[name];
+        this.swapPositions(parsedMap.tiles, currentPosition, newPosition);
 
-            //store the information to shortcut obj
-            parsedMap.specialObjects[name] = {
-                x: newPosition.x,
-                y: newPosition.y
-            };
-        } catch (error) {
-            return await message.reply(error.message);
-        }
+        //store the information to shortcut obj
+        parsedMap.specialObjects[name] = {
+            x: newPosition.x,
+            y: newPosition.y
+        };
 
         //update map
         const newMapValue = {

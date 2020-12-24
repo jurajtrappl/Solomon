@@ -1,5 +1,4 @@
 const { addBonusExpression, prepareCheck, reliableTalent } = require('../rolls/rollUtils');
-const { askedForHelp, printHelpEmbed } = require('../output/help');
 const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
@@ -11,10 +10,6 @@ module.exports = {
     args: true,
     description: 'Roll an ability check.',
     async execute(message, args, mongo, _discordClient) {
-        if (askedForHelp(args)) {
-            return await printHelpEmbed(this.name, message, mongo);
-        }
-
         //get skills
         const skills = await mongo.tryFind(database.collections.data, { name: 'Skills' });
         if (!skills) {
