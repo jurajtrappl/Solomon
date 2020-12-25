@@ -17,7 +17,7 @@ module.exports = {
         if (!playerData) {
             throw new NotFoundError(searchingObjType.player, message.author.id);
         }
-        const [characterName] = playerData.characters;
+        const characterName = playerData.character;
 
         const expressionDice = new ExpressionDice(rollExpression);
 

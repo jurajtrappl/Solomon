@@ -33,10 +33,10 @@ module.exports = {
         let changedStatus = false;
         if (this.isKnocked(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            discordClient.emit('playerKnocked', characterName);
+            discordClient.emit('gameEvent', 'knock', [ characterName ]);
         } else if (this.isDead(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            discordClient.emit('playerDead', characterName);
+            discordClient.emit('gameEvent', 'death', [ characterName ]);
         }
 
         const newHP = {
@@ -46,5 +46,8 @@ module.exports = {
         };
 
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
+
+        //log
+        discordClient.emit('sessionLog', 'damage', [ characterName, damage ]);
     },
 };

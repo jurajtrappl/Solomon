@@ -1,31 +1,41 @@
 const { Client } = require('discord.js');
-const { CommandDirector, CommandValidator } = require('./command');
+const { CommandsDirector, CommandValidator } = require('./src/directors/command');
+const { GameEventsDirector, SessionLogEventsDirector } = require('./src/directors/event');
 const { MongoServices } = require('./src/mongo/services');
 const { token } = require('./auth.json');
 
 const discordClient = new Client();
-let commandDirector = {};
 const mongo = new MongoServices();
 
-discordClient.once('ready', async () => {
-    console.log('Ready!');
+let commandsDirector = {};
+let gameEventsDirector = {};
+let sessionLogEventsDirector = {};
 
+discordClient.once('ready', async () => {
     await mongo.connect();
 
-    commandDirector = new CommandDirector(discordClient, mongo);
+    commandsDirector = new CommandsDirector(discordClient, mongo);
+    gameEventsDirector = new GameEventsDirector(discordClient, mongo);
+    sessionLogEventsDirector = new SessionLogEventsDirector(discordClient);
+
+    console.log('Ready!');
 });
 
 discordClient.on('unhandledRejection', ({ message }) => {
     console.error(`Unhandled promise rejection: ${message}`);
 })
 
-discordClient.on("error", ({ message }) => {
+discordClient.on('error', ({ message }) => {
     console.error(`Error: ${message}`);
 });
 
-discordClient.on('playerKnocked', () => { /* not implemented */ });
+discordClient.on('gameEvent', async (eventName, eventArgs) => {
+    await gameEventsDirector.execute(eventName, eventArgs);
+});
 
-discordClient.on('playerDead', () => { /* not implemented */ });
+discordClient.on('sessionLog', async (eventName, eventArgs) => {
+    await sessionLogEventsDirector.execute(eventName, eventArgs);
+})
 
 discordClient.on('message', async message => {
     if (CommandValidator.validate(message)) {
@@ -33,7 +43,7 @@ discordClient.on('message', async message => {
         const commandArgs = message.content.slice(commandPrefix.length).split(/ +/);
         const commandName = commandArgs.shift();
 
-        await commandDirector.execute(commandName, commandArgs, message);
+        await commandsDirector.execute(commandName, commandArgs, message);
     }
 });
 

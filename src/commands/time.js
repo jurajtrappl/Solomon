@@ -12,7 +12,7 @@ module.exports = {
         if (!playerData) {
             throw new NotFoundError(searchingObjType.player, message.author.id);
         }
-        const [characterName] = playerData.characters;
+        const characterName = playerData.character;
 
         const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
         if (!time) {

@@ -1,7 +1,7 @@
-const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../rolls/dice');
-const { NotFoundError } = require('../err/errors');
-const { Sheet } = require('../character/sheet');
+const { database } = require('../../../settings.json');
+const { ExpressionDice } = require('../../rolls/dice');
+const { NotFoundError, NotExistingError } = require('../../err/errors');
+const { Sheet } = require('../../character/sheet');
 const { MessageEmbed } = require('discord.js');
 
 module.exports = {
@@ -9,15 +9,8 @@ module.exports = {
     description: 'Levels up a character.',
     args: true,
     reactionOptions: ['1️⃣', '2️⃣'],
-    HP_CHOICE_WAIT_TIME: 10000,
-    async execute(message, _args, mongo, _discordClient) {
-        //get character name
-        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!playerData) {
-            throw new NotFoundError(searchingObjType.player, message.author.id);
-        }
-        const [characterName] = playerData.characters;
-
+    HP_CHOICE_WAIT_TIME: 12000,
+    async execute(messageChannel, [characterName, color], mongo) {
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
@@ -30,22 +23,19 @@ module.exports = {
             throw new NotFoundError(searchingObjType.dataFile, `${sheet.class} table`);
         }
 
-        //since the arrays are zero based this is also the index for next level
-        const currentLevel = sheet.level;
-        if (currentLevel == 20) {
-            //already reached max level
+        //get player discord ID
+        const player = await mongo.tryFind(database.collections.players, { character: characterName });
+        if (!player) {
+            throw new NotExistingError(`Player with the character named ${characterName}`);
         }
 
         //get next level data
-        const nextLevelData = classTable.table[currentLevel];
+        const nextLevelData = classTable.table[sheet.level];
 
         //init change embed fields
         const fields = [];
 
-        const embedTitle = `You have reached ${sheet.level + 1}. level`;
-
-        //increase level
-        sheet.level += 1;
+        const embedTitle = `You have reached ${sheet.level}. level`;
 
         //prof bonus
         if (sheet.proficiencyBonus < nextLevelData.proficiencyBonus) {
@@ -57,7 +47,7 @@ module.exports = {
             sheet.proficiencyBonus = nextLevelData.proficiencyBonus;
         }
 
-        //new features
+        //features
         const printFeatures = (features) => {
             if (features.length == 1) {
                 return [features];
@@ -72,7 +62,7 @@ module.exports = {
                 value: `${printFeatures(nextLevelData.features)}`
             });
 
-            sheet.features[currentLevel] = nextLevelData.features;
+            sheet.features[sheet.level] = nextLevelData.features;
         }
 
         //cantrips
@@ -110,7 +100,7 @@ module.exports = {
 
         //maxHP changes
 
-        //mongo find druid class features
+        //mongo find class features
         let classFeatures = await mongo.tryFind(database.collections.classFeatures, { class: sheet.class });
         if (!classFeatures) {
             throw new NotFoundError(searchingObjType.dataFile, `${sheet.class} class features`);
@@ -122,25 +112,31 @@ module.exports = {
         const automaticHP = classFeatures.hitPoints.higherLevels.automatic.base + constitutionModifier;
         const rollHPExpression = `1${classFeatures.hitPoints.higherLevels.roll.baseDice}+${constitutionModifier}`;
 
-        const botMessage = await message.reply(`For HP increase by (${automaticHP}) choose 1️⃣, for HP increase by (${rollHPExpression}) choose 2️⃣.`);
-        botMessage.react('1️⃣').then(() => botMessage.react('2️⃣'));
-
         let automaticIncrease = true; /* default */
 
-        await botMessage.awaitReactions((reaction, user) => user.id == message.author.id && this.reactionOptions.includes(reaction.emoji.name), {
-            dispose: true,
-            time: this.HP_CHOICE_WAIT_TIME
-        })
-            .then(async collected => {
-                const choice = collected.last();
+        await messageChannel.send(`For HP increase by (${automaticHP}) choose 1️⃣, for HP increase by (${rollHPExpression}) choose 2️⃣.`)
+            .then(async message => {
+                await message.react('1️⃣');
+                await message.react('2️⃣');
 
-                if (choice.emoji.name != '1️⃣') {
-                    automaticIncrease = false;
-                }
+                await message.awaitReactions((reaction, user) => user.id == player.discordID && this.reactionOptions.includes(reaction.emoji.name), {
+                    dispose: true,
+                    time: this.HP_CHOICE_WAIT_TIME
+                })
+                    .then(async collected => {
+                        const choice = collected.last();
+
+                        if (choice.emoji.name != '1️⃣') {
+                            automaticIncrease = false;
+                        }
+                    })
+                    .catch(async () => {
+                        await messageChannel.send('The reaction was not collected. Choosing the default option: increasing by an automatic hp.');
+                    });
             })
-            .catch(async () => {
-                await message.reply('The reaction was not collected. Choosing the default option: increasing by an automatic hp.');
-            })
+            .catch(error => {
+                console.log(error);
+            });
 
         if (automaticIncrease) {
             fields.push({
@@ -159,8 +155,12 @@ module.exports = {
             sheet.maxHP += Number(totalRoll);
         }
 
-        return await message.channel.send({
-            embed: new MessageEmbed().setColor(message.member.displayHexColor).setTitle(embedTitle).addFields(fields)
+        return await messageChannel.send({
+            embed:
+                new MessageEmbed()
+                    .setColor(color)
+                    .setTitle(embedTitle)
+                    .addFields(fields)
         });
     }
 };

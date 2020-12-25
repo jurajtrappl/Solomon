@@ -18,7 +18,7 @@ module.exports = {
 
         return mapAsMessage;
     },
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, _args, mongo, _discordClient) {
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {

@@ -31,7 +31,7 @@ module.exports = {
             if (!playerData) {
                 throw new NotFoundError(searchingObjType.player, message.author.id);
             }
-            [name] = playerData.characters;
+            name = playerData.character;
 
             //get directions
             directions = args[0];

@@ -11,10 +11,27 @@
             "time": "time"
         }
     },
+    "channels": {
+        "errors": "errors",
+        "sessions": "sessions",
+        "sessionsStory": "sessions-story"
+    },
     "command": {
         "directories": [
             "./src/commands"
         ],
         "prefix": "/"
+    },
+    "event": {
+        "game": {
+            "directories": [
+                "./src/events/game"
+            ]
+        },
+        "logs": {
+            "directories": [
+                "./src/events/sessionLogs"
+            ]
+        }
     }
 }
