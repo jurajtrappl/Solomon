@@ -1,5 +1,5 @@
-const { event, channels } = require('./settings.json');
-const { SourceFileLoader } = require('./loader');
+const { event, channels } = require('../../settings.json');
+const { SourceFileLoader } = require('../../loader');
 
 /**
  * GameEventsDirector.

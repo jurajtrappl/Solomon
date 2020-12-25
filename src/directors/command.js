@@ -1,5 +1,5 @@
-const { command } = require('./settings.json');
-const { SourceFileLoader } = require('./loader');
+const { command } = require('../../settings.json');
+const { SourceFileLoader } = require('../../loader');
 
 /**
  * CommandValidator.

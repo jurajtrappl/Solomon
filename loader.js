@@ -1,5 +1,6 @@
 const { readdirSync } = require('fs');
 const { Collection } = require('discord.js');
+const { addxp } = require('./src/commands/addxp');
 
 /**
  * Static class that loads source files from specified directories
