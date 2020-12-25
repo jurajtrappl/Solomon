@@ -9,8 +9,7 @@ module.exports = {
     expendOne: function(spellslots, spellSlotLevel) {
         spellslots.expended[spellSlotLevel - 1] += 1;
     },
-    async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 1);
+    async execute(message, args, mongo, discordClient) {
         let spellSlotLevel = args[0];
         ArgsValidator.TypeCheckOne(spellSlotLevel, type.numeric);
 
@@ -55,5 +54,9 @@ module.exports = {
         }
 
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSpellSlotValues);
+
+        //log
+        const spellName = args.slice(1).join(' ');
+        discordClient.emit('sessionLog', 'expend', [ characterName, spellSlotLevel, spellName ]);
     }
 }

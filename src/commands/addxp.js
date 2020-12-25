@@ -7,7 +7,8 @@ module.exports = {
     name: 'addxp',
     description: 'Modify players XP count - DM only.',
     args: true,
-    async execute(message, args, mongo, _discordClient) {
+    MAX_LVL: 20,
+    async execute(message, args, mongo, discordClient) {
         if (message.author.id == dmID) {
             ArgsValidator.CheckCount(args, 2);
 
@@ -23,7 +24,7 @@ module.exports = {
             const characterAdvancement = await mongo.tryFind(database.collections.data, { name: 'CharacterAdvancement' });
             if (!characterAdvancement) {
                 throw new NotFoundError(searchingObjType.dataFile, 'CharacterAdvancement');
-            }            
+            }
 
             const isNextLevelExp = (exp) =>
                 exp > sheet.xp + Number(addXP);
@@ -40,6 +41,18 @@ module.exports = {
             };
 
             await mongo.updateOne(database.collections.characters, { characterName: characterName }, newValues);
+
+            //log
+            discordClient.emit('sessionLog', 'addxp', [characterName, addXP]);
+
+            //emit events due to reaching a new lvl
+            if (sheet.level < newLvl && newLvl != this.MAX_LVL) {
+                //log
+                discordClient.emit('sessionLog', 'levelUp', [characterName, newLvl]);
+
+                discordClient.emit('gameEvent', 'levelUp', [characterName, message.member.displayHexColor]);
+            }
+
         } else {
             return await message.reply('This command is not allowed for players.');
         }

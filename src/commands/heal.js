@@ -14,13 +14,14 @@ module.exports = {
         Superior: '8d4+8',
         Supreme: '10d4+20',
     },
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, args, mongo, discordClient) {
         ArgsValidator.CheckCount(args, 2);
 
         let expr = '';
         let title = '';
 
-        if (Object.keys(this.healingPotions).includes(args[1])) {
+        const healItem = args[1];
+        if (Object.keys(this.healingPotions).includes(healItem)) {
             expr = this.healingPotions[args[1]];
             title = `Using potion: ${args[1]}`;
         } else {
@@ -56,7 +57,7 @@ module.exports = {
 
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
 
-        return await message.reply({
+        await message.reply({
             embed: makeHealEmbed(
                 characterName,
                 message.member.displayHexColor,
@@ -67,5 +68,8 @@ module.exports = {
                 sheet.maxHP
             ),
         });
+
+        //log
+        discordClient.emit('sessionLog', 'heal', [ characterName, heal.totalRoll, healItem, newCurrentHp ]);
     },
 };
