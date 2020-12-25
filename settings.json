@@ -2,6 +2,7 @@
     "database": {
         "name": "dnd",
         "collections": {
+            "classFeatures": "classFeatures",
             "classTables": "classTables",
             "characters": "characters",
             "data": "data",
