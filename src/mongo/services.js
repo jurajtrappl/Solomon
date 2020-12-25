@@ -67,6 +67,13 @@ class MongoServices {
             .collection(collectionName)
             .updateMany({}, newValue, { multi: true });
     } 
+
+    insertAll(collectionName, newObjects) {
+        return instance
+            .db(database.name)
+            .collection(collectionName)
+            .insertMany(newObjects);
+    }
 }
 
 module.exports = { MongoServices };
