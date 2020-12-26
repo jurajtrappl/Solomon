@@ -1,3 +1,4 @@
+const { GameCalendar } = require('../calendar/gameCalendar');
 const { MessageEmbed } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
@@ -196,18 +197,21 @@ function makeSpellSlotsEmbed(color, spellslots) {
 }
 
 function makeTimeEmbed(color, time) {
+    const currentTime = new GameCalendar(time.datetime);
+    const lastLongRest = new GameCalendar(time.lastLongRest);
+
     return new MessageEmbed()
         .setColor(color)
         .setTitle('Date, time and location')
         .addFields({
             name: 'Date & time:',
-            value: time.datetime.toLocaleString(),
+            value: `${currentTime.getFormattedDate()}, ${currentTime.getFormattedTime()}`,
         }, {
             name: 'Location',
             value: time.location,
         }, {
             name: 'Last long rest',
-            value: time.lastLongRest.toLocaleString()
+            value: `${lastLongRest.getFormattedDate()}, ${lastLongRest.getFormattedTime()}`,
         });
 }
 
