@@ -1,3 +1,4 @@
+const { dmID } = require('../../auth.json');
 const { database } = require('../../settings.json');
 const { NotFoundError, searchingObjType } = require('../err/errors');
 
@@ -5,7 +6,20 @@ module.exports = {
     name: 'longrest',
     args: false,
     description: 'Performs a long rest.',
-    async execute(message, args, mongo, _discordClient) {
+    yesNoReactions: {
+        '👍': true, 
+        '👎': false
+    },
+    REACTION_WAIT_TIME: 12000,
+    MS_PER_HOUR: 36e5,
+    dateDiffInHours: function (firstDate, secondDate) {
+        const timeOne = Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate());
+        const timeTwo = Date.UTC(secondDate.getFullYear(), secondDate.getMonth(), secondDate.getDate());
+
+        return Math.floor((timeTwo - timeOne) / this.MS_PER_HOUR);
+    },
+    hoursReactions: [ '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣' ],
+    async execute(message, _args, mongo, discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
@@ -32,69 +46,137 @@ module.exports = {
         }
 
         const lastLongRest = new Date(time.lastLongRest);
-        const currentTime = new Date(time.dateTime);
+        const currentTime = new Date(time.datetime);
 
-        let isContinue = true;
+        let isContinue = true; /* default */
 
-        const isAtleastOneDayAfterLastLongRest = Math.abs(currentTime - lastLongRest) / 36e5 >= (24 - longRestLength.content[sheet.race]);
+        const isAtleastOneDayAfterLastLongRest = this.dateDiffInHours(lastLongRest, currentTime) >= (24 - longRestLength.content[sheet.race]);
         if (!isAtleastOneDayAfterLastLongRest) {
             let benefitableTime = new Date(lastLongRest);
             benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength.content[sheet.race]));
-            await message.reply(`You can not benefit from long rest until ${benefitableTime.toLocaleString()}. Do you still wish to do a long rest?`);
+            const botMessage = await message.reply(`you can not benefit from long rest until ${benefitableTime.toLocaleString()}. Do you still wish to do a long rest?`);
 
-            message.react('👍').then(() => message.react('👎'));
-            await message.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '👍' || reaction.emoji.name == '👎'), {
-                max: 1,
-                time: 15000,
-                errors: ['time']
+            for (let reaction of Object.keys(this.yesNoReactions)) {
+                await botMessage.react(reaction);
+            }
+
+            await botMessage.awaitReactions((reaction, user) => user.id == message.author.id && Object.keys(this.yesNoReactions).includes(reaction.emoji.name), {
+                dispose: true,
+                time: this.REACTION_WAIT_TIME
             })
                 .then(async collected => {
-                    const reaction = collected.first();
-
-                    if (reaction.emoji.name == '👎') {
-                        isContinue = false;
-                    }
+                    const choice = collected.last();
+                    isContinue = this.yesNoReactions[choice.emoji.name];
                 })
                 .catch(async () => {
-                    isContinue = false;
-                    await message.reply('You are not speed.');
+                    await message.reply('the reaction was not collected. Choosing the default option: not to continue.');
                 })
         }
 
-        if (!isContinue) {
-            return await message.reply('Okay, ain\'t nobody got time for that.');
-        }
+        if (!isContinue) return;
+
+        isContinue = true; /* default */
 
         let isEnoughHP = sheet.currentHP >= 1;
         if (!isEnoughHP) {
-            await message.reply('You can not benefit from long rest, because you have less than 1 HP. Do you still wish to do a long rest?');
+            const botMessage = await message.reply('you can not benefit from long rest, because you have less than 1 HP. Do you still wish to do a long rest?');
 
-            message.react('👍').then(() => message.react('👎'));
-            await message.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '👍' || reaction.emoji.name == '👎'), {
-                max: 1,
-                time: 15000,
-                errors: ['time']
+            for (let reaction of Object.keys(this.yesNoReactions)) {
+                await botMessage.react(reaction);
+            }
+
+            await botMessage.awaitReactions((reaction, user) => user.id == message.author.id && Object.keys(this.yesNoReactions).includes(reaction.emoji.name), {
+                dispose: true,
+                time: this.REACTION_WAIT_TIME
             })
                 .then(async collected => {
-                    const reaction = collected.first();
-
-                    if (reaction.emoji.name == '👎') {
-                        isContinue = false;
-                    }
+                    const choice = collected.last();
+                    isContinue = this.yesNoReactions[choice.emoji.name];
                 })
                 .catch(async () => {
-                    isContinue = false;
-                    await message.reply('You are not speed.');
+                    await message.reply('the reaction was not collected. Choosing the default option: not to continue.');
                 })
         }
 
-        if (!isContinue) {
-            return await message.reply('Okay, ain\'t nobody got time for that.');
+        if (!isContinue) return;
+
+        //get information about whether the long rest was successful or not
+        let wasSuccessful = true;
+        await message.channel.send(`Dungeon Master, was ${characterName}'s long rest successful?`)
+            .then(async message => {
+                //add yes / no
+                for (let reaction of Object.keys(this.yesNoReactions)) {
+                    await message.react(reaction);
+                }
+
+                //choose yes / no
+                await message.awaitReactions((reaction, user) => user.id == dmID && Object.keys(this.yesNoReactions).includes(reaction.emoji.name), {
+                    max: 1
+                })
+                    .then(async collected => {
+                        const choice = collected.first();
+                        wasSuccessful = this.yesNoReactions[choice.emoji.name];
+                    });
+            });
+
+        let hours = 0; /* default */
+        let newCurrentTime = new Date(currentTime);
+        if (!wasSuccessful) {
+            await message.channel.send(`After how many hours did ${characterName} wake up?`)
+                .then(async message => {
+                    for(let hourReaction of this.hoursReactions) {
+                        await message.react(hourReaction);
+                    }
+
+                    await message.awaitReactions((reaction, user) => user.id == dmID && this.hoursReactions.includes(reaction.emoji.name), {
+                        max: 1
+                    })
+                        .then(async collected => {
+                            const hoursReaction = collected.first();
+                            hours = this.hoursReactions.findIndex((element) => element === hoursReaction.emoji.name) + 1;
+                        });
+                });
+
+            newCurrentTime.setHours(newCurrentTime.getHours() + hours);
+        } else {
+            hours = longRestLength.content[sheet.race];
+            newCurrentTime.setHours(newCurrentTime.getHours() + hours);
+
+            const isBenefitable = isAtleastOneDayAfterLastLongRest && isEnoughHP;
+
+            if (isBenefitable) {
+                let newSheetValues = {};
+
+                //check if any hit dices were spent
+                if (sheet.hitDice.spent == 0) {
+                    newSheetValues = {
+                        $set: {
+                            currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
+                            'spells.spellslots.expended.$[]': 0
+                        }
+                    };
+                } else {
+                    let hitDiceMissing = sheet.level - sheet.hitDice.count;
+                    let hitDiceRegain = Math.floor(hitDiceMissing / 2);
+                    if (hitDiceRegain == 0) {
+                        hitDiceRegain++;
+                    }
+
+                    newSheetValues = {
+                        $set: {
+                            currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
+                            'hitDice.spent': sheet.hitDice.spent - Number(hitDiceRegain),
+                            'hitDice.count': sheet.hitDice.count + Number(hitDiceRegain),
+                            'spells.spellslots.expended.$[]': 0
+                        }
+                    };
+                }
+
+                //await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSheetValues);
+            }
         }
 
-        let newCurrentTime = new Date(currentTime);
-        newCurrentTime.setHours(newCurrentTime.getHours() + longRestLength.content[sheet.race]);
-
+        //update time
         let newTimeValues = {
             $set: {
                 lastLongRest: currentTime,
@@ -102,40 +184,9 @@ module.exports = {
             }
         };
 
-        await mongo.updateOne(database.collections.time, { characterName: characterName }, newTimeValues);
+        //await mongo.updateOne(database.collections.time, { characterName: characterName }, newTimeValues);
 
-        const isBenefitable = isAtleastOneDayAfterLastLongRest && isEnoughHP;
-
-        if (isBenefitable) {
-            let newSheetValues = {};
-            //check if any hit dices were spent
-            if (sheet.hitDice.spent == 0) {
-                newSheetValues = {
-                    $set: {
-                        currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
-                        'spells.spellslots.expended.$[]': 0
-                    }
-                };
-            } else {
-                let hitDiceMissing = sheet.level - sheet.hitDice.count;
-                let hitDiceRegain = Math.floor(hitDiceMissing / 2);
-                if (hitDiceRegain == 0) {
-                    hitDiceRegain++;
-                }
-
-                newSheetValues = {
-                    $set: {
-                        currentHP: (isEnoughHP) ? sheet.maxHP : currentHP,
-                        'hitDice.spent': sheet.hitDice.spent - Number(hitDiceRegain),
-                        'hitDice.count': sheet.hitDice.count + Number(hitDiceRegain),
-                        'spells.spellslots.expended.$[]': 0
-                    }
-                };
-            }
-
-            await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSheetValues);
-        }
-
-        return await message.reply('You have successfully completed a long rest. Good morning, sunshine! :sun_with_face:');
+        //log
+        discordClient.emit('sessionLog', 'longrest', [ characterName, wasSuccessful, newCurrentTime, time.location, hours ]);
     }
 }
