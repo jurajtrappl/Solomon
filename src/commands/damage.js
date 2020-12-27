@@ -6,16 +6,12 @@ module.exports = {
     name: 'damage',
     args: true,
     description: 'Deals a damage to the specified character.',
-    isDead: function (currentHP, maxHP) {
-        return currentHP <= -maxHP;
-    },
-    isKnocked: function (currentHP, maxHP) {
-        return currentHP < 0 && !this.isDead(currentHP, maxHP);
-    },
+    isDead: (currentHP, maxHP) => currentHP <= -maxHP,
+    isKnocked: (currentHP, maxHP) => currentHP < 0 && !this.isDead(currentHP, maxHP),
     async execute(_message, args, mongo, discordClient) {
-        ArgsValidator.CheckCount(args, 2);
+        ArgsValidator.checkCount(args, 2);
         let damage = args[1];
-        ArgsValidator.TypeCheckOne(damage, type.numeric);
+        ArgsValidator.typeCheckOne(damage, type.numeric);
 
         //get character sheet
         const characterName = args[0];

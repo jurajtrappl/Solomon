@@ -2,13 +2,9 @@ module.exports = {
     name: 'addxp',
     args: true,
     description: 'Logs an information about an added experience to one of the characters.',
-    mainMessage: function (characterName, amount) {
-        return `${characterName} received ${amount} XP. ⚔️`;
-    },
-    additionalMessage: function () {
-        return 'Nice! You are finally doing something.'
-    },
-    getRandomInteger: function (min, max) {
+    mainMessage: (characterName, amount) =>`${characterName} received ${amount} XP. ⚔️`,
+    additionalMessage: () => 'Nice! You are finally doing something.',
+    getRandomInteger: (min, max) => {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;

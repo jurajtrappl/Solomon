@@ -44,9 +44,9 @@ module.exports = {
             }
 
             //its not the location, we expect numeric argument
-            ArgsValidator.CheckCount(args, 3);
+            ArgsValidator.checkCount(args, 3);
             let amount = args[2];
-            ArgsValidator.TypeCheckOne(amount, type.numeric);
+            ArgsValidator.typeCheckOne(amount, type.numeric);
             amount = Number(args[2]);
 
             //adjust the datetime property for each time data

@@ -10,7 +10,7 @@ module.exports = {
     description: 'Rolling dices for D&D.',
     async execute(message, args, mongo, _discordClient) {
         const rollExpression = args.map(a => a.trim()).join('');
-        ArgsValidator.TypeCheckOne(rollExpression, type.rollExpression);
+        ArgsValidator.typeCheckOne(rollExpression, type.rollExpression);
 
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });

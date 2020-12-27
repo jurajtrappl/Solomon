@@ -8,13 +8,13 @@ module.exports = {
     name: 'move',
     args: false,
     description: 'Move an object on the map.',
-    swapPositions: function (tiles, currentPosition, newPosition) {
+    swapPositions: (tiles, currentPosition, newPosition) => {
         let currentTile = tiles[currentPosition.x][currentPosition.y];
         tiles[currentPosition.x][currentPosition.y] = tiles[newPosition.x][newPosition.y];
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
     async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 1);
+        ArgsValidator.checkCount(args, 1);
 
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });

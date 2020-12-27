@@ -6,7 +6,7 @@ class LinkedList {
         this.tail = null;
     }
 
-    append(value) {
+    append = (value) => {
         const newNode = new LinkedListNode(value);
 
         if (!this.head) {

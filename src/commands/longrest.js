@@ -12,7 +12,7 @@ module.exports = {
     },
     REACTION_WAIT_TIME: 12000,
     MS_PER_HOUR: 36e5,
-    dateDiffInHours: function (firstDate, secondDate) {
+    dateDiffInHours: (firstDate, secondDate) => {
         const timeOne = Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate());
         const timeTwo = Date.UTC(secondDate.getFullYear(), secondDate.getMonth(), secondDate.getDate());
 

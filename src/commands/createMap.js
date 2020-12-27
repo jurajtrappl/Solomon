@@ -8,9 +8,9 @@ module.exports = {
     args: true,
     description: 'Creates a map for combat with the specified dimensions.',
     async execute(_message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 2);
+        ArgsValidator.checkCount(args, 2);
 
-        ArgsValidator.TypeCheckAll(args, [ type.numeric, type.numeric ]);
+        ArgsValidator.typeCheckAll(args, [ type.numeric, type.numeric ]);
 
         const width = Number(args[0]);
         if (width <= 1 || width >= 44) {

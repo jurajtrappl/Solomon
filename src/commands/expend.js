@@ -6,12 +6,12 @@ module.exports = {
     name: 'expend',
     args: true,
     description: 'Expends one spell slot of the specified level.',
-    expendOne: function(spellslots, spellSlotLevel) {
+    expendOne: (spellslots, spellSlotLevel) => {
         spellslots.expended[spellSlotLevel - 1] += 1;
     },
     async execute(message, args, mongo, discordClient) {
         let spellSlotLevel = args[0];
-        ArgsValidator.TypeCheckOne(spellSlotLevel, type.numeric);
+        ArgsValidator.typeCheckOne(spellSlotLevel, type.numeric);
 
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });

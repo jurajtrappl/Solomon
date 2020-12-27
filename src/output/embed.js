@@ -2,8 +2,8 @@ const { GameCalendar } = require('../calendar/gameCalendar');
 const { MessageEmbed } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-function makeAdvOrDisadvEmbed(characterName, color, flag, expr, title, first, second) {
-    return new MessageEmbed()
+makeAdvOrDisadvEmbed = (characterName, color, flag, expr, title, first, second) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle(title)
         .addFields({
@@ -21,10 +21,9 @@ function makeAdvOrDisadvEmbed(characterName, color, flag, expr, title, first, se
             name: 'Result',
             value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.totalRoll) >= Number(second.totalRoll)) ? first.totalRoll : second.totalRoll) : ((Number(first.totalRoll) >= Number(second.totalRoll)) ? second.totalRoll : first.totalRoll)}.`
         });
-}
 
-function makeHealEmbed(characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) {
-    return new MessageEmbed()
+makeHealEmbed = (characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle(title)
         .addFields({
@@ -39,16 +38,14 @@ function makeHealEmbed(characterName, color, expr, title, { visual, totalRoll },
             name: 'Result',
             value: `${characterName} heals for ${totalRoll} :heart:. (${currentHP}/${maxHP}).`
         });
-}
 
-function makeHelpEmbed(color, embedFromDb) {
-    return new MessageEmbed(embedFromDb)
+makeHelpEmbed = (color, embedFromDb) =>
+    new MessageEmbed(embedFromDb)
         .setColor(color);
-}
 
 //creates an embed for rolling hit dices
-function makeHitDiceEmbed(characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) {
-    return new MessageEmbed()
+makeHitDiceEmbed = (characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
         .addFields({
@@ -63,11 +60,10 @@ function makeHitDiceEmbed(characterName, color, expression, { visual, totalRoll 
             name: 'Result',
             value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
         });
-}
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-function makeNormalRollEmbed(characterName, color, expr, title, { visual, totalRoll }) {
-    return new MessageEmbed()
+makeNormalRollEmbed = (characterName, color, expr, title, { visual, totalRoll }) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle(title)
         .addFields({
@@ -82,9 +78,8 @@ function makeNormalRollEmbed(characterName, color, expr, title, { visual, totalR
             name: 'Result',
             value: `${characterName} rolls ${totalRoll}.`
         });
-}
 
-function makeFields(names, values) {
+makeFields = (names, values) => {
     const fields = [];
     for (let i = 0; i < names.length; i++) {
         fields.push({
@@ -95,33 +90,16 @@ function makeFields(names, values) {
     return fields;
 }
 
-function makeObjectEmbed(color, obj, title) {
-    return new MessageEmbed()
+makeObjectEmbed = (color, obj, title) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle(title)
         .addFields(
             makeFields(Object.keys(obj), Object.values(obj))
         );
-}
 
-function printSavingThrowProficiencies(obj) {
-    let proficiencies = '';
-    for (let key in obj) {
-        if (obj[key]) proficiencies += `${key} `;
-    }
-    return proficiencies;
-}
-
-function printSkillProficiencies(obj) {
-    let proficiencies = '';
-    for (let skill in obj) {
-        if (obj[skill].prof) proficiencies += `${skill} `;
-    }
-    return proficiencies;
-}
-
-function makeSheetEmbed(color, sheet) {
-    return new MessageEmbed()
+makeSheetEmbed = (color, sheet) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle('Character sheet')
         .addFields({
@@ -160,10 +138,10 @@ function makeSheetEmbed(color, sheet) {
             value: sheet.race
         }, {
             name: 'Saving throws proficiencies',
-            value: `${printSavingThrowProficiencies(sheet.savingThrows)}`
+            value: `${Object.keys(sheet.savingThrows).filter(ability => sheet.savingThrows[ability]).join(' ')}`
         }, {
             name: 'Skills proficiencies',
-            value: `${printSkillProficiencies(sheet.skills)}`
+            value: `${Object.keys(sheet.skills).filter(skill => sheet.skills[skill].prof).join(' ')}`
         }, {
             name: 'Speed',
             value: sheet.speed
@@ -171,9 +149,8 @@ function makeSheetEmbed(color, sheet) {
             name: 'XP',
             value: sheet.xp
         });
-}
 
-function spellSlotsFields(spellslots) {
+spellSlotsFields = (spellslots) => {
     const fields = [];
 
     for (let spellSlotLevel in spellslots.total) {
@@ -189,14 +166,13 @@ function spellSlotsFields(spellslots) {
     return fields;
 }
 
-function makeSpellSlotsEmbed(color, spellslots) {
-    return new MessageEmbed()
+makeSpellSlotsEmbed = (color, spellslots) =>
+    new MessageEmbed()
         .setColor(color)
         .setTitle('Spell slots')
         .addFields(spellSlotsFields(spellslots));
-}
 
-function makeTimeEmbed(color, time) {
+makeTimeEmbed = (color, time) => {
     const currentTime = new GameCalendar(time.datetime);
     const lastLongRest = new GameCalendar(time.lastLongRest);
 

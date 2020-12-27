@@ -2,14 +2,11 @@ module.exports = {
     name: 'damage',
     args: true,
     description: 'Logs an information about one\'s character healing.',
-    mainMessage: function (characterName, damageAmount) {
-        return `${characterName} just lost ${damageAmount} ❤️.`;
-    },
     lowDamageMessages: ['That is it?', 'Well, that was a childish attack.', 'Why are you fighting noobs?'],
     normalDamageMessages: ['You got it, dumbo.', 'Clapped!', 'That will hurt tommorrow.'],
     bigDamageMessages: ['LOL!', 'Bang!'],
     lethalDamageMessages: ['Oh, he ded!', 'Daaaaamn!', 'Rest in peace, bro.'],
-    additionalMessage: function (damage) {
+    additionalMessage: (damage) => {
         let randomIndex = 0;
         if (damage < 10) {
             randomIndex = this.getRandomInteger(0, this.lowDamageMessages.length);
@@ -25,7 +22,8 @@ module.exports = {
             return this.lethalDamageMessages[randomIndex];
         }
     },
-    getRandomInteger: function (min, max) {
+    mainMessage: (characterName, damageAmount) => `${characterName} just lost ${damageAmount} ❤️.`,
+    getRandomInteger: (min, max) => {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
