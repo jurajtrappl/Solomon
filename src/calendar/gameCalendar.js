@@ -5,7 +5,7 @@ class GameCalendar {
         this.datetime = new Date(datetime);
     }
 
-    getFormattedDate() {
+    getFormattedDate = () => {
         const day = this.datetime.getDate();
         const year = this.datetime.getFullYear();
 
@@ -15,7 +15,7 @@ class GameCalendar {
         return `${gameCalendarWeekDay} ${day}. ${gameCalendarMonth} ${year}`;
     }
 
-    getFormattedTime() {
+    getFormattedTime = () => {
         const hours = this.datetime.getHours();
         let minutes = this.datetime.getMinutes();
 
@@ -26,9 +26,7 @@ class GameCalendar {
         return `${hours}:${minutes}`;
     }
 
-    getFormattedDateTime() {
-        return `${this.getFormattedDate()}, ${this.getFormattedTime()}`;
-    }
+    getFormattedDateTime = () => `${this.getFormattedDate()}, ${this.getFormattedTime()}`;
 }
 
 module.exports = {

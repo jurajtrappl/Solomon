@@ -59,7 +59,7 @@ class Map {
         this.specialObjects = {};
     }
 
-    initTiles() {
+    initTiles = () => {
         this.tiles = new Array(this.dimensions.width); //??
 
         let row, col;
@@ -76,7 +76,7 @@ class Map {
         this.setBorders();
     }
 
-    setBorders() {
+    setBorders = () => {
         let row, col;
 
         //the first and the last row

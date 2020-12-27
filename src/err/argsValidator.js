@@ -8,20 +8,20 @@ const type = {
 };
 
 class ArgsValidator {
-    static CheckCount(args, requiredCount) {
+    static checkCount = (args, requiredCount) => {
         if (args.length != requiredCount) {
             throw new ArgsCountError(args.length, requiredCount);
         }
     }
 
-    static TypeCheckAll(args, expectedTypes) {
+    static typeCheckAll = (args, expectedTypes) => {
         //zip
         args.map((arg, index) => {
-            this.TypeCheckOne(arg, expectedTypes[index]);
+            this.typeCheckOne(arg, expectedTypes[index]);
         });
     }
 
-    static TypeCheckOne(arg, expectedType) {
+    static typeCheckOne = (arg, expectedType) => {
         if (expectedType == type.numeric) {
             if (isNaN(arg)) {
                 throw new InvalidArgTypeError(arg, expectedType);

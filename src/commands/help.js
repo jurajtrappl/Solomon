@@ -8,7 +8,7 @@ module.exports = {
     args: true,
     description: 'Prints an help about the command.',
     async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 1);
+        ArgsValidator.checkCount(args, 1);
 
         const commandName = args[0];
         const helpEmbed = await mongo.tryFind(database.collections.helpEmbeds, { commandName: commandName });

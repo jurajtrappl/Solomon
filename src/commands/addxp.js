@@ -10,10 +10,10 @@ module.exports = {
     MAX_LVL: 20,
     async execute(message, args, mongo, discordClient) {
         if (message.author.id == dmID) {
-            ArgsValidator.CheckCount(args, 2);
+            ArgsValidator.checkCount(args, 2);
 
             const addXP = args[1];
-            ArgsValidator.TypeCheckOne(addXP, type.numeric);
+            ArgsValidator.typeCheckOne(addXP, type.numeric);
 
             const characterName = args[0];
             const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });

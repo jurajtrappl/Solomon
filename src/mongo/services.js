@@ -5,9 +5,9 @@ const { MongoClient } = require('mongodb');
 let instance;
 
 class MongoServices {
-    constructor() {}
+    constructor() { }
 
-    async connect() {
+    connect = async () => {
         try {
             if (!instance) {
                 const client = new MongoClient(connectionString, {
@@ -24,7 +24,7 @@ class MongoServices {
         }
     }
 
-    async disconnect() {
+    disconnect = async () => {
         try {
             if (instance) await instance.close();
             return true;
@@ -33,47 +33,44 @@ class MongoServices {
         }
     }
 
-    async tryFind(collectionName, query) {
+    tryFind = async (collectionName, query) => {
         let result = await this.find(collectionName, query);
         return (result === undefined || result.length == 0) ? undefined : result[0];
     }
 
-    find(collectionName, query) {
-        return instance
+    find = (collectionName, query) =>
+        instance
             .db(database.name)
             .collection(collectionName)
             .find(query)
             .toArray();
-    }
 
-    updateOne(collectionName, query, newValue) {
-        return instance
+    updateOne = (collectionName, query, newValue) =>
+        instance
             .db(database.name)
             .collection(collectionName)
             .updateOne(query, newValue);
-    }
 
-    findAll(collectionName) {
-        return instance
+    findAll = (collectionName) =>
+        instance
             .db(database.name)
             .collection(collectionName)
             .find()
             .toArray();
-    }
 
-    updateAll(collectionName, newValue) {
-        return instance
+    updateAll = (collectionName, newValue) =>
+        instance
             .db(database.name)
             .collection(collectionName)
             .updateMany({}, newValue, { multi: true });
-    } 
 
-    insertAll(collectionName, newObjects) {
-        return instance
+    insertAll = (collectionName, newObjects) =>
+        instance
             .db(database.name)
             .collection(collectionName)
             .insertMany(newObjects);
-    }
 }
 
-module.exports = { MongoServices };
+module.exports = { 
+    MongoServices 
+};

@@ -26,12 +26,12 @@ class MoveVector {
         this.y = y;
     }
 
-    add({x, y}) {
+    add = ({x, y}) => {
         this.x += x;
         this.y += y;
     }
 
-    isInBounds(borders) {
+    isInBounds = (borders) => {
         return (this.x >= borders.upper && this.x <= borders.bottom) && (this.y >= borders.left && this.y <= borders.right);
     }
 }

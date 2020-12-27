@@ -19,12 +19,11 @@ class GameEventsDirector {
         this.events = SourceFileLoader.load(event.game.directories);
     }
 
-    findEvent(name) {
-        return this.events.get(name) ||
+    findEvent = (name) => 
+        this.events.get(name) ||
             this.events.find(event => event.aliases && event.aliases.includes(name));
-    }
 
-    async execute(name, args) {
+    execute = async (name, args) => {
         const event = this.findEvent(name);
 
         if (!event) return;
@@ -53,12 +52,11 @@ class SessionLogEventsDirector {
         this.events = SourceFileLoader.load(event.logs.directories);
     }
 
-    findEvent(name) {
-        return this.events.get(name) ||
+    findEvent = (name) => 
+        this.events.get(name) ||
             this.events.find(event => event.aliases && event.aliases.includes(name));
-    }
 
-    async execute(name, args) {
+    execute = async (name, args) => {
         const event = this.findEvent(name);
 
         if (!event) return;

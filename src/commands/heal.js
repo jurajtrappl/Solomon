@@ -15,7 +15,7 @@ module.exports = {
         Supreme: '10d4+20',
     },
     async execute(message, args, mongo, discordClient) {
-        ArgsValidator.CheckCount(args, 2);
+        ArgsValidator.checkCount(args, 2);
 
         let expr = '';
         let title = '';

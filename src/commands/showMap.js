@@ -5,7 +5,7 @@ module.exports = {
     name: 'showMap',
     args: false,
     description: 'Shows a combat map.',
-    mapToMessage: function(parsedMap) {
+    mapToMessage: (parsedMap) => {
         let row, col;
         let mapAsMessage = '';
 

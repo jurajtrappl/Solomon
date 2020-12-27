@@ -7,12 +7,12 @@ module.exports = {
     name: 'mapAdd',
     args: false,
     description: 'Adds an object to the map.',
-    async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 4);
+    async execute(_message, args, mongo, _discordClient) {
+        ArgsValidator.checkCount(args, 4);
         let row = args[3];
-        ArgsValidator.TypeCheckOne(row, type.numeric);
+        ArgsValidator.typeCheckOne(row, type.numeric);
         let col = args[4];
-        ArgsValidator.TypeCheckOne(col, type.numeric);
+        ArgsValidator.typeCheckOne(col, type.numeric);
 
         const tileTypeArg = args[0];
         if (!Object.keys(TileTypeArgs).includes(tileTypeArg)) {

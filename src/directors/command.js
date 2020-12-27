@@ -7,7 +7,7 @@ const { SourceFileLoader } = require('../../loader');
  * @class CommandValidator
  */
 class CommandValidator {
-    static validate(message) {
+    static validate = (message) => {
         return (!message.author.bot) && message.content.startsWith(command.prefix);
     }
 }
@@ -24,12 +24,11 @@ class CommandsDirector {
         this.commands = SourceFileLoader.load(command.directories);
     }
 
-    findCommand(commandName) {
-        return this.commands.get(commandName) ||
+    findCommand = (commandName) => 
+        this.commands.get(commandName) ||
             this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-    }
 
-    async execute(name, args, message) {
+    execute = async (name, args, message) => {
         const command = this.findCommand(name);
 
         if (!command) return;

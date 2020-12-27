@@ -9,9 +9,9 @@ module.exports = {
     args: true,
     description: 'Spends the specified amount of hit dices.',
     async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.CheckCount(args, 1);
+        ArgsValidator.checkCount(args, 1);
         let hitDiceCountToSpent = args[0];
-        ArgsValidator.TypeCheckOne(hitDiceCountToSpent, type.numeric);
+        ArgsValidator.typeCheckOne(hitDiceCountToSpent, type.numeric);
 
         hitDiceCountToSpent = Number(args[0]);
         if (hitDiceCountToSpent <= 0) {

@@ -6,7 +6,7 @@ module.exports = {
     name: 'spellslots',
     args: false,
     description: 'Shows the information about spellslots.',
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, _args, mongo, _discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {

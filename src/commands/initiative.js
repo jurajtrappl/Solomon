@@ -10,14 +10,14 @@ module.exports = {
     args: false,
     description: 'Rolls initiative for all combatants.',
     MAX_INITIATIVE: 30,
-    initRolls: function () {
+    initRolls: () => {
         let rolls = new Array(this.MAX_INITIATIVE);
         for (let i = 0; i < this.MAX_INITIATIVE; i++) {
             rolls[i] = new LinkedList();
         }
         return rolls;
     },
-    findInitiativeOrder(rolls) {
+    findInitiativeOrder: (rolls) => {
         const initiativeOrder = {};
         for (let totalRoll = this.MAX_INITIATIVE - 1; totalRoll >= 0; totalRoll--) {
             //check if the linked list for the totalRoll value is empty
@@ -32,7 +32,7 @@ module.exports = {
 
         return initiativeOrder;
     },
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, _args, mongo, _discordClient) {
         //get combat
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
