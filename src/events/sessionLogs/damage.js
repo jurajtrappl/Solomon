@@ -1,3 +1,5 @@
+const { getRandomInteger } = require('../../utils/random');
+
 module.exports = {
     name: 'damage',
     args: true,
@@ -23,15 +25,10 @@ module.exports = {
         }
     },
     mainMessage: (characterName, damageAmount) => `${characterName} just lost ${damageAmount} ❤️.`,
-    getRandomInteger: (min, max) => {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
     async execute(messageChannel, [characterName, damageAmount ]) {
         let message = this.mainMessage(characterName, damageAmount);
 
-        if (this.getRandomInteger(1, 100) <= 10) {
+        if (getRandomInteger(1, 100) <= 10) {
             message += this.additionalMessage(Number(damageAmount));
         }
 
