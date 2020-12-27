@@ -9,7 +9,6 @@ const { SourceFileLoader } = require('../../loader');
 class GameEventsDirector {
     constructor(discordClient, mongo) {
         //text channels
-        this.errorsTextChannel = discordClient.channels.cache.find(channel => channel.name === channels.errors);
         this.messageChannel = discordClient.channels.cache.find(channel => channel.name === channels.sessions);
         
         //db service
@@ -32,7 +31,7 @@ class GameEventsDirector {
             await event.execute(this.messageChannel, args, this.mongo);
         } catch (error) {
             console.log(error);
-            await this.errorsTextChannel.send(error.message);
+            await this.messageChannel.send(error.message);
         }
     }
 }
@@ -45,7 +44,6 @@ class GameEventsDirector {
 class SessionLogEventsDirector {
     constructor(discordClient) {
         //text channels
-        this.errorsTextChannel = discordClient.channels.cache.find(channel => channel.name === channels.errors);
         this.messageChannel = discordClient.channels.cache.find(channel => channel.name === channels.sessionsStory);
         
         //source files
@@ -65,7 +63,7 @@ class SessionLogEventsDirector {
             await event.execute(this.messageChannel, args);
         } catch (error) {
             console.log(error);
-            await this.errorsTextChannel.send(error.message);
+            await this.messageChannel.send(error.message);
         }
     }
 }

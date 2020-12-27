@@ -12,7 +12,6 @@
         }
     },
     "channels": {
-        "errors": "errors",
         "sessions": "sessions",
         "sessionsStory": "sessions-story"
     },

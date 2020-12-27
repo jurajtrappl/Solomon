@@ -76,13 +76,6 @@ class RollError extends Error {
     }
 }
 
-class InvalidRollExpressionError extends RollError {
-    constructor(expression) {
-        super(`${expression} is not a valid expression.`);
-        this.name = 'InvalidRollExpressionError';
-    }
-}
-
 class MapTileOccupiedError extends Error {
     constructor() {
         super('Map tile is already occupied by a different object.');
@@ -95,7 +88,6 @@ module.exports = {
     DuplicateObjectError,
     NegativeDamageError,
     InvalidArgTypeError,
-    InvalidRollExpressionError,
     MapTileOccupiedError,
     NotEnoughError,
     NotExistingError,

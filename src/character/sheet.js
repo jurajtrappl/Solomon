@@ -32,7 +32,7 @@ class Sheet {
         return bonus;
     };
 
-    canApplyReliableTalent = (skillName) => 
+    canApplyReliableTalent = (skillName) =>
         this.sheet.class === 'Rogue' &&
         this.sheet.level >= 11 &&
         this.isSkillProficient(skillName);
@@ -46,4 +46,6 @@ class Sheet {
     modifier = (score) => Math.floor((score - 10) / 2);
 }
 
-module.exports = { Sheet };
+module.exports = {
+    Sheet
+};

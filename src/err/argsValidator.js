@@ -1,9 +1,7 @@
 const { ArgsCountError, InvalidArgTypeError } = require("./errors");
-const { isRollExpression } = require("../rolls/dice");
 
 const type = {
     numeric: typeof 42,
-    rollExpression: 'rollExpression',
     string: typeof 'String'
 };
 
@@ -24,10 +22,6 @@ class ArgsValidator {
     static typeCheckOne = (arg, expectedType) => {
         if (expectedType == type.numeric) {
             if (isNaN(arg)) {
-                throw new InvalidArgTypeError(arg, expectedType);
-            }
-        } else if (expectedType == type.rollExpression) {
-            if (!isRollExpression(arg)) {
                 throw new InvalidArgTypeError(arg, expectedType);
             }
         } else {

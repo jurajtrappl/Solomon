@@ -1,8 +1,8 @@
 const { ArgsValidator } = require('../err/argsValidator');
 const { database } = require('../../settings.json');
-const { ExpressionDice, isRollExpression } = require('../rolls/dice');
+const { DiceRoller } = require('../rolls/diceRoller');
 const { makeHealEmbed } = require('../output/embed');
-const { NotFoundError, InvalidRollExpressionError } = require('../err/errors');
+const { NotFoundError } = require('../err/errors');
 
 module.exports = {
     name: 'heal',
@@ -25,17 +25,12 @@ module.exports = {
             expr = this.healingPotions[args[1]];
             title = `Using potion: ${args[1]}`;
         } else {
-            const argsExpr = args.slice(1).map((a) => a.trim()).join('');
-            if (isRollExpression(argsExpr)) {
-                expr = argsExpr;
-                title = 'Healing using an expression';
-            } else {
-                throw new InvalidRollExpressionError(expr);
-            }
+            expr = args.slice(1).join('');
+            title = 'Healing using an expression';
         }
 
-        const expressionDice = new ExpressionDice(expr);
-        const heal = expressionDice.roll();
+        const dice = new DiceRoller(expr);
+        const heal = dice.roll();
 
         //get character sheet
         const characterName = args[0];
@@ -44,7 +39,7 @@ module.exports = {
             throw new NotFoundError(searchingObjType.character, characterName);
         }
 
-        let newCurrentHp = sheet.currentHP + Number(heal.totalRoll);
+        let newCurrentHp = sheet.currentHP + Number(heal.total);
         if (newCurrentHp > sheet.maxHP) {
             newCurrentHp = sheet.maxHP;
         }
@@ -70,6 +65,6 @@ module.exports = {
         });
 
         //log
-        discordClient.emit('sessionLog', 'heal', [ characterName, heal.totalRoll, healItem, newCurrentHp ]);
+        discordClient.emit('sessionLog', 'heal', [ characterName, heal.total, healItem, newCurrentHp ]);
     },
 };
