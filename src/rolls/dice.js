@@ -1,3 +1,5 @@
+const { getRandomInteger } = require('../utils/random');
+
 /**
  * Abstract class Dice
  * 
@@ -14,23 +16,17 @@ class Dice {
         }
     }
 
-    roll() {
+    roll = () => { 
         throw new Error('Method \'roll()\' must be implemented.');
     }
 
-    createVisual(rolls) {
+    createVisual = (rolls) => {
         let visual = `(${rolls[0]}`;
         for (let i = 1; i < rolls.length; i++) {
             visual += `${(rolls[i] >= 0) ? ' +' : ' -'} ${Math.abs(rolls[i])}`;
         }
         visual += ')';
         return visual;
-    }
-
-    getRandomInteger = (min, max) => {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
 
@@ -45,10 +41,10 @@ class SimpleDice extends Dice {
         super(count, type, bonus);
     }
 
-    roll() {
+    roll = () => {
         const rolls = [];
         for (let i = 0; i < this.count; i++) {
-            rolls.push(this.getRandomInteger(1, this.type));
+            rolls.push(getRandomInteger(1, this.type));
         }
 
         if (this.bonus) {
@@ -65,11 +61,9 @@ class SimpleDice extends Dice {
 const rollBonusRegex = /^[+|-]?[0-9]+$/;
 const rollDiceRegex = /^[+|-]?[0-9]+d(4|6|8|10|12|20)$/;
 
-function isDiceOrBonus(arg) {
-    return arg.match(rollDiceRegex) || arg.match(rollBonusRegex);
-}
+const isDiceOrBonus = (arg) => arg.match(rollDiceRegex) || arg.match(rollBonusRegex);
 
-function parseRollExpression(expr) {
+const parseRollExpression = (expr) => {
     let lastPos = expr.length;
     const parts = [];
     for (let i = expr.length - 1; i >= 0; i--) {
@@ -87,7 +81,7 @@ function parseRollExpression(expr) {
     return parts.filter(p => p != '-' && p != '+').reverse();
 }
 
-function isRollExpression(value) {
+isRollExpression = (value) => {
     const parts = parseRollExpression(value);
     return parts.every(isDiceOrBonus);
 }
@@ -108,7 +102,7 @@ class ExpressionDice {
     }
 
     //calculate the expression
-    roll() {
+    roll = () => {
         let total = 0;
         let visual = [];
         this.parts.forEach(arg => {
