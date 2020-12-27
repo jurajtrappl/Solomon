@@ -1,5 +1,5 @@
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../rolls/dice');
+const { DiceRoller } = require('../rolls/diceRoller');
 const { LinkedList } = require('../dataStructures/LinkedList');
 const { makeObjectEmbed } = require('../output/embed');
 const { NotFoundError, searchingObjType } = require('../err/errors');
@@ -39,10 +39,9 @@ module.exports = {
             throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
 
-        let expr = '';
-        let expressionDice = {};
+        let dice = {};
         let initiativeBonus = 0;
-        let rollResult = {};
+        let roll = {};
         let rolls = this.initRolls();
         for (let combatantJSONString of combat.content.combatants) {
             const combatant = JSON.parse(combatantJSONString);
@@ -56,11 +55,10 @@ module.exports = {
                 initiativeBonus = sheet.initiative;
             }
 
-            expr = `1d20+${initiativeBonus}`;
-            expressionDice = new ExpressionDice(expr);
-            rollResult = expressionDice.roll();
+            dice = new DiceRoller(`1d20+${initiativeBonus}`);
+            rollResult = dice.roll();
 
-            rolls[Number(rollResult.totalRoll) - 1].append(combatant.name);
+            rolls[Number(roll.total) - 1].append(combatant.name);
         }
 
         const initiativeOrder = this.findInitiativeOrder(rolls);

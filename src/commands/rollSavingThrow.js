@@ -2,7 +2,7 @@ const { capitalize } = require('../output/lang');
 const { database } = require('../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
 const { NotExistingError, NotFoundError, searchingObjType } = require('../err/errors');
-const { prepareCheck, addBonusExpression } = require('../rolls/rollUtils');
+const { prepareCheck } = require('../rolls/rollUtils');
 const { Sheet } = require('../character/sheet');
 
 module.exports = {
@@ -50,26 +50,12 @@ module.exports = {
 
         //either bonus expression or adv/dadv
         if (args.length == 2) {
-            const bonusArg = args.slice(1).join('');
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
                 rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
-            } else if (bonusArg.startsWith('(') && bonusArg.endsWith(')')) {
-                check = addBonusExpression(check.expression, bonusArg);
-                rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, check.dice.roll());
             } else {
                 return await message.reply('There is an error with adv/dadv.');
             }
-        }
-
-        //a basic roll with adv/dadv and bonus expression
-        if (args.length == 3) {
-            embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-
-            const bonusArg = args.slice(2).join('');
-            check = addBonusExpression(check.expression, bonusArg);
-            
-            rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
         }
 
         return await message.reply({

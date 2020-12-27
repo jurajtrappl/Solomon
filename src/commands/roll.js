@@ -1,6 +1,5 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../rolls/dice');
+const { DiceRoller } = require('../rolls/diceRoller');
 const { makeNormalRollEmbed } = require('../output/embed');
 const { NotFoundError, searchingObjType } = require('../err/errors');
 
@@ -9,9 +8,6 @@ module.exports = {
     args: true,
     description: 'Rolling dices for D&D.',
     async execute(message, args, mongo, _discordClient) {
-        const rollExpression = args.map(a => a.trim()).join('');
-        ArgsValidator.typeCheckOne(rollExpression, type.rollExpression);
-
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
@@ -19,10 +15,12 @@ module.exports = {
         }
         const characterName = playerData.character;
 
-        const expressionDice = new ExpressionDice(rollExpression);
+        const rollExpression = args.join('');
+        const dice = new DiceRoller(rollExpression);
+        const rollResult = dice.roll();
 
         return await message.reply({
-            embed: makeNormalRollEmbed(characterName, message.member.displayHexColor, rollExpression, 'Expression roll', expressionDice.roll())
+            embed: makeNormalRollEmbed(characterName, message.member.displayHexColor, rollExpression, 'Expression roll', rollResult)
         });
     }
 }

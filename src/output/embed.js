@@ -11,18 +11,18 @@ makeAdvOrDisadvEmbed = (characterName, color, flag, expr, title, first, second) 
             value: expr
         }, {
             name: 'First attempt',
-            value: `${first.visual} = ${first.totalRoll}`,
+            value: `${first.visual} = ${first.total}`,
             inline: true
         }, {
             name: 'Second attempt',
-            value: `${second.visual} = ${second.totalRoll}`,
+            value: `${second.visual} = ${second.total}`,
             inline: true
         }, {
             name: 'Result',
-            value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.totalRoll) >= Number(second.totalRoll)) ? first.totalRoll : second.totalRoll) : ((Number(first.totalRoll) >= Number(second.totalRoll)) ? second.totalRoll : first.totalRoll)}.`
+            value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.total) >= Number(second.total)) ? first.total : second.total) : ((Number(first.total) >= Number(second.total)) ? second.total : first.total)}.`
         });
 
-makeHealEmbed = (characterName, color, expr, title, { visual, totalRoll }, currentHP, maxHP) =>
+makeHealEmbed = (characterName, color, expr, title, { total, visual }, currentHP, maxHP) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -32,11 +32,11 @@ makeHealEmbed = (characterName, color, expr, title, { visual, totalRoll }, curre
             inline: true
         }, {
             name: 'Total',
-            value: `${visual}= ${totalRoll}`,
+            value: `${visual} = ${total}`,
             inline: true
         }, {
             name: 'Result',
-            value: `${characterName} heals for ${totalRoll} :heart:. (${currentHP}/${maxHP}).`
+            value: `${characterName} heals for ${total} :heart:. (${currentHP}/${maxHP}).`
         });
 
 makeHelpEmbed = (color, embedFromDb) =>
@@ -44,7 +44,7 @@ makeHelpEmbed = (color, embedFromDb) =>
         .setColor(color);
 
 //creates an embed for rolling hit dices
-makeHitDiceEmbed = (characterName, color, expression, { visual, totalRoll }, hitDicesCount, hitDicesLeft) =>
+makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDicesCount, hitDicesLeft) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
@@ -54,15 +54,15 @@ makeHitDiceEmbed = (characterName, color, expression, { visual, totalRoll }, hit
             inline: true
         }, {
             name: 'Total',
-            value: `${visual}= ${totalRoll}`,
+            value: `${visual} = ${total}`,
             inline: true
         }, {
             name: 'Result',
-            value: `${characterName} regains ${visual} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
+            value: `${characterName} regains ${total} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
         });
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-makeNormalRollEmbed = (characterName, color, expr, title, { visual, totalRoll }) =>
+makeNormalRollEmbed = (characterName, color, expr, title, { total, visual }) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(title)
@@ -72,11 +72,11 @@ makeNormalRollEmbed = (characterName, color, expr, title, { visual, totalRoll })
             inline: true
         }, {
             name: 'Total',
-            value: `${visual}= ${totalRoll}`,
+            value: `${visual} = ${total}`,
             inline: true
         }, {
             name: 'Result',
-            value: `${characterName} rolls ${totalRoll}.`
+            value: `${characterName} rolls ${total}.`
         });
 
 makeFields = (names, values) => {

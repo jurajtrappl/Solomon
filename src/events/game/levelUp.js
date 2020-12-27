@@ -3,6 +3,7 @@ const { ExpressionDice } = require('../../rolls/dice');
 const { NotFoundError, NotExistingError } = require('../../err/errors');
 const { Sheet } = require('../../character/sheet');
 const { MessageEmbed } = require('discord.js');
+const { DiceRoller } = require('../../rolls/diceRoller');
 
 module.exports = {
     name: 'levelUp',
@@ -145,14 +146,14 @@ module.exports = {
             });
             sheet.maxHP += automaticHP;
         } else {
-            const expressionDice = new ExpressionDice(rollHPExpression);
-            const { visual, totalRoll } = expressionDice.roll();
+            const dice = new DiceRoller(rollHPExpression);
+            const { total, visual } = dice.roll();
 
             fields.push({
                 name: 'Max HP',
-                value: `Roll HP increase (rolled: ${visual} = ${totalRoll}): ${sheet.maxHP} -> ${sheet.maxHP + Number(totalRoll)}`
+                value: `Roll HP increase (rolled: ${visual} = ${total}): ${sheet.maxHP} -> ${sheet.maxHP + Number(total)}`
             });
-            sheet.maxHP += Number(totalRoll);
+            sheet.maxHP += Number(total);
         }
 
         return await messageChannel.send({

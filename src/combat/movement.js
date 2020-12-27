@@ -31,9 +31,8 @@ class MoveVector {
         this.y += y;
     }
 
-    isInBounds = (borders) => {
-        return (this.x >= borders.upper && this.x <= borders.bottom) && (this.y >= borders.left && this.y <= borders.right);
-    }
+    isInBounds = (borders) =>
+        (this.x >= borders.upper && this.x <= borders.bottom) && (this.y >= borders.left && this.y <= borders.right);
 }
 
 const initBorders = (dimensions) => {

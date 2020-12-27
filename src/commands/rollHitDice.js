@@ -1,8 +1,9 @@
 const { ArgsValidator, type } = require('../err/argsValidator');
 const { database } = require('../../settings.json');
-const { ExpressionDice } = require('../rolls/dice');
+const { DiceRoller } = require('../rolls/diceRoller');
 const { makeHitDiceEmbed } = require('../output/embed');
 const { Sheet } = require('../character/sheet');
+const { prepareHitDiceCheck } = require('../rolls/rollUtils');
 
 module.exports = {
     name: 'rhd',
@@ -10,12 +11,12 @@ module.exports = {
     description: 'Spends the specified amount of hit dices.',
     async execute(message, args, mongo, _discordClient) {
         ArgsValidator.checkCount(args, 1);
-        let hitDiceCountToSpent = args[0];
-        ArgsValidator.typeCheckOne(hitDiceCountToSpent, type.numeric);
+        let hitDiceCountToSpend = args[0];
+        ArgsValidator.typeCheckOne(hitDiceCountToSpend, type.numeric);
 
-        hitDiceCountToSpent = Number(args[0]);
-        if (hitDiceCountToSpent <= 0) {
-            throw new NotEnoughError(`hit dices to roll`, hitDiceCountToSpent, 1);
+        hitDiceCountToSpend = Number(args[0]);
+        if (hitDiceCountToSpend <= 0) {
+            throw new NotEnoughError(`hit dices to roll`, hitDiceCountToSpend, 1);
         }
 
         //get character name
@@ -35,21 +36,20 @@ module.exports = {
         const hitDiceCount = sheet.hitDice.count;
         const hitDiceSpent = sheet.hitDice.spent;
 
-        if (hitDiceCountToSpent + hitDiceSpent > hitDiceCount) {
+        if (hitDiceCountToSpend + hitDiceSpent > hitDiceCount) {
             return await message.reply(`You can't use that many hit dices. (${hitDiceCount} hit dice${(hitDiceCount != 1) ? 's' : ''} left)`);
         }
 
         //create the roll expression
         const constitutionModifier = characterSheet.modifier(characterSheet.abilityScore('Constitution'));
         const hitDiceType = sheet.hitDice.type;
-        const expr = `${hitDiceCountToSpent}d${hitDiceType}+${hitDiceCountToSpent * constitutionModifier}`;
-        const hitDicesLeft = hitDiceCount - hitDiceSpent - hitDiceCountToSpent;
+        const hitDicesLeft = hitDiceCount - hitDiceSpent - hitDiceCountToSpend;
 
-        const expressionDice = new ExpressionDice(expr);
-        const rollResult = expressionDice.roll();
+        const check = prepareHitDiceCheck(hitDiceCountToSpend, hitDiceType, constitutionModifier);
+        const rollResult = check.dice.roll();
 
         //update the spent hit dices and current hp
-        let newHP = Number(sheet.currentHP) + Number(rollResult.totalRoll);
+        let newHP = Number(sheet.currentHP) + Number(rollResult.total);
         if (newHP > Number(sheet.maxHP)) {
             newHP = Number(sheet.maxHP);
         }
@@ -58,17 +58,17 @@ module.exports = {
             $set: {
                 hitDice: {
                     type: sheet.hitDice.type,
-                    spent: hitDiceSpent + hitDiceCountToSpent,
-                    count: hitDiceCount - hitDiceCountToSpent
+                    spent: hitDiceSpent + hitDiceCountToSpend,
+                    count: hitDiceCount - hitDiceCountToSpend
                 },
                 currentHP: newHP
             }
         }
 
-        await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
+        //await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
 
         return await message.reply({
-            embed: makeHitDiceEmbed(characterName, message.member.displayHexColor, expr, rollResult, hitDicesToRoll, hitDicesLeft)
+            embed: makeHitDiceEmbed(characterName, message.member.displayHexColor, check.expression, rollResult, hitDiceCountToSpend, hitDicesLeft)
         });
     }
 }
