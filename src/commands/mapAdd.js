@@ -9,9 +9,9 @@ module.exports = {
     description: 'Adds an object to the map.',
     async execute(_message, args, mongo, _discordClient) {
         ArgsValidator.checkCount(args, 4);
-        let row = args[3];
+        let row = args[2];
         ArgsValidator.typeCheckOne(row, type.numeric);
-        let col = args[4];
+        let col = args[3];
         ArgsValidator.typeCheckOne(col, type.numeric);
 
         const tileTypeArg = args[0];
@@ -32,8 +32,8 @@ module.exports = {
             throw new DuplicateObjectError(name);
         }
 
-        row = Number(args[2]);
-        col = Number(args[3]);
+        row = Number(row);
+        col = Number(col);
         const mapWidth = parsedMap.dimensions.width;
         const mapHeight = parsedMap.dimensions.height;
 
@@ -59,14 +59,16 @@ module.exports = {
         //add a shortcut for the new object with the name as a key
         parsedMap.specialObjects[name] = { x: row, y: col };
 
+        console.log(parsedMap);
+
         //update map
         const newMapValue = {
             $set: {
-                'map': JSON.stringify(parsedMap)
+                'content.map': JSON.stringify(parsedMap)
             }
         };
 
-        await mongo.updateOne(database.collections.data, { name: 'Combat.content' }, newMapValue);
+        await mongo.updateOne(database.collections.data, { name: 'Combat' }, newMapValue);
 
         //update list of combatants
         const newCombatant = {
@@ -74,8 +76,14 @@ module.exports = {
             type: TileTypeArgs[tileTypeArg]
         };
 
+        const newCombatantValue = {
+            $push: {
+                'content.combatants': newCombatant
+            }
+        }
+
         if (TileTypeArgs[tileTypeArg] != TileType.border && TileTypeArgs[tileTypeArg] != TileType.free) {
-            await mongo.updateOne(database.collections.data, { name: 'Combat' }, newCombatant);
+            await mongo.updateOne(database.collections.data, { name: 'Combat' }, newCombatantValue);
         }
     }
 }
