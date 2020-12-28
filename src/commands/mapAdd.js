@@ -58,9 +58,7 @@ module.exports = {
 
         //add a shortcut for the new object with the name as a key
         parsedMap.specialObjects[name] = { x: row, y: col };
-
-        console.log(parsedMap);
-
+        
         //update map
         const newMapValue = {
             $set: {
