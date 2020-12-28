@@ -166,6 +166,42 @@ spellSlotsFields = (spellslots) => {
     return fields;
 }
 
+makeSpellEmbed = (color, spell) =>
+    new MessageEmbed()
+        .setColor(color)
+        .setTitle(spell.name)
+        .addFields({
+            name: 'Casting time',
+            value: spell.casting_time
+        }, {
+            name: 'Classes',
+            value: spell.classes.join()
+        }, {
+            name: 'Components',
+            value: spell.components.raw
+        }, {
+            name: 'Description',
+            value: spell.description
+        }, {
+            name: 'Duration',
+            value: spell.duration
+        }, {
+            name: 'Level',
+            value: spell.level
+        }, {
+            name: 'Range',
+            value: spell.range
+        }, {
+            name: 'Ritual',
+            value: (spell.ritual) ? 'yes' : 'no'
+        }, {
+            name: 'School',
+            value: spell.school
+        }, {
+            name: 'Type',
+            value: spell.type
+        });
+
 makeSpellSlotsEmbed = (color, spellslots) =>
     new MessageEmbed()
         .setColor(color)
@@ -199,6 +235,7 @@ module.exports = {
     makeNormalRollEmbed,
     makeObjectEmbed,
     makeSheetEmbed,
+    makeSpellEmbed,
     makeSpellSlotsEmbed,
     makeTimeEmbed
 }
