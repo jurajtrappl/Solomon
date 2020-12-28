@@ -31,7 +31,9 @@ module.exports = {
         //update map
         const newMap = {
             $set: {
-                'content.map': JSON.stringify(new Map(dimensions))
+                'content.map': JSON.stringify(new Map(dimensions)),
+                'content.combatants': [],
+                'content.initiativeOrder': {}
             }
         };
 
