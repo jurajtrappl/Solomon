@@ -125,6 +125,9 @@ makeSheetEmbed = (color, sheet) =>
             name: 'Initiative',
             value: sheet.initiative
         }, {
+            name: 'Inspiration',
+            value: `${sheet.inspiration ? 'yes' : 'no'}`
+        }, {
             name: 'Level',
             value: sheet.level
         }, {

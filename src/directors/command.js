@@ -9,9 +9,18 @@ const { SourceFileLoader } = require('../../loader');
  */
 class CommandValidator {
     static validate = (prefix, message) => {
+        if (!Object.values(commands.prefixes).includes(prefix)) {
+            return false;
+        }
+        
+        if (message.author.bot) {
+            return false;
+        }
+
         if (prefix === commands.prefixes.dm) {
             return message.author.id === dmID;
         }
+
         return true;
     }
 }

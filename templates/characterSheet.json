@@ -20,6 +20,7 @@
         "spent": 0
     },
     "initiative": 0,
+    "inspiration": false,
     "level": 0,
     "maxHP": 0,
     "proficiencyBonus": 0,
