@@ -1,7 +1,7 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { dmID } = require('../../auth.json');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { ArgsValidator, type } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { dmID } = require('../../../../auth.json');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'setTime',

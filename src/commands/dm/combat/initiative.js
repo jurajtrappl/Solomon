@@ -1,9 +1,9 @@
-const { database } = require('../../settings.json');
-const { DiceRoller } = require('../rolls/diceRoller');
-const { LinkedList } = require('../dataStructures/LinkedList');
-const { makeObjectEmbed } = require('../output/embed');
-const { NotFoundError, searchingObjType } = require('../err/errors');
-const { TileType } = require('../combat/map');
+const { database } = require('../../../../settings.json');
+const { DiceRoller } = require('../../../rolls/diceRoller');
+const { LinkedList } = require('../../../dataStructures/LinkedList');
+const { makeObjectEmbed } = require('../../../output/embed');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
+const { TileType } = require('../../../combat/map');
 
 module.exports = {
     name: 'initiative',

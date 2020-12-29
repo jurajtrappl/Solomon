@@ -1,6 +1,6 @@
-const { database } = require('../../settings.json');
-const { makeTimeEmbed } = require('../output/embed');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { database } = require('../../../../settings.json');
+const { makeTimeEmbed } = require('../../../output/embed');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'time',

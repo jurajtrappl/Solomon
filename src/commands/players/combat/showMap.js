@@ -1,5 +1,5 @@
-const { database } = require('../../settings.json');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { database } = require('../../../../settings.json');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'showMap',

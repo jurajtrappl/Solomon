@@ -1,9 +1,8 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { DiceRoller } = require('../rolls/diceRoller');
-const { makeHitDiceEmbed } = require('../output/embed');
-const { Sheet } = require('../character/sheet');
-const { prepareHitDiceCheck } = require('../rolls/rollUtils');
+const { ArgsValidator, type } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { makeHitDiceEmbed } = require('../../../output/embed');
+const { Sheet } = require('../../../character/sheet');
+const { prepareHitDiceCheck } = require('../../../rolls/rollUtils');
 
 module.exports = {
     name: 'rhd',

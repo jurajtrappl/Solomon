@@ -1,6 +1,6 @@
-const { database } = require('../../settings.json');
-const { dmID } = require('../../auth.json');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { database } = require('../../../../settings.json');
+const { dmID } = require('../../../../auth.json');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'setLocation',

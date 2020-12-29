@@ -1,8 +1,8 @@
-const { ArgsValidator } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { DiceRoller } = require('../rolls/diceRoller');
-const { makeHealEmbed } = require('../output/embed');
-const { NotFoundError } = require('../err/errors');
+const { ArgsValidator } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { DiceRoller } = require('../../../rolls/diceRoller');
+const { makeHealEmbed } = require('../../../output/embed');
+const { NotFoundError } = require('../../../err/errors');
 
 module.exports = {
     name: 'heal',

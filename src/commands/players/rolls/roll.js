@@ -1,7 +1,7 @@
-const { database } = require('../../settings.json');
-const { DiceRoller } = require('../rolls/diceRoller');
-const { makeNormalRollEmbed } = require('../output/embed');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { database } = require('../../../../settings.json');
+const { DiceRoller } = require('../../../rolls/diceRoller');
+const { makeNormalRollEmbed } = require('../../../output/embed');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'roll',

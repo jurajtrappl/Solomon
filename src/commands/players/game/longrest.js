@@ -1,6 +1,6 @@
-const { dmID } = require('../../auth.json');
-const { database } = require('../../settings.json');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { dmID } = require('../../../../auth.json');
+const { database } = require('../../../../settings.json');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'longrest',
