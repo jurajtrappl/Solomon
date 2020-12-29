@@ -14,8 +14,6 @@ module.exports = {
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
     async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.checkCount(args, 1);
-
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
@@ -34,8 +32,10 @@ module.exports = {
             name = playerData.character;
 
             //get directions
+            ArgsValidator.checkCount(args, 1);
             directions = args[0];
         } else {
+            ArgsValidator.checkCount(args, 2);
             name = args[0];
             directions = args[1];
         }
