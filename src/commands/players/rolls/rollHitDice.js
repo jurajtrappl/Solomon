@@ -64,7 +64,7 @@ module.exports = {
             }
         }
 
-        //await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
+        await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
 
         return await message.reply({
             embed: makeHitDiceEmbed(characterName, message.member.displayHexColor, check.expression, rollResult, hitDiceCountToSpend, hitDicesLeft)
