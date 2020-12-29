@@ -1,4 +1,5 @@
-const { command } = require('../../settings.json');
+const { dmID } = require('../../auth.json');
+const { commands } = require('../../settings.json');
 const { SourceFileLoader } = require('../../loader');
 
 /**
@@ -7,8 +8,11 @@ const { SourceFileLoader } = require('../../loader');
  * @class CommandValidator
  */
 class CommandValidator {
-    static validate = (message) => {
-        return (!message.author.bot) && message.content.startsWith(command.prefix);
+    static validate = (prefix, message) => {
+        if (prefix === commands.prefixes.dm) {
+            return message.author.id === dmID;
+        }
+        return true;
     }
 }
 
@@ -18,10 +22,11 @@ class CommandValidator {
  * @class CommandsDirector.
  */
 class CommandsDirector {
-    constructor(discordClient, mongo) {
+    constructor(discordClient, mongo, directories) {
         this.discordClient = discordClient;
         this.mongo = mongo;
-        this.commands = SourceFileLoader.load(command.directories);
+        
+        this.commands = SourceFileLoader.load(directories);
     }
 
     findCommand = (commandName) => 

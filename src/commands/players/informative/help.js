@@ -1,7 +1,7 @@
-const { ArgsValidator } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { makeHelpEmbed } = require('../output/embed');
-const { NotExistingError } = require('../err/errors');
+const { ArgsValidator } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { makeHelpEmbed } = require('../../../output/embed');
+const { NotExistingError } = require('../../../err/errors');
 
 module.exports = {
     name: 'help',

@@ -16,11 +16,23 @@
         "sessions": "sessions",
         "sessionsStory": "sessions-story"
     },
-    "command": {
-        "directories": [
-            "./src/commands"
-        ],
-        "prefix": "/"
+    "commands": {
+        "prefixes": {
+            "dm": "!",
+            "players": "/"
+        },
+        "directories": {
+            "dm": [
+                "./src/commands/dm/character",
+                "./src/commands/dm/combat"
+            ],
+            "players": [
+                "./src/commands/players/combat",
+                "./src/commands/players/game",
+                "./src/commands/players/informative",
+                "./src/commands/players/rolls"
+            ]
+        }
     },
     "event": {
         "game": {

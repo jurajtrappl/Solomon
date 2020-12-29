@@ -1,6 +1,6 @@
-const { dmID } = require('../../auth.json');
-const { database } = require('../../settings.json');
-const { NotFoundError, searchingObjType } = require('../err/errors');
+const { dmID } = require('../../../../auth.json');
+const { database } = require('../../../../settings.json');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'longrest',
@@ -172,7 +172,7 @@ module.exports = {
                     };
                 }
 
-                //await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSheetValues);
+                await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSheetValues);
             }
         }
 
@@ -184,7 +184,7 @@ module.exports = {
             }
         };
 
-        //await mongo.updateOne(database.collections.time, { characterName: characterName }, newTimeValues);
+        await mongo.updateOne(database.collections.time, { characterName: characterName }, newTimeValues);
 
         //log
         discordClient.emit('sessionLog', 'longrest', [ characterName, wasSuccessful, newCurrentTime, time.location, hours ]);

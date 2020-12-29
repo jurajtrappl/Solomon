@@ -1,9 +1,9 @@
-const { capitalize } = require('../output/lang');
-const { database } = require('../../settings.json');
-const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../output/embed');
-const { NotExistingError, NotFoundError, searchingObjType } = require('../err/errors');
-const { prepareCheck } = require('../rolls/rollUtils');
-const { Sheet } = require('../character/sheet');
+const { capitalize } = require('../../../output/lang');
+const { database } = require('../../../../settings.json');
+const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../../../output/embed');
+const { NotExistingError, NotFoundError, searchingObjType } = require('../../../err/errors');
+const { prepareCheck } = require('../../../rolls/rollUtils');
+const { Sheet } = require('../../../character/sheet');
 
 module.exports = {
     name: 'rac',

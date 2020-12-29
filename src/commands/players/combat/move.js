@@ -1,8 +1,8 @@
-const { ArgsValidator } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { dmID } = require('../../auth.json');
-const { moveObj } = require('../combat/movement');
-const { NotFoundError, searchingObjType, NotExistingError } = require('../err/errors');
+const { ArgsValidator } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { dmID } = require('../../../../auth.json');
+const { moveObj } = require('../../../combat/movement');
+const { NotFoundError, searchingObjType, NotExistingError } = require('../../../err/errors');
 
 module.exports = {
     name: 'move',

@@ -1,7 +1,7 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { Tile, TileTypeArgs, TileType } = require('../combat/map');
-const { OutOfRangeError, DuplicateObjectError, MapTileOccupiedError } = require('../err/errors');
+const { ArgsValidator, type } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { Tile, TileTypeArgs, TileType } = require('../../../combat/map');
+const { OutOfRangeError, DuplicateObjectError, MapTileOccupiedError } = require('../../../err/errors');
 
 module.exports = {
     name: 'mapAdd',

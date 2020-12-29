@@ -1,7 +1,7 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { OutOfRangeError } = require('../err/errors');
-const { Map } = require('../combat/map');
+const { ArgsValidator, type } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { OutOfRangeError } = require('../../../err/errors');
+const { Map } = require('../../../combat/map');
 
 module.exports = {
     name: 'createMap',

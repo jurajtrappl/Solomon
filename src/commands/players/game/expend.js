@@ -1,6 +1,6 @@
-const { ArgsValidator, type } = require('../err/argsValidator');
-const { database } = require('../../settings.json');
-const { NotEnoughError, NotFoundError, searchingObjType } = require('../err/errors');
+const { ArgsValidator, type } = require('../../../err/argsValidator');
+const { database } = require('../../../../settings.json');
+const { NotEnoughError, NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'expend',
