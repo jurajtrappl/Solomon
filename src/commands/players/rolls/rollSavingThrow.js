@@ -50,6 +50,22 @@ module.exports = {
 
         //either bonus expression or adv/dadv
         if (args.length == 2) {
+            if (args[1] == 'insp') {
+                if (!sheet.inspiration) {
+                    return await message.reply('You do not any inspiration right now.');
+                } else {
+                    args[1] = 'adv';
+
+                    const newInspirationValue = {
+                        $set: {
+                            'inspiration': false
+                        }
+                    };
+
+                    await mongo.updateOne(database.collections.characters, { characterName: characterName }, newInspirationValue);
+                }
+            }
+
             if (args[1] == 'adv' || args[1] == 'dadv') {
                 embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
                 rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
