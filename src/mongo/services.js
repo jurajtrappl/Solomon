@@ -33,6 +33,13 @@ class MongoServices {
         }
     }
 
+    exists = async (collectionName, query) => 
+        instance
+            .db(database.name)
+            .collection(collectionName)
+            .find(query)
+            .count() > 0;
+
     tryFind = async (collectionName, query) => {
         let result = await this.find(collectionName, query);
         return (result === undefined || result.length == 0) ? undefined : result[0];
