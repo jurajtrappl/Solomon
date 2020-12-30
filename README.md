@@ -1,4 +1,4 @@
-# Dedko - work in progress
+# Desmond - work in progress
 A mystical and old wise man who helps players during their adventures through beautiful worlds of Dungeons and Dragons.
 
 ## Commands
