@@ -7,6 +7,10 @@
         "Wisdom": 0,
         "Charisma": 0
     },
+    "armorClass": {
+        "base": 0,
+        "special": []
+    },
     "cantrips": {
         "known": 0
     },
@@ -34,62 +38,29 @@
         "Charisma": false
     },
     "skills": {
-        "Acrobatics": {
-            "prof": true
-        },
-        "Animal": {
-            "prof": false
-        },
-        "Arcana": {
-            "prof": true
-        },
-        "Athletics": {
-            "prof": true
-        },
-        "Deception": {
-            "prof": false
-        },
-        "History": {
-            "prof": false
-        },
-        "Insight": {
-            "prof": true
-        },
-        "Intimidation": {
-            "prof": false
-        },
-        "Investigation": {
-            "prof": false
-        },
-        "Medicine": {
-            "prof": false
-        },
-        "Natural": {
-            "prof": true
-        },
-        "Perception": {
-            "prof": true
-        },
-        "Performance": {
-            "prof": false
-        },
-        "Persuasion": {
-            "prof": false
-        },
-        "Religion": {
-            "prof": false
-        },
-        "Sleight": {
-            "prof": false
-        },
-        "Stealth": {
-            "prof": false
-        },
-        "Survival": {
-            "prof": true
-        }
+        "Acrobatics": false,
+        "Animal": false,
+        "Arcana": false,
+        "Athletics": false,
+        "Deception": false,
+        "History": false,
+        "Insight": false,
+        "Intimidation": false,
+        "Investigation": false,
+        "Medicine": false,
+        "Natural": false,
+        "Perception": false,
+        "Performance": false,
+        "Persuasion": false,
+        "Religion": false,
+        "Sleight": false,
+        "Stealth": false,
+        "Survival": false
     },
-    "speed": 0,
+    "speed": {
+        "walking": 0,
+        "flying": 0
+    },
     "spells": {
         "spellslots": {
             "total": [],
