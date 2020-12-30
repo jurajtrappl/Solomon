@@ -8,7 +8,7 @@ const { SourceFileLoader } = require('../../loader');
  * @class CommandValidator
  */
 class CommandValidator {
-    static validate = (prefix, message) => {
+    static isCommand = (prefix, message) => {
         if (!Object.values(commands.prefixes).includes(prefix)) {
             return false;
         }
@@ -41,23 +41,6 @@ class CommandsDirector {
     findCommand = (commandName) => 
         this.commands.get(commandName) ||
             this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-    execute = async (name, args, message) => {
-        const command = this.findCommand(name);
-
-        if (!command) return;
-
-        if (command.guildOnly && message.channel.type !== 'text') {
-            return await message.reply(settings.errorCommandExecuteMessage);
-        }
-
-        try {
-            await command.execute(message, args, this.mongo, this.discordClient);
-        } catch (error) {
-            console.log(error);
-            await message.reply(error.message);
-        }
-    }
 }
 
 module.exports = {
