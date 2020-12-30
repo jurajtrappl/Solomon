@@ -1,3 +1,4 @@
+const { ArgsValidator } = require('./src/err/argsValidator');
 const { Client } = require('discord.js');
 const { commands } = require('./settings.json');
 const { CommandsDirector, CommandValidator } = require('./src/directors/command');
@@ -45,12 +46,28 @@ discordClient.on('sessionLog', async (eventName, eventArgs) => {
 })
 
 discordClient.on('message', async message => {
+    //select a possible command prefix
     const commandPrefix = message.content.substring(0, 1);
-    if (CommandValidator.validate(commandPrefix, message)) {
+
+    //check if the message is a valid looking command
+    if (CommandValidator.isCommand(commandPrefix, message)) {
+
+        //extract important information
         const commandArgs = message.content.slice(commandPrefix.length).split(/ +/);
         const commandName = commandArgs.shift();
 
-        await commandDirectors[commandPrefix].execute(commandName, commandArgs, message);
+        //find a command
+        const command = commandDirectors[commandPrefix].findCommand(commandName);
+
+        if (!command) return;
+
+        try {
+            if (ArgsValidator.preCheck(command.args.specifics, commandArgs, mongo)) {
+                await command.execute(message, commandArgs, mongo, discordClient);
+            }
+        } catch({message}) {
+            console.log(message);
+        }
     }
 });
 
