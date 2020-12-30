@@ -24,7 +24,8 @@
         "directories": {
             "dm": [
                 "./src/commands/dm/character",
-                "./src/commands/dm/combat"
+                "./src/commands/dm/combat",
+                "./src/commands/dm/game"
             ],
             "players": [
                 "./src/commands/players/combat",
