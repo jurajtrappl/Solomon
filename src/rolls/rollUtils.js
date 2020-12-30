@@ -4,7 +4,7 @@ const createCheckExpression = (bonus) => `1d20${(bonus > 0) ? '+' : '-'}${Math.a
 
 const prepareCheck = (bonus) => {
     const expression = createCheckExpression(bonus);
-    
+
     return {
         dice: new DiceRoller(expression),
         expression: expression
@@ -23,7 +23,25 @@ const prepareHitDiceCheck = (hitDiceCountToSpend, hitDiceType, constitutionModif
     }
 }
 
+const additionalRollFlags = {
+    advantage: 'adv',
+    disadvantage: 'dadv',
+    inspiration: 'insp'
+};
+
+const sortRollsFunctions = {
+    'adv': (a, b) => b.total - a.total,
+    'dadv': (a, b) => a.total - b.total
+};
+
+const chooseAdvDadv = (flag, rolls) => {
+    rolls.sort(sortRollsFunctions[flag]);
+    return rolls;
+}
+
 module.exports = {
+    additionalRollFlags,
+    chooseAdvDadv,
     prepareCheck,
     prepareHitDiceCheck
 }

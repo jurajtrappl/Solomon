@@ -1,14 +1,17 @@
+const { additionalRollFlags, prepareCheck, chooseAdvDadv } = require('../../../rolls/rollUtils');
+const { ArgsValidator } = require('../../../err/argsValidator');
+const { BadArgError, NotExistingError, NotFoundError, searchingObjType } = require('../../../err/errors');
 const { capitalize } = require('../../../output/lang');
 const { database } = require('../../../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../../../output/embed');
-const { NotExistingError, NotFoundError, searchingObjType } = require('../../../err/errors');
-const { prepareCheck } = require('../../../rolls/rollUtils');
 const { Sheet } = require('../../../character/sheet');
 
 module.exports = {
     name: 'rst',
     args: true,
     description: 'Roll a saving throw.',
+    advDadvTitlePart: (flag) => ` with ${(flag == additionalRollFlags.advantage) ? 'an advantage' : 'a disadvantage'}`,
+    isInspirationUsed: (flag) => flag === additionalRollFlags.inspiration,
     async execute(message, args, mongo, _discordClient) {
         //get abilities
         const abilities = await mongo.tryFind(database.collections.data, { name: 'Abilities' });
@@ -16,6 +19,7 @@ module.exports = {
             throw new NotFoundError(searchingObjType.dataFile, 'Abilities');
         }
 
+        ArgsValidator.checkCountAtleast(args, 1);
         const abilityName = capitalize(args[0]);
         if (!Object.keys(abilities.content).includes(abilityName)) {
             throw new NotExistingError(args[0]);
@@ -45,12 +49,16 @@ module.exports = {
 
         //a basic roll without adv/dadv and bonus expression
         if (args.length == 1) {
+            ArgsValidator.checkCount(args, 1);
             rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, check.dice.roll());
         }
 
         //either bonus expression or adv/dadv
         if (args.length == 2) {
-            if (args[1] == 'insp') {
+            ArgsValidator.checkCount(args, 2);
+            let flag = args[1];
+
+            if (this.isInspirationUsed(flag)) {
                 if (!sheet.inspiration) {
                     return await message.reply('You do not any inspiration right now.');
                 } else {
@@ -66,11 +74,12 @@ module.exports = {
                 }
             }
 
-            if (args[1] == 'adv' || args[1] == 'dadv') {
-                embedTitle += ` with ${(args[1] == 'adv') ? 'an advantage' : 'a disadvantage'}`;
-                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, args[1], check.expression, embedTitle, check.dice.roll(), check.dice.roll());
+            if (Object.values(additionalRollFlags).includes(flag)) {
+                embedTitle += this.advDadvTitlePart(flag);
+                const rolls = chooseAdvDadv(flag, [check.dice.roll(), check.dice.roll()]);
+                rollEmbed = makeAdvOrDisadvEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, rolls);
             } else {
-                return await message.reply('There is an error with adv/dadv.');
+                throw new BadArgError(Object.values(additionalRollFlags).join());
             }
         }
 
