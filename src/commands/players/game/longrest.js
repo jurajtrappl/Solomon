@@ -4,10 +4,13 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'longrest',
-    args: false,
     description: 'Performs a long rest.',
+    args: {
+        limitCount: true,
+        specifics: []
+    },
     yesNoReactions: {
-        '👍': true, 
+        '👍': true,
         '👎': false
     },
     REACTION_WAIT_TIME: 12000,
@@ -18,7 +21,7 @@ module.exports = {
 
         return Math.floor((timeTwo - timeOne) / this.MS_PER_HOUR);
     },
-    hoursReactions: [ '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣' ],
+    hoursReactions: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'],
     async execute(message, _args, mongo, discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
@@ -124,7 +127,7 @@ module.exports = {
         if (!wasSuccessful) {
             await message.channel.send(`After how many hours did ${characterName} wake up?`)
                 .then(async message => {
-                    for(let hourReaction of this.hoursReactions) {
+                    for (let hourReaction of this.hoursReactions) {
                         await message.react(hourReaction);
                     }
 
@@ -187,6 +190,6 @@ module.exports = {
         await mongo.updateOne(database.collections.time, { characterName: characterName }, newTimeValues);
 
         //log
-        discordClient.emit('sessionLog', 'longrest', [ characterName, wasSuccessful, newCurrentTime, time.location, hours ]);
+        discordClient.emit('sessionLog', 'longrest', [characterName, wasSuccessful, newCurrentTime, time.location, hours]);
     }
 }

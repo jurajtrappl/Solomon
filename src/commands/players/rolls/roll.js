@@ -5,9 +5,15 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'roll',
-    args: true,
     description: 'Rolling dices for D&D.',
-    async execute(message, args, mongo, _discordClient) {
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'rollExpression' }]
+        ]
+    },
+    dependencies: [],
+    async execute(message, [...rollExpressionArgs], mongo, _discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
         if (!playerData) {
@@ -15,7 +21,7 @@ module.exports = {
         }
         const characterName = playerData.character;
 
-        const rollExpression = args.join('');
+        const rollExpression = rollExpressionArgs.join('');
         const dice = new DiceRoller(rollExpression);
         const rollResult = dice.roll();
 

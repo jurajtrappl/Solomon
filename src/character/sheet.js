@@ -39,7 +39,7 @@ class Sheet {
 
     isSavingThrowProficient = (abilityName) => this.sheet.savingThrows[abilityName];
 
-    isSkillProficient = (skillName) => this.sheet.skills[skillName].prof;
+    isSkillProficient = (skillName) => this.sheet.skills[skillName];
 
     isSkillDoubleProficient = (skillName) => this.sheet.doubleProf.includes(skillName);
 

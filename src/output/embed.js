@@ -49,7 +49,7 @@ makeHelpEmbed = (color, embedFromDb) =>
 makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDicesCount, hitDicesLeft) => {
     const title = `${characterName} spends ${hitDicesCount} hit ${plural('dice', hitDicesCount)}`;
 
-    new MessageEmbed()
+    return new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
         .addFields({

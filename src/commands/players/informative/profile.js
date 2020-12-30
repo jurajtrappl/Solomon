@@ -4,8 +4,11 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'profile',
-    args: false,
     description: 'Shows a players character sheet.',
+    args: {
+        limitCount: false,
+        specifics: []
+    },
     async execute(message, _args, mongo, _discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });

@@ -4,10 +4,13 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'spell',
-    args: false,
     description: 'Shows an information about a spell.',
-    async execute(message, args, mongo, _discordClient) {
-        const spellName = args.join(' ');
+    args: {
+        limitCount: false,
+        specifics: []
+    },
+    async execute(message, [...spellNameArg], mongo, _discordClient) {
+        const spellName = spellNameArg.join(' ');
 
         const spell = await mongo.tryFind(database.collections.spells, { name: spellName });
         if (!spell) {

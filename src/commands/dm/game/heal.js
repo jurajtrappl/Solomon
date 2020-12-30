@@ -9,21 +9,20 @@ module.exports = {
     args: {
         limitCount: true,
         specifics: [
-            [{ type: 'rollExpression' }]
+            [{ type: 'characterName' }, { type: 'rollExpression' }]
         ]
     },
-    async execute(message, [ healExpression ], mongo, discordClient) {
-        //get character name
-        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!playerData) {
-            throw new NotFoundError(searchingObjType.player, message.author.id);
-        }
-        const characterName = playerData.character;
-
+    healingPotions: {
+        Healing: '2d4+2',
+        Greater: '4d4+4',
+        Superior: '8d4+8',
+        Supreme: '10d4+20',
+    },
+    async execute(message, [ characterName, healExpression ], mongo, discordClient) {
         //get character sheet
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
-            throw new NotFoundError(searchingObjType.sheet, characterName);
+            throw new NotFoundError(searchingObjType.character, characterName);
         }
 
         const dice = new DiceRoller(healExpression);

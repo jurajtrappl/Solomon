@@ -7,8 +7,11 @@ const { TileType } = require('../../../combat/map');
 
 module.exports = {
     name: 'initiative',
-    args: false,
     description: 'Rolls initiative for all combatants.',
+    args: {
+        limitCount: true,
+        specifics: []
+    },
     MAX_INITIATIVE: 30,
     initRolls: () => {
         let rolls = new Array(this.MAX_INITIATIVE);
@@ -69,7 +72,7 @@ module.exports = {
                 'content.initiativeOrder': JSON.stringify(initiativeOrder)
             }
         };
-
+            
         await mongo.updateOne(database.collections.data, { name: 'Combat' }, newInitiativeOrder);
 
         //print the result to the players

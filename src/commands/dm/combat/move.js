@@ -8,7 +8,7 @@ module.exports = {
     args: {
         limitCount: true,
         specifics: [
-            [{ type: 'directions' }]
+            [{ type: 'mapObject' }, { type: 'directions' }]
         ]
     },
     swapPositions: (tiles, currentPosition, newPosition) => {
@@ -16,7 +16,7 @@ module.exports = {
         tiles[currentPosition.x][currentPosition.y] = tiles[newPosition.x][newPosition.y];
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
-    async execute(message, [ directions ], mongo, _discordClient) {
+    async execute(_message, [ mapObjectName, directions ], mongo, _discordClient) {
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
@@ -24,26 +24,15 @@ module.exports = {
         }
         let parsedMap = JSON.parse(combat.content.map);
 
-        //get character name
-        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!playerData) {
-            throw new NotFoundError(searchingObjType.player, message.author.id);
-        }
-        const characterName = playerData.character;
-
-        if (!Object.keys(parsedMap.specialObjects).includes(characterName)) {
-            throw new NotExistingError(characterName);
-        }
-
         //try to move
-        const newPosition = moveObj(parsedMap.specialObjects[characterName], parsedMap.tiles, parsedMap.dimensions, directions);
+        const newPosition = moveObj(parsedMap.specialObjects[mapObjectName], parsedMap.tiles, parsedMap.dimensions, directions);
 
         //swap new position with the current
-        const currentPosition = parsedMap.specialObjects[characterName];
+        const currentPosition = parsedMap.specialObjects[mapObjectName];
         this.swapPositions(parsedMap.tiles, currentPosition, newPosition);
 
         //store the information to shortcut obj
-        parsedMap.specialObjects[characterName] = {
+        parsedMap.specialObjects[mapObjectName] = {
             x: newPosition.x,
             y: newPosition.y
         };

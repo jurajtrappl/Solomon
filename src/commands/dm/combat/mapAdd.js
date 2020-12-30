@@ -1,24 +1,17 @@
-const { ArgsValidator, type } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { Tile, TileTypeArgs, TileType } = require('../../../combat/map');
 const { OutOfRangeError, DuplicateObjectError, MapTileOccupiedError } = require('../../../err/errors');
 
 module.exports = {
     name: 'mapAdd',
-    args: false,
-    description: 'Adds an object to the map.',
-    async execute(_message, args, mongo, _discordClient) {
-        ArgsValidator.checkCount(args, 4);
-        let row = args[2];
-        ArgsValidator.typeCheckOne(row, type.numeric);
-        let col = args[3];
-        ArgsValidator.typeCheckOne(col, type.numeric);
-
-        const tileTypeArg = args[0];
-        if (!Object.keys(TileTypeArgs).includes(tileTypeArg)) {
-            throw new NotExistingError(tileTypeArg);
-        }
-
+    description: 'Adds an object on the map.',
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'mapObject' }, { type: 'tileType' }, { type: 'number' }, { type: 'number' }]
+        ]
+    },
+    async execute(_message, [ tileType, mapObjectName, row, col ], mongo, _discordClient) {
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
@@ -27,9 +20,8 @@ module.exports = {
         let parsedMap = JSON.parse(combat.content.map);
 
         //check for the duplicity of objects
-        const name = args[1];
-        if (Object.keys(parsedMap.specialObjects).includes(name)) {
-            throw new DuplicateObjectError(name);
+        if (Object.keys(parsedMap.specialObjects).includes(mapObjectName)) {
+            throw new DuplicateObjectError(mapObjectName);
         }
 
         row = Number(row);
@@ -52,13 +44,13 @@ module.exports = {
         }
 
         //create a new tile
-        const nameInitial = name[0];
-        const newTile = new Tile(TileTypeArgs[tileTypeArg], nameInitial);
+        const nameInitial = mapObjectName[0];
+        const newTile = new Tile(TileTypeArgs[tileType], nameInitial);
         parsedMap.tiles[row][col] = newTile;
 
         //add a shortcut for the new object with the name as a key
-        parsedMap.specialObjects[name] = { x: row, y: col };
-        
+        parsedMap.specialObjects[mapObjectName] = { x: row, y: col };
+
         //update map
         const newMapValue = {
             $set: {
@@ -70,8 +62,8 @@ module.exports = {
 
         //update list of combatants
         const newCombatant = {
-            name: name,
-            type: TileTypeArgs[tileTypeArg]
+            name: mapObjectName,
+            type: TileTypeArgs[tileType]
         };
 
         const newCombatantValue = {
@@ -80,7 +72,7 @@ module.exports = {
             }
         }
 
-        if (TileTypeArgs[tileTypeArg] != TileType.border && TileTypeArgs[tileTypeArg] != TileType.free) {
+        if (TileTypeArgs[tileType] != TileType.border && TileTypeArgs[tileType] != TileType.free) {
             await mongo.updateOne(database.collections.data, { name: 'Combat' }, newCombatantValue);
         }
     }

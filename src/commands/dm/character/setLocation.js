@@ -3,17 +3,18 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'setLocation',
-    args: true,
     description: 'Set a new location for a character.',
-    async execute(_message, args, mongo, discordClient) {
-        let charactersTimeData = [];
-        const quantityArg = args[0];
+    args: {
+        limitCount: false,
+        specifics: [
+            [{ type: 'characterNames' }]
+        ]
+    },
+    async execute(_message, [characterNamesArg, ...locationArgs], mongo, discordClient) {
+        const charactersTimeData = [];
 
-        //get all required time data
-        if (quantityArg == 'all') {
-            charactersTimeData = await mongo.findAll(database.collections.time);
-        } else {
-            const characterName = args[0];
+        const characterNames = characterNamesArg.split(',');
+        for(const characterName of characterNames) {
             const time = await mongo.tryFind(database.collections.time, { characterName: characterName });
             if (!time) {
                 throw new NotFoundError(searchingObjType.time, characterName);
@@ -22,7 +23,7 @@ module.exports = {
             charactersTimeData.push(time);
         }
 
-        const newLocation = args.slice(1).join(' ');
+        const newLocation = locationArgs.join(' ');
 
         const newLocationValue = {
             $set: {
@@ -30,15 +31,11 @@ module.exports = {
             }
         };
 
-        if (quantityArg === 'all') {
-            await mongo.updateAll(database.collections.time, newLocationValue);
-        } else {
-            await mongo.updateOne(database.collections.time, { characterName: [charactersTimeData].characterName }, newLocationValue);
+        for (const characterName of characterNames) {
+            await mongo.updateOne(database.collections.time, { characterName: characterName }, newLocationValue);
         }
 
         //log
-        const characterNames = [];
-        charactersTimeData.map(timeData => characterNames.push(timeData.characterName));
         discordClient.emit('sessionLog', 'setLocation', [characterNames, newLocation]);
     },
 };

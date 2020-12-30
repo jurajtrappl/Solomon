@@ -1,5 +1,4 @@
 const { additionalRollFlags, prepareCheck, chooseAdvDadv } = require('../../../rolls/rollUtils');
-const { ArgsValidator } = require('../../../err/argsValidator');
 const { BadArgError, NotExistingError, NotFoundError, searchingObjType } = require('../../../err/errors');
 const { capitalize } = require('../../../output/lang');
 const { database } = require('../../../../settings.json');
@@ -8,21 +7,21 @@ const { Sheet } = require('../../../character/sheet');
 
 module.exports = {
     name: 'rst',
-    args: true,
     description: 'Roll a saving throw.',
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'ability' }],
+            [{ type: 'ability' }, { type: 'rollFlag' }]
+        ]
+    },
     advDadvTitlePart: (flag) => ` with ${(flag == additionalRollFlags.advantage) ? 'an advantage' : 'a disadvantage'}`,
     isInspirationUsed: (flag) => flag === additionalRollFlags.inspiration,
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, [ abilityName, ...maybeRollFlag ], mongo, _discordClient) {
         //get abilities
         const abilities = await mongo.tryFind(database.collections.data, { name: 'Abilities' });
         if (!abilities) {
             throw new NotFoundError(searchingObjType.dataFile, 'Abilities');
-        }
-
-        ArgsValidator.checkCountAtleast(args, 1);
-        const abilityName = capitalize(args[0]);
-        if (!Object.keys(abilities.content).includes(abilityName)) {
-            throw new NotExistingError(args[0]);
         }
 
         //get character name
@@ -40,23 +39,22 @@ module.exports = {
         const characterSheet = new Sheet(sheet);
 
         //write the title
+        abilityName = capitalize(abilityName);
         let embedTitle = `${abilityName} saving throw`;
 
         const bonus = characterSheet.calculateAbilityBonus(abilityName);
         let check = prepareCheck(bonus);
-        
+
         let rollEmbed = null;
 
         //a basic roll without adv/dadv and bonus expression
-        if (args.length == 1) {
-            ArgsValidator.checkCount(args, 1);
+        if (!maybeRollFlag.length) {
             rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, check.dice.roll());
         }
 
         //either bonus expression or adv/dadv
-        if (args.length == 2) {
-            ArgsValidator.checkCount(args, 2);
-            let flag = args[1];
+        if (maybeRollFlag.length) {
+            let flag = maybeRollFlag[0];
 
             if (this.isInspirationUsed(flag)) {
                 if (!sheet.inspiration) {
