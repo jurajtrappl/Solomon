@@ -20,6 +20,13 @@ class ArgsCountError extends ArgError {
     }
 }
 
+class BadArgError extends ArgError {
+    constructor(arg) {
+        super(`There is problem with an argument ${arg}`);
+        this.name = 'BadArgError';
+    }
+}
+
 class DuplicateObjectError extends Error {
     constructor(obj) {
         super(`${obj} already exists.`);
@@ -85,6 +92,7 @@ class MapTileOccupiedError extends Error {
 
 module.exports = {
     ArgsCountError,
+    BadArgError,
     DuplicateObjectError,
     NegativeDamageError,
     InvalidArgTypeError,

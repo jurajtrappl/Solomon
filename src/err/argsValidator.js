@@ -12,6 +12,12 @@ class ArgsValidator {
         }
     }
 
+    static checkCountAtleast = (args, requiredCount) => {
+        if (args.length < requiredCount) {
+            throw new ArgsCountError(args.length, requiredCount);
+        }
+    }
+
     static typeCheckAll = (args, expectedTypes) => {
         //zip
         args.map((arg, index) => {

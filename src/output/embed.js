@@ -1,14 +1,16 @@
+const { bold } = require('./discordMarkdown');
+const { boolToYesNo, plural } = require('./lang');
 const { GameCalendar } = require('../calendar/gameCalendar');
 const { MessageEmbed } = require('discord.js');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-makeAdvOrDisadvEmbed = (characterName, color, flag, expr, title, first, second) =>
+makeAdvOrDisadvEmbed = (characterName, color, rollExpression, title, [first, second]) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle(title)
+        .setTitle(bold(title))
         .addFields({
             name: 'Rolling',
-            value: expr
+            value: rollExpression
         }, {
             name: 'First attempt',
             value: `${first.visual} = ${first.total}`,
@@ -19,13 +21,13 @@ makeAdvOrDisadvEmbed = (characterName, color, flag, expr, title, first, second) 
             inline: true
         }, {
             name: 'Result',
-            value: `${characterName} rolls ${(flag == 'adv') ? ((Number(first.total) >= Number(second.total)) ? first.total : second.total) : ((Number(first.total) >= Number(second.total)) ? second.total : first.total)}.`
+            value: `${characterName} rolls ${first.total}.`
         });
 
 makeHealEmbed = (characterName, color, expr, title, { total, visual }, currentHP, maxHP) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle(title)
+        .setTitle(bold(title))
         .addFields({
             name: 'Rolling',
             value: expr,
@@ -44,10 +46,12 @@ makeHelpEmbed = (color, embedFromDb) =>
         .setColor(color);
 
 //creates an embed for rolling hit dices
-makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDicesCount, hitDicesLeft) =>
+makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDicesCount, hitDicesLeft) => {
+    const title = `${characterName} spends ${hitDicesCount} hit ${plural('dice', hitDicesCount)}`;
+
     new MessageEmbed()
         .setColor(color)
-        .setTitle(`***${characterName} spends ${hitDicesCount} hit dice${(hitDicesCount != 1) ? 's' : ''}***`)
+        .setTitle(bold(title))
         .addFields({
             name: 'Rolling',
             value: `${expression}`,
@@ -60,24 +64,18 @@ makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDice
             name: 'Result',
             value: `${characterName} regains ${total} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
         });
+}
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-makeNormalRollEmbed = (characterName, color, expr, title, { total, visual }) =>
+makeNormalRollEmbed = (characterName, color, rollExpression, title, { total, visual }) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle(title)
-        .addFields({
-            name: 'Rolling',
-            value: expr,
-            inline: true
-        }, {
-            name: 'Total',
-            value: `${visual} = ${total}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} rolls ${total}.`
-        });
+        .setTitle(bold(title))
+        .addFields(
+            { name: 'Rolling', value: rollExpression, inline: true },
+            { name: 'Total', value: `${visual} = ${total}`, inline: true },
+            { name: 'Result', value: `${characterName} rolls ${total}.` }
+        );
 
 makeFields = (names, values) => {
     const fields = [];
@@ -93,65 +91,53 @@ makeFields = (names, values) => {
 makeObjectEmbed = (color, obj, title) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle(title)
+        .setTitle(bold(title))
         .addFields(
             makeFields(Object.keys(obj), Object.values(obj))
         );
 
+const joinArmorClassSpecial = (armorClass) =>
+    armorClass.special.map(elem => `+${elem.base} against ${elem.damageType}`).join();
+
+const joinProficiencies = (obj) =>
+    Object.keys(obj).filter(key => obj[key]).join(' ');
+
 makeSheetEmbed = (color, sheet) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle('Character sheet')
-        .addFields({
-            name: 'Abilities',
-            value: `Strength: ${sheet.abilities.Strength}
-                                Dexterity: ${sheet.abilities.Dexterity}
-                                Constitution: ${sheet.abilities.Constitution}
-                                Intelligence: ${sheet.abilities.Intelligence}
-                                Wisdom: ${sheet.abilities.Wisdom}
-                                Charisma: ${sheet.abilities.Charisma}`
-        }, {
-            name: 'Class',
-            value: sheet.class
-        }, {
-            name: 'Current HP',
-            value: sheet.currentHP
-        }, {
-            name: 'Hit dice',
-            value: `Type: 1d${sheet.hitDice.type}
-                                Count: ${sheet.hitDice.count}
-                                Spent: ${sheet.hitDice.spent}`
-        }, {
-            name: 'Initiative',
-            value: sheet.initiative
-        }, {
-            name: 'Inspiration',
-            value: `${sheet.inspiration ? 'yes' : 'no'}`
-        }, {
-            name: 'Level',
-            value: sheet.level
-        }, {
-            name: 'Max HP',
-            value: sheet.maxHP
-        }, {
-            name: 'Proficiency bonus',
-            value: sheet.proficiencyBonus
-        }, {
-            name: 'Race',
-            value: sheet.race
-        }, {
-            name: 'Saving throws proficiencies',
-            value: `${Object.keys(sheet.savingThrows).filter(ability => sheet.savingThrows[ability]).join(' ')}`
-        }, {
-            name: 'Skills proficiencies',
-            value: `${Object.keys(sheet.skills).filter(skill => sheet.skills[skill].prof).join(' ')}`
-        }, {
-            name: 'Speed',
-            value: sheet.speed
-        }, {
-            name: 'XP',
-            value: sheet.xp
-        });
+        .setTitle(bold('Character sheet'))
+        .addFields(
+            { name: 'Strength', value: sheet.abilities.Strength, inline: true },
+            { name: 'Dexterity', value: sheet.abilities.Dexterity, inline: true },
+            { name: 'Constitution', value: sheet.abilities.Constitution, inline: true },
+            { name: 'Intelligence', value: sheet.abilities.Intelligence, inline: true },
+            { name: 'Wisdom', value: sheet.abilities.Wisdom, inline: true },
+            { name: 'Charisma', value: sheet.abilities.Charisma, inline: true },
+            { name: 'Class', value: sheet.class, inline: true },
+            { name: 'Race', value: sheet.race, inline: true },
+            { name: 'Proficiency bonus', value: `+${sheet.proficiencyBonus}` },
+            { name: 'Hit dice - type', value: `1d${sheet.hitDice.type}`, inline: true },
+            { name: 'Hit dice - count', value: sheet.hitDice.count, inline: true },
+            { name: 'Hit dice - spent', value: sheet.hitDice.spent, inline: true },
+            { name: 'Current HP', value: sheet.currentHP, inline: true },
+            { name: 'Max HP', value: sheet.maxHP, inline: true },
+            {
+                name: 'Inspiration',
+                value: boolToYesNo(sheet.inspiration)
+            },
+            { name: 'Armor class', value: sheet.armorClass.base, inline: true },
+            { name: 'Armor class - special', value: joinArmorClassSpecial(sheet.armorClass), inline: true },
+            {
+                name: 'Initiative',
+                value: sheet.initiative
+            },
+            { name: 'Level', value: sheet.level, inline: true },
+            { name: 'XP', value: sheet.xp, inline: true },
+            { name: 'Saving throws proficiencies', value: `${joinProficiencies(sheet.savingThrows)}` },
+            { name: 'Skills proficiencies', value: `${joinProficiencies(sheet.skills)}` },
+            { name: 'Speed - walking', value: `${sheet.speed.walking} ft.`, inline: true },
+            { name: 'Speed - flying', value: `${sheet.speed.flying} ft.`, inline: true }
+        );
 
 spellSlotsFields = (spellslots) => {
     const fields = [];
@@ -159,7 +145,7 @@ spellSlotsFields = (spellslots) => {
     for (let spellSlotLevel in spellslots.total) {
         const total = spellslots.total[spellSlotLevel];
         const expended = spellslots.expended[spellSlotLevel];
-        
+
         fields.push({
             name: `${Number(spellSlotLevel) + 1}. level`,
             value: `${total - expended}/${total}`
@@ -172,62 +158,38 @@ spellSlotsFields = (spellslots) => {
 makeSpellEmbed = (color, spell) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle(spell.name)
-        .addFields({
-            name: 'Casting time',
-            value: spell.casting_time
-        }, {
-            name: 'Classes',
-            value: spell.classes.join()
-        }, {
-            name: 'Components',
-            value: spell.components.raw
-        }, {
-            name: 'Description',
-            value: spell.description
-        }, {
-            name: 'Duration',
-            value: spell.duration
-        }, {
-            name: 'Level',
-            value: spell.level
-        }, {
-            name: 'Range',
-            value: spell.range
-        }, {
-            name: 'Ritual',
-            value: (spell.ritual) ? 'yes' : 'no'
-        }, {
-            name: 'School',
-            value: spell.school
-        }, {
-            name: 'Type',
-            value: spell.type
-        });
+        .setTitle(bold(spell.name))
+        .addFields(
+            { name: 'Casting time', value: spell.casting_time },
+            { name: 'Classes', value: spell.classes.join() },
+            { name: 'Components', value: spell.components.raw },
+            { name: 'Description', value: spell.description },
+            { name: 'Duration', value: spell.duration },
+            { name: 'Level', value: spell.level },
+            { name: 'Range', value: spell.range },
+            { name: 'Ritual', value: boolToYesNo(spell.ritual) },
+            { name: 'School', value: spell.school },
+            { name: 'Type', value: spell.type }
+        );
 
 makeSpellSlotsEmbed = (color, spellslots) =>
     new MessageEmbed()
         .setColor(color)
-        .setTitle('Spell slots')
+        .setTitle(bold('Spell slots'))
         .addFields(spellSlotsFields(spellslots));
 
-makeTimeEmbed = (color, time) => {
-    const currentTime = new GameCalendar(time.datetime);
-    const lastLongRest = new GameCalendar(time.lastLongRest);
+makeTimeEmbed = (color, timeData) => {
+    const currentTime = new GameCalendar(timeData.datetime);
+    const lastLongRest = new GameCalendar(timeData.lastLongRest);
 
     return new MessageEmbed()
         .setColor(color)
-        .setTitle('Date, time and location')
-        .addFields({
-            name: 'Date & time:',
-            value: `${currentTime.getFormattedDate()}, ${currentTime.getFormattedTime()}`,
-        }, {
-            name: 'Location',
-            value: time.location,
-        }, {
-            name: 'Last long rest',
-            value: `${lastLongRest.getFormattedDate()}, ${lastLongRest.getFormattedTime()}`,
-        });
+        .setTitle(bold('Date, time and location'))
+        .addFields(
+            { name: 'Date & time', value: currentTime.getFormattedDateTime() },
+            { name: 'Location', value: timeData.location },
+            { name: 'Last long rest', value: lastLongRest.getFormattedDateTime() }
+        );
 }
 
 module.exports = {
