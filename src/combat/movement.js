@@ -72,5 +72,6 @@ const moveObj = (currentPosition, tiles, dimensions, directionsArgs) => {
 }
 
 module.exports = {
+    isMove,
     moveObj
 }
