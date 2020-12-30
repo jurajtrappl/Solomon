@@ -19,31 +19,24 @@ module.exports = {
             throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
         let parsedMap = JSON.parse(combat.content.map);
+        
+        ArgsValidator.checkCount(args, 2);
+        let name = args[0];
+        let directions = args[1];
 
-        //get character name
-        const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });
-        if (!playerData) {
-            throw new NotFoundError(searchingObjType.player, message.author.id);
-        }
-        const characterName = playerData.character;
-
-        //get directions
-        ArgsValidator.checkCount(args, 1);
-        directions = args[0];
-
-        if (!Object.keys(parsedMap.specialObjects).includes(characterName)) {
-            throw new NotExistingError(characterName);
+        if (!Object.keys(parsedMap.specialObjects).includes(name)) {
+            throw new NotExistingError(name);
         }
 
         //try to move
-        const newPosition = moveObj(parsedMap.specialObjects[characterName], parsedMap.tiles, parsedMap.dimensions, directions);
+        const newPosition = moveObj(parsedMap.specialObjects[name], parsedMap.tiles, parsedMap.dimensions, directions);
 
         //swap new position with the current
-        const currentPosition = parsedMap.specialObjects[characterName];
+        const currentPosition = parsedMap.specialObjects[name];
         this.swapPositions(parsedMap.tiles, currentPosition, newPosition);
 
         //store the information to shortcut obj
-        parsedMap.specialObjects[characterName] = {
+        parsedMap.specialObjects[name] = {
             x: newPosition.x,
             y: newPosition.y
         };
