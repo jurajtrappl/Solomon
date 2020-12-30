@@ -3,10 +3,14 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'inspiration',
-    args: true,
-    description: 'Give an inspiration to one of the players.',
-    async execute(_message, args, mongo, discordClient) {
-        const characterName = args[0];
+    description: 'Gives an inspiration to one of the players.',
+    args: {
+        limitCount: false,
+        specifics: [
+            [{ type: 'characterName' }]
+        ]
+    },
+    async execute(_message, [ characterName, ...reasonArgs ], mongo, discordClient) {
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
             throw new NotFoundError(searchingObjType.sheet, characterName);
@@ -21,7 +25,7 @@ module.exports = {
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newSheetValue);
 
         //log
-        const reason = args.slice(1).join(' ');
+        const reason = reasonArgs.join(' ');
         discordClient.emit('sessionLog', 'inspiration', [characterName, reason]);
     },
 };

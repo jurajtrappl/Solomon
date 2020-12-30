@@ -4,8 +4,11 @@ const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'time',
-    args: false,
     description: 'Show characters current date, time, location and the time of the last long rest.',
+    args: {
+        limitCount: true,
+        specifics: []
+    },
     async execute(message, _args, mongo, _discordClient) {
         //get character name
         const playerData = await mongo.tryFind(database.collections.players, { discordID: message.author.id });

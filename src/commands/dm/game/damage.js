@@ -1,38 +1,37 @@
-const { ArgsValidator, type } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { searchingObjType, NotFoundError, NegativeDamageError } = require('../../../err/errors');
 
 module.exports = {
     name: 'damage',
-    args: true,
     description: 'Deals a damage to the specified character.',
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'characterName' }, { type: 'number' }]
+        ]
+    },
     isDead: (currentHP, maxHP) => currentHP <= -maxHP,
     isKnocked: (currentHP, maxHP) => currentHP < 0 && !this.isDead(currentHP, maxHP),
-    async execute(_message, args, mongo, discordClient) {
-        ArgsValidator.checkCount(args, 2);
-        let damage = args[1];
-        ArgsValidator.typeCheckOne(damage, type.numeric);
-
+    async execute(_message, [ characterName, damageAmount, ...attackerArgs ], mongo, discordClient) {
         //get character sheet
-        const characterName = args[0];
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
             throw new NotFoundError(searchingObjType.sheet, characterName);
         }
 
-        damage = Number(args[1]);
-        if (damage < 0) {
+        damageAmount = Number(damageAmount);
+        if (damageAmount < 0) {
             throw new NegativeDamageError();
         }
 
-        const newCurrentHP = sheet.currentHP - damage;
+        const newCurrentHP = sheet.currentHP - damageAmount;
         let changedStatus = false;
         if (this.isKnocked(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            discordClient.emit('gameEvent', 'knock', [ characterName ]);
+            discordClient.emit('gameEvent', 'knock', [characterName]);
         } else if (this.isDead(newCurrentHP, sheet.maxHP)) {
             changedStatus = true;
-            discordClient.emit('gameEvent', 'death', [ characterName ]);
+            discordClient.emit('gameEvent', 'death', [characterName]);
         }
 
         const newHP = {
@@ -44,6 +43,7 @@ module.exports = {
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHP);
 
         //log
-        discordClient.emit('sessionLog', 'damage', [ characterName, damage ]);
+        const attacker = attackerArgs.join(' ');
+        discordClient.emit('sessionLog', 'damage', [characterName, damageAmount, attacker]);
     },
 };

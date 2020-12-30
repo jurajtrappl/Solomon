@@ -1,19 +1,17 @@
-const { ArgsValidator, type } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { searchingObjType, NotFoundError } = require('../../../err/errors');
 
 module.exports = {
     name: 'addxp',
-    description: 'Modify players XP count - DM only.',
-    args: true,
+    description: 'Modify player\'s/players XP.',
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'characterName' }, { type: 'number' }]
+        ]
+    },
     MAX_LVL: 20,
-    async execute(message, args, mongo, discordClient) {
-        ArgsValidator.checkCount(args, 2);
-
-        const addXP = args[1];
-        ArgsValidator.typeCheckOne(addXP, type.numeric);
-
-        const characterName = args[0];
+    async execute(message, [characterName, addXP], mongo, discordClient) {
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
             throw new NotFoundError(searchingObjType.sheet, characterName);

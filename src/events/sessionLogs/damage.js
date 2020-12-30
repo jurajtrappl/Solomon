@@ -24,9 +24,9 @@ module.exports = {
             return this.lethalDamageMessages[randomIndex];
         }
     },
-    mainMessage: (characterName, damageAmount) => `${characterName} just lost ${damageAmount} ❤️.`,
-    async execute(messageChannel, [characterName, damageAmount ]) {
-        let message = this.mainMessage(characterName, damageAmount);
+    mainMessage: (characterName, damageAmount, attacker) => `${characterName} just lost ${damageAmount} ❤️ to ${attacker}.`,
+    async execute(messageChannel, [characterName, damageAmount, attacker ]) {
+        let message = this.mainMessage(characterName, damageAmount, attacker);
 
         if (getRandomInteger(1, 100) <= 10) {
             message += this.additionalMessage(Number(damageAmount));

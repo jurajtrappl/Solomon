@@ -1,10 +1,14 @@
 const { database } = require('../../../../settings.json');
+const { multiLineCodeBlock } = require('../../../output/discordMarkdown');
 const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'showMap',
-    args: false,
     description: 'Shows a combat map.',
+    args: {
+        limitCount: true,
+        specifics: []
+    },
     mapToMessage: (parsedMap) => {
         let row, col;
         let mapAsMessage = '';
@@ -25,7 +29,7 @@ module.exports = {
             throw new NotFoundError(searchingObjType.dataFile, 'Combat');
         }
         let parsedMap = JSON.parse(combat.content.map);
-
-        return await message.channel.send('```' + this.mapToMessage(parsedMap) + '```');
+        
+        return await message.channel.send(multiLineCodeBlock(this.mapToMessage(parsedMap)));
     }
 }

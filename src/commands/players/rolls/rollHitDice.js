@@ -1,4 +1,3 @@
-const { ArgsValidator, type } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { makeHitDiceEmbed } = require('../../../output/embed');
 const { Sheet } = require('../../../character/sheet');
@@ -6,14 +5,15 @@ const { prepareHitDiceCheck } = require('../../../rolls/rollUtils');
 
 module.exports = {
     name: 'rhd',
-    args: true,
     description: 'Spends the specified amount of hit dices.',
-    async execute(message, args, mongo, _discordClient) {
-        ArgsValidator.checkCount(args, 1);
-        let hitDiceCountToSpend = args[0];
-        ArgsValidator.typeCheckOne(hitDiceCountToSpend, type.numeric);
-
-        hitDiceCountToSpend = Number(args[0]);
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'number' }]
+        ]
+    },
+    async execute(message, [hitDiceCountToSpend], mongo, _discordClient) {
+        hitDiceCountToSpend = Number(hitDiceCountToSpend);
         if (hitDiceCountToSpend <= 0) {
             throw new NotEnoughError(`hit dices to roll`, hitDiceCountToSpend, 1);
         }
@@ -64,7 +64,7 @@ module.exports = {
             }
         }
 
-        await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
+        //await mongo.updateOne(database.collections.characters, { characterName: characterName }, newHitDiceSpentValue);
 
         return await message.reply({
             embed: makeHitDiceEmbed(characterName, message.member.displayHexColor, check.expression, rollResult, hitDiceCountToSpend, hitDicesLeft)

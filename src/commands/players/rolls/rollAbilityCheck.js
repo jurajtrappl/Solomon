@@ -1,6 +1,5 @@
 const { additionalRollFlags, prepareCheck, chooseAdvDadv } = require('../../../rolls/rollUtils');
-const { ArgsValidator } = require('../../../err/argsValidator');
-const { BadArgError, NotExistingError, NotFoundError, searchingObjType } = require('../../../err/errors');
+const { BadArgError, NotFoundError, searchingObjType } = require('../../../err/errors');
 const { capitalize } = require('../../../output/lang');
 const { database } = require('../../../../settings.json');
 const { makeAdvOrDisadvEmbed, makeNormalRollEmbed } = require('../../../output/embed');
@@ -8,27 +7,21 @@ const { Sheet } = require('../../../character/sheet');
 
 module.exports = {
     name: 'rac',
-    args: true,
     description: 'Roll an ability check.',
-    flags: {
-        advantage: 'adv',
-        disadvantage: 'dadv',
-        inspiration: 'insp'
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'skill' }],
+            [{ type: 'skill' }, { type: 'rollFlag' }]
+        ]
     },
     advDadvTitlePart: (flag) => ` with ${(flag == additionalRollFlags.advantage) ? 'an advantage' : 'a disadvantage'}`,
     isInspirationUsed: (flag) => flag === additionalRollFlags.inspiration,
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, [ skillName, ...maybeRollFlag ], mongo, _discordClient) {
         //get skills
         const skills = await mongo.tryFind(database.collections.data, { name: 'Skills' });
         if (!skills) {
             throw new NotFoundError(searchingObjType.dataFile, 'Skills');
-        }
-
-        //check skill name
-        ArgsValidator.checkCountAtleast(args, 1);
-        const skillName = capitalize(args[0]);
-        if (!Object.keys(skills.content).includes(skillName)) {
-            throw new NotExistingError(args[0]);
         }
 
         //get character name
@@ -46,6 +39,7 @@ module.exports = {
         const characterSheet = new Sheet(sheet);
 
         //write the title
+        skillName = capitalize(skillName);
         let embedTitle = `${skills.content[skillName].name} ability check`;;
 
         const bonus = characterSheet.calculateSkillBonus(skills.content, skillName);
@@ -59,15 +53,13 @@ module.exports = {
         let rollEmbed = null;
 
         //a basic skill roll without adv/dadv
-        if (args.length == 1) {
-            ArgsValidator.checkCount(args, 1);
+        if (!maybeRollFlag.length) {
             rollEmbed = makeNormalRollEmbed(characterName, message.member.displayHexColor, check.expression, embedTitle, firstRollResult);
         }
 
         //a basil skill roll with adv/dadv
-        if (args.length == 2) {
-            ArgsValidator.checkCount(args, 2);
-            let flag = args[1];
+        if (maybeRollFlag.length) {
+            let flag = maybeRollFlag[0];
 
             //check for inspiration
             if (this.isInspirationUsed(flag)) {

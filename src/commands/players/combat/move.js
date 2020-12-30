@@ -1,18 +1,22 @@
-const { ArgsValidator } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { moveObj } = require('../../../combat/movement');
 const { NotFoundError, searchingObjType, NotExistingError } = require('../../../err/errors');
 
 module.exports = {
     name: 'move',
-    args: false,
     description: 'Move an object on the map.',
+    args: {
+        limitCount: true,
+        specifics: [
+            [{ type: 'directions' }]
+        ]
+    },
     swapPositions: (tiles, currentPosition, newPosition) => {
         let currentTile = tiles[currentPosition.x][currentPosition.y];
         tiles[currentPosition.x][currentPosition.y] = tiles[newPosition.x][newPosition.y];
         tiles[newPosition.x][newPosition.y] = currentTile;
     },
-    async execute(message, args, mongo, _discordClient) {
+    async execute(message, [ directions ], mongo, _discordClient) {
         //get map
         const combat = await mongo.tryFind(database.collections.data, { name: 'Combat' });
         if (!combat) {
@@ -26,10 +30,6 @@ module.exports = {
             throw new NotFoundError(searchingObjType.player, message.author.id);
         }
         const characterName = playerData.character;
-
-        //get directions
-        ArgsValidator.checkCount(args, 1);
-        directions = args[0];
 
         if (!Object.keys(parsedMap.specialObjects).includes(characterName)) {
             throw new NotExistingError(characterName);
