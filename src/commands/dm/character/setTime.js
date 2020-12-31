@@ -30,9 +30,20 @@ module.exports = {
             currentDateTime = new Date(characterTime.datetime);
 
             if (timeArg == 'm') {
-                currentDateTime.setMinutes(
-                    currentDateTime.getMinutes() + Number(timeAmount)
-                );
+                if (currentDateTime.getMinutes() + Number(timeAmount) > 59) {
+                    const hours = Number(timeAmount) / 60;
+                    currentDateTime.setHours(
+                        currentDateTime.getHours() + hours
+                    );
+
+                    currentDateTime.setMinutes(
+                        currentDateTime.getMinutes() + (Number(timeAmount) % 60)
+                    );
+                } else {
+                    currentDateTime.setMinutes(
+                        currentDateTime.getMinutes() + Number(timeAmount)
+                    );
+                }
             } else if (timeArg == 'h') {
                 currentDateTime.setHours(
                     currentDateTime.getHours() + Number(timeAmount)
