@@ -8,7 +8,7 @@ module.exports = {
     delimiterMessage: () => `----------------------------------------------------------`,
     mainMessageStart: (characterNames) => `Starting a new session with ${characterNames.map(characterName => bold(characterName)).join()}.`,
     mainMessageEnd: (characterNames) => `Ending a session with ${characterNames.map(characterName => bold(characterName)).join()}.`,
-    characterSpecificMessage: (characterName, location, currentTime) => `For ${bold(characterName)} is ${currentTime} and is in ${italic(location)}.`,
+    characterSpecificMessage: (characterName, location, currentTime) => `For ${bold(characterName)} is ${currentTime} and the location is ${italic(location)}.`,
     async execute(messageChannel, [flag, characterNames, locations, dateTimes]) {
         await messageChannel.send(this.delimiterMessage());
 

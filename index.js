@@ -65,8 +65,8 @@ discordClient.on('message', async message => {
             if (ArgsValidator.preCheck(command.args.specifics, commandArgs, mongo)) {
                 await command.execute(message, commandArgs, mongo, discordClient);
             }
-        } catch({message}) {
-            console.log(message);
+        } catch(error) {
+            await message.channel.send(error.message);
         }
     }
 });
