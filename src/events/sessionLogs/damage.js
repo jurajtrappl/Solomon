@@ -1,3 +1,4 @@
+const { bold } = require('../../output/discordMarkdown');
 const { getRandomInteger } = require('../../utils/random');
 
 module.exports = {
@@ -24,7 +25,7 @@ module.exports = {
             return this.lethalDamageMessages[randomIndex];
         }
     },
-    mainMessage: (characterName, damageAmount, attacker) => `${characterName} just lost ${damageAmount} ❤️ to ${attacker}.`,
+    mainMessage: (characterName, damageAmount, attacker) => `${bold(characterName)} just lost ${damageAmount} ❤️ to ${bold(attacker)}.`,
     async execute(messageChannel, [characterName, damageAmount, attacker ]) {
         let message = this.mainMessage(characterName, damageAmount, attacker);
 

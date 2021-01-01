@@ -25,7 +25,8 @@
             "dm": [
                 "./src/commands/dm/character",
                 "./src/commands/dm/combat",
-                "./src/commands/dm/game"
+                "./src/commands/dm/game",
+                "./src/commands/dm/sessionLogs"
             ],
             "players": [
                 "./src/commands/players/combat",
