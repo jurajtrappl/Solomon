@@ -20,8 +20,8 @@ makeHealEmbed = (characterName, color, rollExpression, title, { total, visual },
         .setColor(color)
         .setTitle(bold(title))
         .addFields(
-            { name: 'Rolling', value: rollExpression, inline: true }, 
-            { name: 'Total', value: `${visual} = ${total}`, inline: true }, 
+            { name: 'Rolling', value: rollExpression, inline: true },
+            { name: 'Total', value: `${visual} = ${total}`, inline: true },
             { name: 'Result', value: `${characterName} heals for ${total} :heart:. (${currentHP}/${maxHP}).` }
         );
 
@@ -37,8 +37,8 @@ makeHitDiceEmbed = (characterName, color, rollExpression, { total, visual }, hit
         .setColor(color)
         .setTitle(bold(title))
         .addFields(
-            { name: 'Rolling', value: rollExpression, inline: true }, 
-            { name: 'Total', value: `${visual} = ${total}`, inline: true }, 
+            { name: 'Rolling', value: rollExpression, inline: true },
+            { name: 'Total', value: `${visual} = ${total}`, inline: true },
             { name: 'Result', value: `${characterName} regains ${total} HP :heart:. (${hitDicesLeft} hit ${plural('dice', hitDicesLeft)} left)` }
         );
 }
@@ -110,22 +110,6 @@ makeSheetEmbed = (color, sheet) =>
             { name: 'Speed - flying', value: `${sheet.speed.flying} ft.`, inline: true }
         );
 
-spellSlotsFields = (spellslots) => {
-    const fields = [];
-
-    for (let spellSlotLevel in spellslots.total) {
-        const total = spellslots.total[spellSlotLevel];
-        const expended = spellslots.expended[spellSlotLevel];
-
-        fields.push({
-            name: `${Number(spellSlotLevel) + 1}. level`,
-            value: `${total - expended}/${total}`
-        });
-    }
-
-    return fields;
-}
-
 makeSpellEmbed = (color, spell) =>
     new MessageEmbed()
         .setColor(color)
@@ -142,6 +126,22 @@ makeSpellEmbed = (color, spell) =>
             { name: 'School', value: spell.school },
             { name: 'Type', value: spell.type }
         );
+
+spellSlotsFields = (spellslots) => {
+    const fields = [];
+
+    for (let spellSlotLevel in spellslots.total) {
+        const total = spellslots.total[spellSlotLevel];
+        const expended = spellslots.expended[spellSlotLevel];
+
+        fields.push({
+            name: `${Number(spellSlotLevel) + 1}. level`,
+            value: `Available ${total - expended} out of ${total}`
+        });
+    }
+
+    return fields;
+}
 
 makeSpellSlotsEmbed = (color, spellslots) =>
     new MessageEmbed()
