@@ -8,62 +8,39 @@ makeAdvOrDisadvEmbed = (characterName, color, rollExpression, title, [first, sec
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
-        .addFields({
-            name: 'Rolling',
-            value: rollExpression
-        }, {
-            name: 'First attempt',
-            value: `${first.visual} = ${first.total}`,
-            inline: true
-        }, {
-            name: 'Second attempt',
-            value: `${second.visual} = ${second.total}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} rolls ${first.total}.`
-        });
+        .addFields(
+            { name: 'Rolling', value: rollExpression },
+            { name: 'First attempt', value: `${first.visual} = ${first.total}`, inline: true },
+            { name: 'Second attempt', value: `${second.visual} = ${second.total}`, inline: true },
+            { name: 'Result', value: `${characterName} rolls ${first.total}.` }
+        );
 
-makeHealEmbed = (characterName, color, expr, title, { total, visual }, currentHP, maxHP) =>
+makeHealEmbed = (characterName, color, rollExpression, title, { total, visual }, currentHP, maxHP) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
-        .addFields({
-            name: 'Rolling',
-            value: expr,
-            inline: true
-        }, {
-            name: 'Total',
-            value: `${visual} = ${total}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} heals for ${total} :heart:. (${currentHP}/${maxHP}).`
-        });
+        .addFields(
+            { name: 'Rolling', value: rollExpression, inline: true }, 
+            { name: 'Total', value: `${visual} = ${total}`, inline: true }, 
+            { name: 'Result', value: `${characterName} heals for ${total} :heart:. (${currentHP}/${maxHP}).` }
+        );
 
 makeHelpEmbed = (color, embedFromDb) =>
     new MessageEmbed(embedFromDb)
         .setColor(color);
 
 //creates an embed for rolling hit dices
-makeHitDiceEmbed = (characterName, color, expression, { total, visual }, hitDicesCount, hitDicesLeft) => {
+makeHitDiceEmbed = (characterName, color, rollExpression, { total, visual }, hitDicesCount, hitDicesLeft) => {
     const title = `${characterName} spends ${hitDicesCount} hit ${plural('dice', hitDicesCount)}`;
 
     return new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
-        .addFields({
-            name: 'Rolling',
-            value: `${expression}`,
-            inline: true
-        }, {
-            name: 'Total',
-            value: `${visual} = ${total}`,
-            inline: true
-        }, {
-            name: 'Result',
-            value: `${characterName} regains ${total} HP :heart:. (${hitDicesLeft} hit dice${(hitDicesLeft != 1) ? 's' : ''} left)`
-        });
+        .addFields(
+            { name: 'Rolling', value: rollExpression, inline: true }, 
+            { name: 'Total', value: `${visual} = ${total}`, inline: true }, 
+            { name: 'Result', value: `${characterName} regains ${total} HP :heart:. (${hitDicesLeft} hit ${plural('dice', hitDicesLeft)} left)` }
+        );
 }
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
@@ -96,8 +73,8 @@ makeObjectEmbed = (color, obj, title) =>
             makeFields(Object.keys(obj), Object.values(obj))
         );
 
-const joinArmorClassSpecial = (armorClass) =>
-    armorClass.special.map(elem => `+${elem.base} against ${elem.damageType}`).join();
+const joinArmorClassSpecial = (armorClassSpecial) =>
+    armorClassSpecial.map(elem => `+${elem.base} against ${elem.damageType}`).join();
 
 const joinProficiencies = (obj) =>
     Object.keys(obj).filter(key => obj[key]).join(' ');
@@ -121,16 +98,10 @@ makeSheetEmbed = (color, sheet) =>
             { name: 'Hit dice - spent', value: sheet.hitDice.spent, inline: true },
             { name: 'Current HP', value: sheet.currentHP, inline: true },
             { name: 'Max HP', value: sheet.maxHP, inline: true },
-            {
-                name: 'Inspiration',
-                value: boolToYesNo(sheet.inspiration)
-            },
+            { name: 'Inspiration', value: boolToYesNo(sheet.inspiration) },
             { name: 'Armor class', value: sheet.armorClass.base, inline: true },
-            { name: 'Armor class - special', value: joinArmorClassSpecial(sheet.armorClass), inline: true },
-            {
-                name: 'Initiative',
-                value: sheet.initiative
-            },
+            { name: 'Armor class - special', value: (sheet.armorClass.special.length == 0) ? '-' : joinArmorClassSpecial(sheet.armorClass.special), inline: true },
+            { name: 'Initiative', value: sheet.initiative },
             { name: 'Level', value: sheet.level, inline: true },
             { name: 'XP', value: sheet.xp, inline: true },
             { name: 'Saving throws proficiencies', value: `${joinProficiencies(sheet.savingThrows)}` },
