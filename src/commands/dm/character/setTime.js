@@ -1,4 +1,3 @@
-const { ArgsValidator, type } = require('../../../err/argsValidator');
 const { database } = require('../../../../settings.json');
 const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
@@ -11,9 +10,6 @@ module.exports = {
             [{ type: 'characterNames' }, { type: 'timeArg' }, { type: 'number' }]
         ]
     },
-    dependencies: [
-        { type: 'timeDatas' }
-    ],
     async execute(_message, [characterNamesArg, timeArg, timeAmount], mongo, discordClient) {
         const charactersTimeData = [];
 
@@ -34,12 +30,23 @@ module.exports = {
             currentDateTime = new Date(characterTime.datetime);
 
             if (timeArg == 'm') {
-                currentDateTime.setMinutes(
-                    currentDateTime.getMinutes() + timeAmount
-                );
+                if (currentDateTime.getMinutes() + Number(timeAmount) > 59) {
+                    const hours = Number(timeAmount) / 60;
+                    currentDateTime.setHours(
+                        currentDateTime.getHours() + hours
+                    );
+
+                    currentDateTime.setMinutes(
+                        currentDateTime.getMinutes() + (Number(timeAmount) % 60)
+                    );
+                } else {
+                    currentDateTime.setMinutes(
+                        currentDateTime.getMinutes() + Number(timeAmount)
+                    );
+                }
             } else if (timeArg == 'h') {
                 currentDateTime.setHours(
-                    currentDateTime.getHours() + timeAmount
+                    currentDateTime.getHours() + Number(timeAmount)
                 );
             }
 

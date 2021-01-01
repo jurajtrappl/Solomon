@@ -60,7 +60,7 @@ module.exports = {
                 if (!sheet.inspiration) {
                     return await message.reply('You do not any inspiration right now.');
                 } else {
-                    args[1] = 'adv';
+                    flag = 'adv';
 
                     const newInspirationValue = {
                         $set: {
