@@ -1,9 +1,8 @@
 const { database } = require('../../../settings.json');
-const { ExpressionDice } = require('../../rolls/dice');
-const { NotFoundError, NotExistingError } = require('../../err/errors');
-const { Sheet } = require('../../character/sheet');
-const { MessageEmbed } = require('discord.js');
 const { DiceRoller } = require('../../rolls/diceRoller');
+const { MessageEmbed } = require('discord.js');
+const { NotExistingError, NotFoundError } = require('../../err/errors');
+const { Sheet } = require('../../character/sheet');
 
 module.exports = {
     name: 'levelUp',
@@ -31,7 +30,7 @@ module.exports = {
         }
 
         //get next level data
-        const nextLevelData = classTable.table[sheet.level];
+        const nextLevelData = classTable.table[sheet.level - 1];
 
         //init change embed fields
         const fields = [];
@@ -115,7 +114,7 @@ module.exports = {
 
         let automaticIncrease = true; /* default */
 
-        await messageChannel.send(`For HP increase by (${automaticHP}) choose 1️⃣, for HP increase by (${rollHPExpression}) choose 2️⃣.`)
+        await messageChannel.send(`${characterName}, for HP increase by (${automaticHP}) choose 1️⃣, for HP increase by (${rollHPExpression}) choose 2️⃣.`)
             .then(async message => {
                 await message.react('1️⃣');
                 await message.react('2️⃣');
@@ -155,6 +154,8 @@ module.exports = {
             });
             sheet.maxHP += Number(total);
         }
+
+        await mongo.updateOne(database.collections.characters, { characterName: characterName }, { $set: sheet });
 
         return await messageChannel.send({
             embed:
