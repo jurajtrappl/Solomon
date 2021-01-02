@@ -65,6 +65,27 @@ makeFields = (names, values) => {
     return fields;
 }
 
+makeEmptyNoteBlockEmbed = (characterName, color) => {
+    return new MessageEmbed()
+        .setColor(color)
+        .setTitle(`${bold(characterName)}'s notes`)
+        .addFields(
+            { name: 'Empty note block', value: 'You have 0 notes.' }
+        )
+}
+
+makeNoteBlockEmbed = (characterName, color, notes) => {
+    const fields = [];
+    notes.forEach((note, index) => fields.push({
+        name: `Note No. ${index + 1}`, value: note
+    }));
+
+    return new MessageEmbed()
+        .setColor(color)
+        .setTitle(`${bold(characterName)}'s notes`)
+        .addFields(fields)
+}
+
 makeObjectEmbed = (color, obj, title) =>
     new MessageEmbed()
         .setColor(color)
@@ -165,10 +186,12 @@ makeTimeEmbed = (color, timeData) => {
 
 module.exports = {
     makeAdvOrDisadvEmbed,
+    makeEmptyNoteBlockEmbed,
     makeHealEmbed,
     makeHelpEmbed,
     makeHitDiceEmbed,
     makeNormalRollEmbed,
+    makeNoteBlockEmbed,
     makeObjectEmbed,
     makeSheetEmbed,
     makeSpellEmbed,
