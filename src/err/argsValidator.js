@@ -29,6 +29,7 @@ const isDataFileKey = async (arg, mongo, dataFileName) => {
 }
 
 const timeArgs = ['m', 'h'];
+const noteArgs = ['add', 'del', 'list'];
 
 const typeValidators = {
     'ability': (value, mongo) => isDataFileKey(value, mongo, 'Abilities'),
@@ -36,6 +37,7 @@ const typeValidators = {
     'characterNames': (value, mongo) => value.split(',').every(elem => isCharacterName(elem, mongo)),
     'directions': (value, _mongo) => isMove(value),
     'mapObject': isMapObject,
+    'noteArg': (value, _mongo) => noteArgs.includes(value),
     'number': (value, _mongo) => !isNaN(value),
     'rollExpression': (value, _mongo) => parse(value),
     'rollFlag': (value, _mongo) => Object.values(additionalRollFlags).includes(value),
