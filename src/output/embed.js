@@ -2,9 +2,10 @@ const { bold } = require('./discordMarkdown');
 const { boolToYesNo, plural } = require('./lang');
 const { createGameDate } = require('../calendar/gameDate');
 const { MessageEmbed } = require('discord.js');
+const { months } = require('../calendar/calendar.json');
 
 //creates an embed for rolling ability checks or saving throws using adv/dadv
-makeAdvOrDisadvEmbed = (characterName, color, rollExpression, title, [first, second]) =>
+const makeAdvOrDisadvEmbed = (characterName, color, rollExpression, title, [first, second]) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
@@ -15,7 +16,32 @@ makeAdvOrDisadvEmbed = (characterName, color, rollExpression, title, [first, sec
             { name: 'Result', value: `${characterName} rolls ${first.total}.` }
         );
 
-makeHealEmbed = (characterName, color, rollExpression, title, { total, visual }, currentHP, maxHP) =>
+const makeEmptyEventDayEmbed = (color, day, month, year) =>
+    new MessageEmbed()
+        .setColor(color)
+        .setTitle(`Events on the ${day}. ${months[month - 1]} ${year}`)
+        .addFields(
+            { name: 'Empty', value: 'There are 0 events on this day' }
+        );
+
+const makeEventEmbed = (color, events) => {
+    events.map(event => event.date = createGameDate(event.date));
+    events.sort((a, b) => a.date.hours - b.date.hours || a.date.minutes - b.date.minutes);
+
+    const fields = [];
+    events.forEach((event) => {
+        fields.push({
+            name: event.date.formattedTime(), value: event.description
+        })
+    });
+
+    return new MessageEmbed()
+        .setColor(color)
+        .setTitle(`Events on the ${events[0].date.formattedDate()}`)
+        .addFields(fields);
+}
+
+const makeHealEmbed = (characterName, color, rollExpression, title, { total, visual }, currentHP, maxHP) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
@@ -25,12 +51,12 @@ makeHealEmbed = (characterName, color, rollExpression, title, { total, visual },
             { name: 'Result', value: `${characterName} heals for ${total} :heart:. (${currentHP}/${maxHP}).` }
         );
 
-makeHelpEmbed = (color, embedFromDb) =>
+const makeHelpEmbed = (color, embedFromDb) =>
     new MessageEmbed(embedFromDb)
         .setColor(color);
 
 //creates an embed for rolling hit dices
-makeHitDiceEmbed = (characterName, color, rollExpression, { total, visual }, hitDicesCount, hitDicesLeft) => {
+const makeHitDiceEmbed = (characterName, color, rollExpression, { total, visual }, hitDicesCount, hitDicesLeft) => {
     const title = `${characterName} spends ${hitDicesCount} hit ${plural('dice', hitDicesCount)}`;
 
     return new MessageEmbed()
@@ -44,7 +70,7 @@ makeHitDiceEmbed = (characterName, color, rollExpression, { total, visual }, hit
 }
 
 //creates an embed for rolling ability checks or saving throws without adv/dadv
-makeNormalRollEmbed = (characterName, color, rollExpression, title, { total, visual }) =>
+const makeNormalRollEmbed = (characterName, color, rollExpression, title, { total, visual }) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
@@ -65,7 +91,7 @@ makeFields = (names, values) => {
     return fields;
 }
 
-makeEmptyNoteBlockEmbed = (characterName, color) => {
+const makeEmptyNoteBlockEmbed = (characterName, color) => {
     return new MessageEmbed()
         .setColor(color)
         .setTitle(`${bold(characterName)}'s notes`)
@@ -74,7 +100,7 @@ makeEmptyNoteBlockEmbed = (characterName, color) => {
         )
 }
 
-makeNoteBlockEmbed = (characterName, color, notes) => {
+const makeNoteBlockEmbed = (characterName, color, notes) => {
     const fields = [];
     notes.forEach((note, index) => fields.push({
         name: `Note No. ${index + 1}`, value: note
@@ -86,7 +112,7 @@ makeNoteBlockEmbed = (characterName, color, notes) => {
         .addFields(fields)
 }
 
-makeObjectEmbed = (color, obj, title) =>
+const makeObjectEmbed = (color, obj, title) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(title))
@@ -100,7 +126,7 @@ const joinArmorClassSpecial = (armorClassSpecial) =>
 const joinProficiencies = (obj) =>
     Object.keys(obj).filter(key => obj[key]).join(' ');
 
-makeSheetEmbed = (color, sheet) =>
+const makeSheetEmbed = (color, sheet) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold('Character sheet'))
@@ -131,7 +157,7 @@ makeSheetEmbed = (color, sheet) =>
             { name: 'Speed - flying', value: `${sheet.speed.flying} ft.`, inline: true }
         );
 
-makeSpellEmbed = (color, spell) =>
+const makeSpellEmbed = (color, spell) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold(spell.name))
@@ -164,13 +190,13 @@ spellSlotsFields = (spellslots) => {
     return fields;
 }
 
-makeSpellSlotsEmbed = (color, spellslots) =>
+const makeSpellSlotsEmbed = (color, spellslots) =>
     new MessageEmbed()
         .setColor(color)
         .setTitle(bold('Spell slots'))
         .addFields(spellSlotsFields(spellslots));
 
-makeTimeEmbed = (color, timeData) => {
+const makeTimeEmbed = (color, timeData) => {
     const currentTime = createGameDate(timeData.datetime);
     const lastLongRest = createGameDate(timeData.lastLongRest);
 
@@ -187,6 +213,8 @@ makeTimeEmbed = (color, timeData) => {
 module.exports = {
     makeAdvOrDisadvEmbed,
     makeEmptyNoteBlockEmbed,
+    makeEmptyEventDayEmbed,
+    makeEventEmbed,
     makeHealEmbed,
     makeHelpEmbed,
     makeHitDiceEmbed,
