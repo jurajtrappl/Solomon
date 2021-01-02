@@ -26,5 +26,6 @@
         "Starday",
         "Sunday"
     ],
-    "year": 507
+    "currentYear": 507,
+    "worldYears": [ 507 ]
 }
