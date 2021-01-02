@@ -1,6 +1,7 @@
 const searchingObjType = {
     character : 'Character',
     dataFile: 'Data file',
+    note: 'Note block',
     player: 'Player with discord ID',
     sheet: 'Sheet',
     time: 'Time'

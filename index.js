@@ -47,7 +47,7 @@ discordClient.on('sessionLog', async (eventName, eventArgs) => {
 
 discordClient.on('message', async message => {
     //select a possible command prefix
-    const commandPrefix = message.content.substring(0, 1);
+    const [commandPrefix] = message.content;
 
     //check if the message is a valid looking command
     if (CommandValidator.isCommand(commandPrefix, message)) {
