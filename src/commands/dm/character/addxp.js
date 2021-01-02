@@ -5,13 +5,13 @@ module.exports = {
     name: 'addxp',
     description: 'Modify player\'s/players XP.',
     args: {
-        limitCount: true,
+        limitCount: false,
         specifics: [
             [{ type: 'characterName' }, { type: 'number' }]
         ]
     },
     MAX_LVL: 20,
-    async execute(message, [characterName, addXP], mongo, discordClient) {
+    async execute(message, [characterName, addXP, ...enemiesArg], mongo, discordClient) {
         const sheet = await mongo.tryFind(database.collections.characters, { characterName: characterName });
         if (!sheet) {
             throw new NotFoundError(searchingObjType.sheet, characterName);
@@ -39,7 +39,8 @@ module.exports = {
         await mongo.updateOne(database.collections.characters, { characterName: characterName }, newValues);
 
         //log
-        discordClient.emit('sessionLog', 'addxp', [characterName, addXP]);
+        const enemies = enemiesArg.join(' ');
+        discordClient.emit('sessionLog', 'addxp', [characterName, addXP, enemies]);
 
         //emit events due to reaching a new lvl
         if (sheet.level < newLvl && newLvl != this.MAX_LVL) {

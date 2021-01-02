@@ -1,5 +1,5 @@
+const { createGameDate } = require('../../calendar/gameDate');
 const { bold, italic } = require('../../output/discordMarkdown');
-const { GameCalendar } = require('../../calendar/gameCalendar');
 
 module.exports = {
     name: 'session',
@@ -20,8 +20,8 @@ module.exports = {
 
         //print each characters locations and date time
         for (const characterName of characterNames) {
-            const currentTime = new GameCalendar(dateTimes[characterName]);
-            await messageChannel.send(this.characterSpecificMessage(characterName, locations[characterName], currentTime.getFormattedDateTime()));
+            const currentTime = createGameDate(dateTimes[characterName]);
+            await messageChannel.send(this.characterSpecificMessage(characterName, locations[characterName], currentTime.formattedDateTime()));
         }
 
         return await messageChannel.send(this.delimiterMessage());

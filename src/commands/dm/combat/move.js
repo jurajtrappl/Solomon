@@ -1,6 +1,6 @@
 const { database } = require('../../../../settings.json');
 const { moveObj } = require('../../../combat/movement');
-const { NotFoundError, searchingObjType, NotExistingError } = require('../../../err/errors');
+const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'move',
