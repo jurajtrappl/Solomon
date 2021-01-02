@@ -1,9 +1,10 @@
 const { database } = require('../../../../settings.json');
+const { createGameDate } = require('../../../calendar/gameDate');
 const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
     name: 'setTime',
-    description: 'Set date and time for one or all of characters.',
+    description: 'Set date and time for specified characters.',
     args: {
         limitCount: true,
         specifics: [
@@ -11,7 +12,7 @@ module.exports = {
         ]
     },
     async execute(_message, [characterNamesArg, timeArg, timeAmount], mongo, discordClient) {
-        const charactersTimeData = [];
+        const charactersTimeData = {};
 
         const characterNames = characterNamesArg.split(',');
         for (const characterName of characterNames) {
@@ -20,47 +21,34 @@ module.exports = {
                 throw new NotFoundError(searchingObjType.time, characterName);
             }
 
-            charactersTimeData.push(time);
+            charactersTimeData[characterName] = time;
         }
 
         //adjust the datetime property for each time data
         let currentDateTime = {};
         const logTimes = {};
-        for (const characterTime of charactersTimeData) {
-            currentDateTime = new Date(characterTime.datetime);
+        for (const [characterName, timeData] of Object.entries(charactersTimeData)) {
+            currentDateTime = createGameDate(timeData.datetime);
 
             if (timeArg == 'm') {
-                if (currentDateTime.getMinutes() + Number(timeAmount) > 59) {
-                    const hours = Number(timeAmount) / 60;
-                    currentDateTime.setHours(
-                        currentDateTime.getHours() + hours
-                    );
-
-                    currentDateTime.setMinutes(
-                        currentDateTime.getMinutes() + (Number(timeAmount) % 60)
-                    );
-                } else {
-                    currentDateTime.setMinutes(
-                        currentDateTime.getMinutes() + Number(timeAmount)
-                    );
-                }
+                currentDateTime.addMinutes(Number(timeAmount));
             } else if (timeArg == 'h') {
-                currentDateTime.setHours(
-                    currentDateTime.getHours() + Number(timeAmount)
-                );
+                currentDateTime.addHours(Number(timeAmount));
             }
+
+            const stringifiedNewTime = JSON.stringify(currentDateTime);
 
             const newDateTimeValue = {
                 $set: {
-                    datetime: currentDateTime,
+                    datetime: stringifiedNewTime,
                 }
             };
 
-            logTimes[characterTime.characterName] = currentDateTime;
-            await mongo.updateOne(database.collections.time, { characterName: characterTime.characterName }, newDateTimeValue);
+            logTimes[characterName] = stringifiedNewTime;
+            await mongo.updateOne(database.collections.time, { characterName: characterName }, newDateTimeValue);
         }
 
         //log
-        discordClient.emit('sessionLog', 'setTime', [characterNames, logTimes]);
+        discordClient.emit('sessionLog', 'setTime', [logTimes]);
     },
 };

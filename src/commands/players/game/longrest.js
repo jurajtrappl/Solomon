@@ -1,5 +1,7 @@
+const { createGameDate, gameDateDifference } = require('../../../calendar/gameDate');
 const { dmID } = require('../../../../auth.json');
 const { database } = require('../../../../settings.json');
+const { hoursInDay, minutesInHour } = require('../../../calendar/calendar.json');
 const { NotFoundError, searchingObjType } = require('../../../err/errors');
 
 module.exports = {
@@ -14,13 +16,6 @@ module.exports = {
         '👎': false
     },
     REACTION_WAIT_TIME: 12000,
-    MS_PER_HOUR: 36e5,
-    dateDiffInHours: (firstDate, secondDate) => {
-        const timeOne = Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate());
-        const timeTwo = Date.UTC(secondDate.getFullYear(), secondDate.getMonth(), secondDate.getDate());
-
-        return Math.floor((timeTwo - timeOne) / this.MS_PER_HOUR);
-    },
     hoursReactions: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'],
     async execute(message, _args, mongo, discordClient) {
         //get character name
@@ -48,16 +43,19 @@ module.exports = {
             throw new NotFoundError(searchingObjType.sheet, characterName);
         }
 
-        const lastLongRest = new Date(time.lastLongRest);
-        const currentTime = new Date(time.datetime);
+        const lastLongRest = createGameDate(time.lastLongRest);
+        const currentTime = createGameDate(time.datetime);
 
         let isContinue = true; /* default */
 
-        const isAtleastOneDayAfterLastLongRest = this.dateDiffInHours(lastLongRest, currentTime) >= (24 - longRestLength.content[sheet.race]);
+        const minutesPassedFromPreviousRest = gameDateDifference(lastLongRest, currentTime);
+        const minutesTillNextRest = (hoursInDay - longRestLength.content[sheet.race]) * minutesInHour;
+        const isAtleastOneDayAfterLastLongRest = minutesPassedFromPreviousRest >= minutesTillNextRest;
+        
         if (!isAtleastOneDayAfterLastLongRest) {
-            let benefitableTime = new Date(lastLongRest);
-            benefitableTime.setHours(benefitableTime.getHours() + (24 - longRestLength.content[sheet.race]));
-            const botMessage = await message.reply(`you can not benefit from long rest until ${benefitableTime.toLocaleString()}. Do you still wish to do a long rest?`);
+            let benefitableTime = createGameDate(time.lastLongRest);
+            benefitableTime.addMinutes(minutesTillNextRest);
+            const botMessage = await message.reply(`you can not benefit from long rest until ${benefitableTime.formattedDateTime()}. Do you still wish to do a long rest?`);
 
             for (let reaction of Object.keys(this.yesNoReactions)) {
                 await botMessage.react(reaction);
@@ -123,7 +121,7 @@ module.exports = {
             });
 
         let hours = 0; /* default */
-        let newCurrentTime = new Date(currentTime);
+        const newCurrentTime = createGameDate(time.datetime);
         if (!wasSuccessful) {
             await message.channel.send(`After how many hours did ${characterName} wake up?`)
                 .then(async message => {
@@ -140,10 +138,10 @@ module.exports = {
                         });
                 });
 
-            newCurrentTime.setHours(newCurrentTime.getHours() + hours);
+            newCurrentTime.addHours(hours);
         } else {
             hours = longRestLength.content[sheet.race];
-            newCurrentTime.setHours(newCurrentTime.getHours() + hours);
+            newCurrentTime.addHours(hours);
 
             const isBenefitable = isAtleastOneDayAfterLastLongRest && isEnoughHP;
 
@@ -180,10 +178,10 @@ module.exports = {
         }
 
         //update time
-        let newTimeValues = {
+        const newTimeValues = {
             $set: {
-                lastLongRest: currentTime,
-                datetime: newCurrentTime
+                lastLongRest: JSON.stringify(currentTime),
+                datetime: JSON.stringify(newCurrentTime)
             }
         };
 
